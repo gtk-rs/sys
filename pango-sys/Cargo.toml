@@ -19,6 +19,12 @@ name = "pango_sys"
 
 [package]
 build = "build.rs"
+description = "FFI bindings to pango"
+documentation = "http://gtk-rs.org/docs/pango_sys"
+homepage = "http://gtk-rs.org/"
+keywords = ["pango", "ffi", "gtk-rs", "gnome"]
+license = "MIT"
 links = "pango"
 name = "pango-sys"
+repository = "https://github.com/gtk-rs/sys"
 version = "0.2.0"

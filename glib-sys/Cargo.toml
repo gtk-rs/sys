@@ -11,6 +11,12 @@ name = "glib_sys"
 
 [package]
 build = "build.rs"
+description = "FFI bindings to glib"
+documentation = "http://gtk-rs.org/docs/glib_sys"
+homepage = "http://gtk-rs.org/"
+keywords = ["glib", "ffi", "gtk-rs", "gnome"]
+license = "MIT"
 links = "glib"
 name = "glib-sys"
+repository = "https://github.com/gtk-rs/sys"
 version = "0.2.0"

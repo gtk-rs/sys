@@ -19,6 +19,12 @@ name = "atk_sys"
 
 [package]
 build = "build.rs"
+description = "FFI bindings to atk"
+documentation = "http://gtk-rs.org/docs/atk_sys"
+homepage = "http://gtk-rs.org/"
+keywords = ["atk", "ffi", "gtk-rs", "gnome"]
+license = "MIT"
 links = "atk"
 name = "atk-sys"
+repository = "https://github.com/gtk-rs/sys"
 version = "0.2.0"

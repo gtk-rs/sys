@@ -23,6 +23,12 @@ name = "gdk_pixbuf_sys"
 
 [package]
 build = "build.rs"
+description = "FFI bindings to gdk-pixbuf"
+documentation = "http://gtk-rs.org/docs/gdk_pixbuf_sys"
+homepage = "http://gtk-rs.org/"
+keywords = ["gdk-pixbuf", "ffi", "gtk-rs", "gnome"]
+license = "MIT"
 links = "gdk_pixbuf"
 name = "gdk-pixbuf-sys"
+repository = "https://github.com/gtk-rs/sys"
 version = "0.2.0"

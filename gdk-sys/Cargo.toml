@@ -34,6 +34,12 @@ name = "gdk_sys"
 
 [package]
 build = "build.rs"
+description = "FFI bindings to gdk"
+documentation = "http://gtk-rs.org/docs/gdk_sys"
+homepage = "http://gtk-rs.org/"
+keywords = ["gdk", "ffi", "gtk-rs", "gnome"]
+license = "MIT"
 links = "gdk"
 name = "gdk-sys"
+repository = "https://github.com/gtk-rs/sys"
 version = "0.2.0"
