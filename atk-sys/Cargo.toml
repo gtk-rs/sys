@@ -1,23 +1,17 @@
-
 [build-dependencies]
 pkg-config = "0.3.5"
 
 [dependencies]
 bitflags = "0.3"
 libc = "0.1"
-
-[dependencies.glib-sys]
-path = "../glib-sys"
-version = "0.2.0"
-
-[dependencies.gobject-sys]
-path = "../gobject-sys"
-version = "0.2.0"
+glib-sys = "0.2.0"
+gobject-sys = "0.2.0"
 
 [lib]
 name = "atk_sys"
 
 [package]
+authors = ["The Gtk-rs Project Developers"]
 build = "build.rs"
 description = "FFI bindings to atk"
 documentation = "http://gtk-rs.org/docs/atk_sys"
