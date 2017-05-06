@@ -2,9 +2,9 @@
 pkg-config = "0.3.7"
 
 [dependencies]
-bitflags = "0.4"
+bitflags = "0.8"
 libc = "0.2"
-glib-sys = "^0.3.3"
+glib-sys = "^0.3.4"
 
 [features]
 v2_34 = []
@@ -27,4 +27,4 @@ license = "MIT"
 links = "gobject"
 name = "gobject-sys"
 repository = "https://github.com/gtk-rs/sys"
-version = "0.3.3"
+version = "0.3.4"
