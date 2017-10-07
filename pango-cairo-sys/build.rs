@@ -14,30 +14,10 @@ fn main() {
 }
 
 fn find() -> Result<(), Error> {
-    let package_name = "gtk+-3.0";
-    let shared_libs = ["gtk-3", "gdk-3"];
-    let version = if cfg!(feature = "v3_22_6") {
-        "3.22.6"
-    } else if cfg!(feature = "v3_22") {
-        "3.22"
-    } else if cfg!(feature = "v3_20") {
-        "3.20"
-    } else if cfg!(feature = "v3_18") {
-        "3.18"
-    } else if cfg!(feature = "v3_16") {
-        "3.16"
-    } else if cfg!(feature = "v3_14") {
-        "3.14"
-    } else if cfg!(feature = "v3_12") {
-        "3.12"
-    } else if cfg!(feature = "v3_10") {
-        "3.10"
-    } else if cfg!(feature = "v3_8") {
-        "3.8"
-    } else if cfg!(feature = "v3_6") {
-        "3.6"
-    } else {
-        "3.4"
+    let package_name = "pangocairo";
+    let shared_libs = ["pango-1.0", "pangocairo-1.0", "pango-1.0", "pangoft2-1.0"];
+    let version = {
+        "1.30"
     };
 
     if let Ok(lib_dir) = env::var("GTK_LIB_DIR") {
