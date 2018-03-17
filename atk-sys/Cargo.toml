@@ -2,8 +2,8 @@
 pkg-config = "0.3.7"
 
 [dependencies]
-gobject-sys = "0.5.0"
-glib-sys = "0.5.0"
+gobject-sys = "0.6.0"
+glib-sys = "0.6.0"
 libc = "0.2"
 bitflags = "1.0"
 
@@ -31,4 +31,4 @@ license = "MIT"
 links = "atk"
 name = "atk-sys"
 repository = "https://github.com/gtk-rs/sys"
-version = "0.5.0"
+version = "0.6.0"

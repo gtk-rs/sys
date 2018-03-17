@@ -2,12 +2,12 @@
 pkg-config = "0.3.7"
 
 [dependencies]
-gobject-sys = "0.5.0"
-gio-sys = "0.5.0"
-cairo-sys-rs = "0.5.0"
-glib-sys = "0.5.0"
-pango-sys = "0.5.0"
-gdk-pixbuf-sys = "0.5.0"
+gobject-sys = "0.6.0"
+gio-sys = "0.6.0"
+cairo-sys-rs = "0.6.0"
+glib-sys = "0.6.0"
+pango-sys = "0.6.0"
+gdk-pixbuf-sys = "0.6.0"
 libc = "0.2"
 bitflags = "1.0"
 
@@ -33,7 +33,7 @@ homepage = "http://gtk-rs.org/"
 links = "gdk"
 authors = ["The Gtk-rs Project Developers"]
 description = "FFI bindings to libgdk-3"
-version = "0.5.0"
+version = "0.6.0"
 keywords = ["gdk", "ffi", "gtk-rs", "gnome"]
 repository = "https://github.com/gtk-rs/sys"
 build = "build.rs"
