@@ -14,6 +14,14 @@ external_libraries = [
    "Cairo",
 ]
 
-ignore = [
+manual = [
    "xlib.Window",
+]
+
+ignore = [
+	"Gtk.BINARY_AGE",
+	"Gtk.INTERFACE_AGE",
+	"Gtk.MAJOR_VERSION",
+	"Gtk.MICRO_VERSION",
+	"Gtk.MINOR_VERSION",
 ]
