@@ -17,7 +17,7 @@ fn find() -> Result<(), Error> {
     let package_name = "gmime-3.0";
     let shared_libs = ["gmime-3.0"];
     let version = {
-        "2.4"
+        "2.26"
     };
 
     if let Ok(lib_dir) = env::var("GTK_LIB_DIR") {
