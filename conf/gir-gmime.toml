@@ -9,3 +9,24 @@ external_libraries = [
    "GObject",
    "Gio",
 ]
+
+
+[[object]]
+name = "GMime._GMimeFilterGZipPrivate"
+status = "manual"
+
+[[object]]
+name = "GMime._GMimeParserPrivate"
+status = "manual"
+
+[[object]]
+name = "GMime._GMimeStreamFilterPrivate"
+status = "manual"
+
+[[object]]
+name = "GMime._GMimeFilterPrivate"
+status = "manual"
+
+[[object]]
+name = "GMime._UrlScanner"
+status = "manual"
