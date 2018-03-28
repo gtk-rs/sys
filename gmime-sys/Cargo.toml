@@ -4,6 +4,8 @@ pkg-config = "0.3.7"
 [dependencies]
 bitflags = "1.0"
 libc = "0.2"
+iconv = { git = 'https://github.com/y-stm/rust-iconv' }
+
 
 [dependencies.gio-sys]
 path = "../gio-sys"

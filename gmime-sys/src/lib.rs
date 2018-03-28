@@ -6,6 +6,10 @@
 
 extern crate libc;
 #[macro_use] extern crate bitflags;
+
+mod manual;
+pub use manual::*;
+
 extern crate glib_sys as glib;
 extern crate gobject_sys as gobject;
 extern crate gio_sys as gio;
@@ -14,6 +18,10 @@ extern crate gio_sys as gio;
 use libc::{c_int, c_char, c_uchar, c_float, c_uint, c_double,
     c_short, c_ushort, c_long, c_ulong,
     c_void, size_t, ssize_t, intptr_t, uintptr_t, time_t, FILE};
+
+
+#[allow(non_camel_case_types)]
+type iconv_t = *mut c_void;
 
 #[allow(unused_imports)]
 use glib::{gboolean, gconstpointer, gpointer, GType, Volatile};
