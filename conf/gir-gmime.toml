@@ -1,0 +1,32 @@
+
+[options]
+work_mode = "sys"
+library = "GMime"
+version = "3.0"
+min_cfg_version = "2.26"
+external_libraries = [
+   "GLib",
+   "GObject",
+   "Gio",
+]
+
+
+[[object]]
+name = "GMime._GMimeFilterGZipPrivate"
+status = "manual"
+
+[[object]]
+name = "GMime._GMimeParserPrivate"
+status = "manual"
+
+[[object]]
+name = "GMime._GMimeStreamFilterPrivate"
+status = "manual"
+
+[[object]]
+name = "GMime._GMimeFilterPrivate"
+status = "manual"
+
+[[object]]
+name = "GMime._UrlScanner"
+status = "manual"
