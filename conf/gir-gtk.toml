@@ -25,3 +25,16 @@ ignore = [
 	"Gtk.MICRO_VERSION",
 	"Gtk.MINOR_VERSION",
 ]
+
+
+[[object]]
+name = "Gtk.IconTheme"
+status = "generate"
+    [[object.function]]
+    pattern = "(get|set)_search_path"
+    # incorrect GIR due to gobject-introspection GitLab issue #189
+    ignore = true
+    [[object.function]]
+    pattern = "choose_icon.*"
+    # incorrect GIR due to gobject-introspection GitLab issue #189
+    ignore = true

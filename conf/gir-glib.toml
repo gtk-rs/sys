@@ -127,6 +127,14 @@ status = "generate"
     is_windows_utf8 = true
 
 [[object]]
+name = "GLib.KeyFile"
+status = "generate"
+    [[object.function]]
+    pattern = "set_.*_list"
+    # incorrect GIR due to gobject-introspection GitLab issue #189
+    ignore = true
+
+[[object]]
 name = "GLib.Pid"
 status = "manual"
 

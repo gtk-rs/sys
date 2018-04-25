@@ -7,6 +7,10 @@
 extern crate libc;
 extern crate glib_sys as glib;
 
+mod manual;
+
+pub use manual::*;
+
 #[allow(unused_imports)]
 use libc::{c_int, c_char, c_uchar, c_float, c_uint, c_double,
     c_short, c_ushort, c_long, c_ulong,
@@ -1563,8 +1567,6 @@ extern "C" {
     pub fn g_object_get_type() -> GType;
     pub fn g_object_new(object_type: GType, first_property_name: *const c_char, ...) -> *mut GObject;
     //pub fn g_object_new_valist(object_type: GType, first_property_name: *const c_char, var_args: /*Unimplemented*/va_list) -> *mut GObject;
-    #[cfg(any(feature = "v2_54", feature = "dox"))]
-    pub fn g_object_new_with_properties(object_type: GType, n_properties: c_uint, names: *mut c_char, values: GValue) -> *mut GObject;
     pub fn g_object_newv(object_type: GType, n_parameters: c_uint, parameters: *mut GParameter) -> *mut GObject;
     pub fn g_object_compat_control(what: size_t, data: gpointer) -> size_t;
     pub fn g_object_interface_find_property(g_iface: gpointer, property_name: *const c_char) -> *mut GParamSpec;
@@ -1588,8 +1590,6 @@ extern "C" {
     pub fn g_object_get_property(object: *mut GObject, property_name: *const c_char, value: *mut GValue);
     pub fn g_object_get_qdata(object: *mut GObject, quark: glib::GQuark) -> gpointer;
     //pub fn g_object_get_valist(object: *mut GObject, first_property_name: *const c_char, var_args: /*Unimplemented*/va_list);
-    #[cfg(any(feature = "v2_54", feature = "dox"))]
-    pub fn g_object_getv(object: *mut GObject, n_properties: c_uint, names: *mut c_char, values: GValue);
     pub fn g_object_is_floating(object: *mut GObject) -> gboolean;
     pub fn g_object_notify(object: *mut GObject, property_name: *const c_char);
     pub fn g_object_notify_by_pspec(object: *mut GObject, pspec: *mut GParamSpec);
@@ -1609,8 +1609,6 @@ extern "C" {
     pub fn g_object_set_qdata(object: *mut GObject, quark: glib::GQuark, data: gpointer);
     pub fn g_object_set_qdata_full(object: *mut GObject, quark: glib::GQuark, data: gpointer, destroy: glib::GDestroyNotify);
     //pub fn g_object_set_valist(object: *mut GObject, first_property_name: *const c_char, var_args: /*Unimplemented*/va_list);
-    #[cfg(any(feature = "v2_54", feature = "dox"))]
-    pub fn g_object_setv(object: *mut GObject, n_properties: c_uint, names: *mut c_char, values: GValue);
     pub fn g_object_steal_data(object: *mut GObject, key: *const c_char) -> gpointer;
     pub fn g_object_steal_qdata(object: *mut GObject, quark: glib::GQuark) -> gpointer;
     pub fn g_object_thaw_notify(object: *mut GObject);
