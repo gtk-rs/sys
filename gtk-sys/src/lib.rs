@@ -16278,12 +16278,8 @@ extern "C" {
     #[cfg(any(feature = "v3_14", feature = "dox"))]
     pub fn gtk_icon_theme_add_resource_path(icon_theme: *mut GtkIconTheme, path: *const c_char);
     pub fn gtk_icon_theme_append_search_path(icon_theme: *mut GtkIconTheme, path: *mut c_char);
-    pub fn gtk_icon_theme_choose_icon(icon_theme: *mut GtkIconTheme, icon_names: *mut c_char, size: c_int, flags: GtkIconLookupFlags) -> *mut GtkIconInfo;
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
-    pub fn gtk_icon_theme_choose_icon_for_scale(icon_theme: *mut GtkIconTheme, icon_names: *mut c_char, size: c_int, scale: c_int, flags: GtkIconLookupFlags) -> *mut GtkIconInfo;
     pub fn gtk_icon_theme_get_example_icon_name(icon_theme: *mut GtkIconTheme) -> *mut c_char;
     pub fn gtk_icon_theme_get_icon_sizes(icon_theme: *mut GtkIconTheme, icon_name: *const c_char) -> *mut c_int;
-    pub fn gtk_icon_theme_get_search_path(icon_theme: *mut GtkIconTheme, path: *mut *mut c_char, n_elements: *mut c_int);
     pub fn gtk_icon_theme_has_icon(icon_theme: *mut GtkIconTheme, icon_name: *const c_char) -> gboolean;
     pub fn gtk_icon_theme_list_contexts(icon_theme: *mut GtkIconTheme) -> *mut glib::GList;
     pub fn gtk_icon_theme_list_icons(icon_theme: *mut GtkIconTheme, context: *const c_char) -> *mut glib::GList;
@@ -16302,7 +16298,6 @@ extern "C" {
     pub fn gtk_icon_theme_rescan_if_needed(icon_theme: *mut GtkIconTheme) -> gboolean;
     pub fn gtk_icon_theme_set_custom_theme(icon_theme: *mut GtkIconTheme, theme_name: *const c_char);
     pub fn gtk_icon_theme_set_screen(icon_theme: *mut GtkIconTheme, screen: *mut gdk::GdkScreen);
-    pub fn gtk_icon_theme_set_search_path(icon_theme: *mut GtkIconTheme, path: *mut c_char, n_elements: c_int);
 
     //=========================================================================
     // GtkIconView

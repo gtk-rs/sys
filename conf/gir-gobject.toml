@@ -11,3 +11,15 @@ ignore = [
    "GObject.VaClosureMarshal",
    "GObject.SignalCVaMarshaller",
 ]
+
+[[object]]
+name = "GObject.Object"
+status = "generate"
+    [[object.function]]
+    pattern = "(get|set)v"
+    # incorrect GIR due to gobject-introspection GitLab issue #189
+    ignore = true
+    [[object.function]]
+    name = "new_with_properties"
+    # incorrect GIR due to gobject-introspection GitLab issue #189
+    ignore = true
