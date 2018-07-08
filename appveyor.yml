@@ -2,14 +2,16 @@ environment:
   matrix:
     - RUST: stable
       BITS: 32
+      TARGET: pc-windows-gnu
     - RUST: stable
       BITS: 64
+      TARGET: pc-windows-gnu
 
 install:
   - IF "%BITS%" == "32" SET ARCH=i686
   - IF "%BITS%" == "64" SET ARCH=x86_64
-  - curl -sSf -o rustup-init.exe https://win.rustup.rs
-  - rustup-init.exe --default-host "%ARCH%-pc-windows-gnu" --default-toolchain %RUST% -y
+  - appveyor DownloadFile https://win.rustup.rs/ -FileName rustup-init.exe
+  - rustup-init -yv --default-toolchain %RUST% --default-host %ARCH%-%TARGET%
   - SET PATH=C:\Users\appveyor\.cargo\bin;C:\msys64\mingw%BITS%\bin;%PATH%;C:\msys64\usr\bin
   - rustc -Vv
   - cargo -Vv
