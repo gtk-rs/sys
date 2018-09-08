@@ -3,7 +3,6 @@ pkg-config = "0.3.7"
 
 [dependencies]
 libc = "0.2"
-
 cairo-sys-rs = { git = "https://github.com/gtk-rs/cairo"}
 glib-sys = { path = "../glib-sys"}
 pango-sys = { path = "../pango-sys"}
@@ -28,4 +27,4 @@ license = "MIT"
 links = "pango_cairo"
 name = "pangocairo-sys"
 repository = "https://github.com/gtk-rs/sys"
-version = "0.7.0"
+version = "0.8.0"
