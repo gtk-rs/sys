@@ -3,7 +3,6 @@ pkg-config = "0.3.7"
 
 [dependencies]
 libc = "0.2"
-
 cairo-sys-rs = { git = "https://github.com/gtk-rs/cairo" }
 gdk-pixbuf-sys = { path = "../gdk-pixbuf-sys" }
 gio-sys = { path = "../gio-sys" }
@@ -40,4 +39,4 @@ license = "MIT"
 links = "gdk"
 name = "gdk-sys"
 repository = "https://github.com/gtk-rs/sys"
-version = "0.6.0"
+version = "0.7.0"

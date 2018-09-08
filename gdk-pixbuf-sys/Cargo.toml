@@ -3,7 +3,6 @@ pkg-config = "0.3.7"
 
 [dependencies]
 libc = "0.2"
-
 gio-sys = { path = "../gio-sys" }
 glib-sys = { path = "../glib-sys" }
 gobject-sys = { path = "../gobject-sys" }
@@ -33,4 +32,4 @@ license = "MIT"
 links = "gdk_pixbuf"
 name = "gdk-pixbuf-sys"
 repository = "https://github.com/gtk-rs/sys"
-version = "0.6.0"
+version = "0.7.0"
