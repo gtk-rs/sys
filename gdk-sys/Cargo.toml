@@ -1,14 +1,13 @@
-
 [build-dependencies]
 pkg-config = "0.3.7"
 
 [dependencies]
-cairo-sys-rs = "0.6.0"
-gdk-pixbuf-sys = "0.6.0"
-gio-sys = "0.6.0"
-glib-sys = "0.6.0"
-gobject-sys = "0.6.0"
-pango-sys = "0.6.0"
+cairo-sys-rs = "0.7.0"
+gdk-pixbuf-sys = "0.7.0"
+gio-sys = "0.7.0"
+glib-sys = "0.7.0"
+gobject-sys = "0.7.0"
+pango-sys = "0.7.0"
 libc = "0.2"
 
 [dev-dependencies]
@@ -40,4 +39,4 @@ license = "MIT"
 links = "gdk"
 name = "gdk-sys"
 repository = "https://github.com/gtk-rs/sys"
-version = "0.6.0"
+version = "0.7.0"
