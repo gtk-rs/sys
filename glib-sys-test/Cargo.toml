@@ -1,0 +1,14 @@
+[package]
+name = "glib-sys-test"
+version = "0.1.0"
+authors = ["Tomasz Miąsko <tomasz.miasko@gmail.com>"]
+edition = "2018"
+build = "build.rs"
+
+[dependencies]
+glib-sys = { path = "../glib-sys" }
+libc = "0.2"
+
+[build-dependencies]
+ctest = "0.2"
+
