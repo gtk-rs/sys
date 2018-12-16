@@ -25,3 +25,9 @@ regen_check: $(GIR) $(GIR_FILES)
 	rm -f $(TEST_RS_FILES)
 	@$(MAKE) -f $(THIS_FILE) libs
 	git diff -R --exit-code
+
+check:
+	cd glib-sys-test && cargo run
+	cd gobject-sys-test && cargo run
+	cd gio-sys-test && cargo run
+	cd gdk-sys-test && cargo run
