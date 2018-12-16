@@ -11,4 +11,5 @@ libc = "0.2"
 
 [build-dependencies]
 ctest = "0.2"
+shell-words = "0.1.0"
 

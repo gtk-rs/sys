@@ -1,9 +1,25 @@
 extern crate ctest;
+extern crate shell_words;
+
+fn pkg_config_cflags() -> Result<Vec<String>, Box<std::error::Error>> {
+    let mut cmd = std::process::Command::new("pkg-config");
+    cmd.arg("--cflags");
+    cmd.arg("glib-2.0");
+    let out = cmd.output()?;
+    if !out.status.success() {
+        return Err(format!("command {:?} returned {}",
+                           &cmd, out.status).into());
+    }
+    let stdout = std::str::from_utf8(&out.stdout)?;
+    Ok(shell_words::split(stdout.trim())?)
+}
 
 fn main() {
     let mut cfg = ctest::TestGenerator::new();
-    cfg.include("/usr/include/glib-2.0");
-    cfg.include("/usr/lib/x86_64-linux-gnu/glib-2.0/include");
+
+    for flag in pkg_config_cflags().unwrap() {
+        cfg.flag(&flag);
+    }
 
     cfg.header("glib-object.h");
     cfg.header("glib-unix.h");
