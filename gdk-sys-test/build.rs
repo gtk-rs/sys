@@ -39,8 +39,16 @@ fn main() {
         _ => field,
     }.to_string());
 
+    cfg.skip_field(|typ,field| match (typ, field) {
+        // Bit fields:
+        ("GdkEventKey", "is_modifier") => true,
+        ("GdkEventScroll", "is_stop") => true,
+
+        _ => false,
+    });
+
     cfg.skip_struct(|typ| match typ {
-        // // Incomplete types:
+        // Incomplete types:
         "GdkAppLaunchContext" => true,
         "GdkCursor" => true,
         "GdkDevice" => true,
@@ -53,7 +61,6 @@ fn main() {
         "GdkDragContext" => true,
         "GdkDrawingContext" => true,
         "GdkDrawingContextClass" => true,
-        "GdkEvent" => true,
         "GdkEventSequence" => true,
         "GdkFrameClock" => true,
         "GdkFrameClockClass" => true,

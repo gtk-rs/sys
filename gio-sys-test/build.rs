@@ -121,8 +121,7 @@ fn main() {
     });
 
     cfg.skip_struct(move |typ| match typ {
-        // Incomplete types, need manual exclusion since ctype
-        // doesn't understand "pub struct Type(c_void)" pattern:
+        // Incomplete types:
         "GAction" => true,
         "GActionGroup" => true,
         "GActionMap" => true,
