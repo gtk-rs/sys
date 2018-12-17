@@ -2,7 +2,7 @@
 // See the COPYRIGHT file at the top-level directory of this distribution.
 // Licensed under the MIT license, see the LICENSE file or <http://opensource.org/licenses/MIT>
 
-
 pub mod xlib {
-    pub type Window = i32;
+    use libc::c_ulong;
+    pub type Window = c_ulong;
 }
