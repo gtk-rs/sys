@@ -1,11 +1,36 @@
 extern crate ctest;
 extern crate shell_words;
 
-fn pkg_config_cflags() -> Result<Vec<String>, Box<std::error::Error>> {
+
+static UNIX_TYPES: &[&str] = &[
+    "GDesktopAppInfoClass",
+    "GDesktopAppInfoLookupIface",
+    "GDesktopAppLaunchCallback",
+    "GDesktopAppLaunchCallback",
+    "GFileDescriptorBasedIface",
+    "GUnixConnection",
+    "GUnixConnectionClass",
+    "GUnixCredentialsMessage",
+    "GUnixCredentialsMessageClass",
+    "GUnixFDList",
+    "GUnixFDListClass",
+    "GUnixFDMessage",
+    "GUnixFDMessageClass",
+    "GUnixInputStream",
+    "GUnixInputStreamClass",
+    "GUnixOutputStream",
+    "GUnixOutputStreamClass",
+    "GUnixSocketAddress",
+    "GUnixSocketAddressClass",
+];
+
+fn pkg_config_cflags(windows: bool) -> Result<Vec<String>, Box<std::error::Error>> {
     let mut cmd = std::process::Command::new("pkg-config");
     cmd.arg("--cflags");
     cmd.arg("gio-2.0");
-    cmd.arg("gio-unix-2.0");
+    if !windows {
+        cmd.arg("gio-unix-2.0");
+    }
     let out = cmd.output()?;
     if !out.status.success() {
         return Err(format!("command {:?} returned {}",
@@ -16,23 +41,29 @@ fn pkg_config_cflags() -> Result<Vec<String>, Box<std::error::Error>> {
 }
 
 fn main() {
+    let target = std::env::var("TARGET").unwrap();
+    let windows = target.contains("windows");
+
     let mut cfg = ctest::TestGenerator::new();
 
-    for flag in pkg_config_cflags().unwrap() {
+    for flag in pkg_config_cflags(windows).unwrap() {
         cfg.flag(&flag);
     }
 
     cfg.header("gio/gio.h");
     cfg.define("G_SETTINGS_ENABLE_BACKEND", None);
     cfg.header("gio/gsettingsbackend.h");
-    cfg.header("gio/gdesktopappinfo.h");
-    cfg.header("gio/gfiledescriptorbased.h");
-    cfg.header("gio/gunixconnection.h");
-    cfg.header("gio/gunixcredentialsmessage.h");
-    cfg.header("gio/gunixfdmessage.h");
-    cfg.header("gio/gunixinputstream.h");
-    cfg.header("gio/gunixoutputstream.h");
-    cfg.header("gio/gunixsocketaddress.h");
+
+    if !windows {
+        cfg.header("gio/gdesktopappinfo.h");
+        cfg.header("gio/gfiledescriptorbased.h");
+        cfg.header("gio/gunixconnection.h");
+        cfg.header("gio/gunixcredentialsmessage.h");
+        cfg.header("gio/gunixfdmessage.h");
+        cfg.header("gio/gunixinputstream.h");
+        cfg.header("gio/gunixoutputstream.h");
+        cfg.header("gio/gunixsocketaddress.h");
+    }
 
     cfg.skip_const(|_| true);
     cfg.skip_fn(|_| true);
@@ -84,7 +115,12 @@ fn main() {
         _ => field,
     }.to_string());
 
-    cfg.skip_struct(|typ| match typ {
+    cfg.skip_type(move |typ| match typ {
+        t if windows => UNIX_TYPES.contains(&t),
+        _ => false,
+    });
+
+    cfg.skip_struct(move |typ| match typ {
         // Incomplete types, need manual exclusion since ctype
         // doesn't understand "pub struct Type(c_void)" pattern:
         "GAction" => true,
@@ -245,6 +281,8 @@ fn main() {
         "GVolume" => true,
         "GZlibCompressor" => true,
         "GZlibDecompressor" => true,
+
+        t if windows => UNIX_TYPES.contains(&t),
 
         _ => false,
     });
