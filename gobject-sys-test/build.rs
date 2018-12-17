@@ -60,12 +60,12 @@ fn main() {
     }.to_string());
 
     cfg.skip_struct(|typ| match typ {
-        // Incomplete types, need manual exclusion since ctype
-        // doesn't understand "pub struct Type(c_void)" pattern:
+        // Incomplete types:
         "GBinding" => true,
         "GCClosure" => true,
         "GClosure" => true,
         "GParamSpecPool" => true,
+        "GParamSpecString" => true,
         "GTypeCValue" => true,
         "GTypePlugin" => true,
 

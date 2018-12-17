@@ -30,6 +30,7 @@ fn main() {
 
     cfg.header("glib.h");
     cfg.header("glib-object.h");
+    cfg.header("glib/gstdio.h");
     if !windows {
         cfg.header("glib-unix.h");
     }
@@ -86,20 +87,16 @@ fn main() {
     });
 
     cfg.skip_struct(move |typ| match typ {
-        // Incomplete types, need manual exclusion since ctype
-        // doesn't understand "pub struct Type(c_void)" pattern:
+        // Incomplete types:
         "GAsyncQueue" => true,
         "GBookmarkFile" => true,
         "GBytes" => true,
         "GChecksum" => true,
         "GData" => true,
-        "GDate" => true,
         "GDateTime" => true,
         "GDir" => true,
         "GDoubleIEEE754" => true,
-        "GDoubleIEEE754_mpn" => true,
         "GFloatIEEE754" => true,
-        "GFloatIEEE754_mpn" => true,
         "GHashTable" => true,
         "GHmac" => true,
         "GIOChannel" => true,
@@ -130,6 +127,8 @@ fn main() {
         "_GIConv" => true,
 
         // Unnamed types:
+        "GDoubleIEEE754_mpn" => true,
+        "GFloatIEEE754_mpn" => true,
         "GVariantBuilder_u" => true,
         "GVariantBuilder_u_s" => true,
         "GVariantDict_u" => true,
