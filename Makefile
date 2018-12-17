@@ -32,4 +32,5 @@ check:
 	cd gio-sys-test && cargo run
 	cd pango-sys-test && cargo run
 	cd gdk-sys-test && cargo run
+	cd gdk-pixbuf-sys-test && cargo run
 	cd gtk-sys-test && cargo run
