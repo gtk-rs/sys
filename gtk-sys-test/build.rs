@@ -1,6 +1,14 @@
 extern crate ctest;
 extern crate shell_words;
 
+static X11_TYPES: &[&str] = &[
+    "Window",
+    "GtkPlug",
+    "GtkPlugClass",
+    "GtkSocket",
+    "GtkSocketClass",
+];
+
 fn pkg_config_cflags() -> Result<Vec<String>, Box<std::error::Error>> {
     let mut cmd = std::process::Command::new("pkg-config");
     cmd.arg("--cflags");
@@ -15,6 +23,9 @@ fn pkg_config_cflags() -> Result<Vec<String>, Box<std::error::Error>> {
 }
 
 fn main() {
+    let target = std::env::var("TARGET").unwrap();
+    let windows = target.contains("windows");
+
     let mut cfg = ctest::TestGenerator::new();
 
     for flag in pkg_config_cflags().unwrap() {
@@ -22,8 +33,10 @@ fn main() {
     }
 
     cfg.header("gtk/gtk.h");
-    cfg.header("gtk/gtkx.h");
     cfg.header("gtk/gtk-a11y.h");
+    if !windows {
+        cfg.header("gtk/gtkx.h");
+    }
 
     cfg.skip_const(|_| true);
     cfg.skip_fn(|_| true);
@@ -81,7 +94,12 @@ fn main() {
         _ => field,
     }.to_string());
 
-    cfg.skip_struct(|typ| match typ {
+    cfg.skip_type(move |typ| match typ {
+        t if windows => X11_TYPES.contains(&t),
+        _ => false,
+    });
+
+    cfg.skip_struct(move |typ| match typ {
         // Incomplete types:
         "GtkAboutDialogPrivate" => true,
         "GtkAccelGroupPrivate" => true,
@@ -376,6 +394,8 @@ fn main() {
         "GtkBindingArg_d" => true,
         "GtkTextAppearance_u1" => true,
         "GtkTextAttributes_u1" => true,
+
+        t if windows => X11_TYPES.contains(&t),
 
         _ => false,
     });
