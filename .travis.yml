@@ -15,8 +15,8 @@ script:
   - if [ "$TRAVIS_RUST_VERSION" == "nightly" ] && [ "$GTK" == "3.4" ]; then
     make regen_check;
     fi
-  - mkdir .cargo
-  - echo 'paths = ["."]' > .cargo/config
   - git clone -q --depth 50 -b pending https://github.com/gtk-rs/examples _examples
   - cd _examples
+  - mkdir .cargo
+  - echo 'paths = [".."]' > .cargo/config
   - ./build_travis.sh
