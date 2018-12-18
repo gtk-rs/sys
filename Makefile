@@ -8,6 +8,7 @@ GIR_FILES = $(shell ls $(CONFIGS) | xargs -n1 perl -ne '$$name = $$1 if /^librar
 LIBS = $(CONFIGS:conf/gir-%.toml=%-sys/src/lib.rs)
 TEST_C_FILES = $(CONFIGS:conf/gir-%.toml=%-sys/tests/*.c)
 TEST_RS_FILES = $(CONFIGS:conf/gir-%.toml=%-sys/tests/*.rs)
+TEST_CRATES = $(wildcard *-sys-test)
 
 libs : $(LIBS)
 
@@ -27,12 +28,6 @@ regen_check: $(GIR) $(GIR_FILES)
 	git diff -R --exit-code
 
 check:
-	cd glib-sys-test && cargo run
-	cd gobject-sys-test && cargo run
-	cd gio-sys-test && cargo run
-	cd pango-sys-test && cargo run
-	cd pangocairo-sys-test && cargo run
-	cd gdk-sys-test && cargo run
-	cd gdk-pixbuf-sys-test && cargo run
-	cd atk-sys-test && cargo run
-	cd gtk-sys-test && cargo run
+	for crate in $(TEST_CRATES); do \
+	  cargo run -p $$crate; \
+	done

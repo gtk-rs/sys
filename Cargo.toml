@@ -1,0 +1,25 @@
+[workspace]
+members = [
+  "atk-sys",
+  "atk-sys-test",
+  "gdk-pixbuf-sys",
+  "gdk-pixbuf-sys-test",
+  "gdk-sys",
+  "gdk-sys-test",
+  "gio-sys",
+  "gio-sys-test",
+  "glib-sys",
+  "glib-sys-test",
+  "gobject-sys",
+  "gobject-sys-test",
+  "gtk-sys",
+  "gtk-sys-test",
+  "pango-sys",
+  "pango-sys-test",
+  "pangocairo-sys",
+  "pangocairo-sys-test"
+]
+exclude = [
+  "_examples",
+  "gir"
+]
