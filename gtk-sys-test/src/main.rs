@@ -1,4 +1,4 @@
-#![allow(bad_style)]
+#![allow(bad_style, unused_imports)]
 
 extern crate gtk_sys;
 extern crate libc;
