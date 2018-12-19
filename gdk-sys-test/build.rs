@@ -23,7 +23,6 @@ fn main() {
 
     cfg.header("gdk/gdk.h");
 
-    cfg.skip_const(|_| true);
     cfg.skip_fn(|_| true);
     cfg.skip_signededness(|_| true);
 
