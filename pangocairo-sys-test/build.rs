@@ -45,10 +45,6 @@ fn main() {
     });
 
     cfg.skip_struct(|typ| match typ {
-        // Incomplete types:
-        "PangoCairoFont" => true,
-        "PangoCairoFontMap" => true,
-        
         // Not part of public headers (on Debian):
         "PangoCairoFcFontMap" => true,
 

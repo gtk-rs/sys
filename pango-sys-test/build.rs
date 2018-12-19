@@ -53,27 +53,6 @@ fn main() {
     });
 
     cfg.skip_struct(|typ| match typ {
-        // Incomplete types:
-        "PangoAttrIterator" => true,
-        "PangoAttrList" => true,
-        "PangoContext" => true,
-        "PangoContextClass" => true,
-        "PangoCoverage" => true,
-        "PangoFontDescription" => true,
-        "PangoFontsetSimple" => true,
-        "PangoFontsetSimpleClass" => true,
-        "PangoLanguage" => true,
-        "PangoLayout" => true,
-        "PangoLayoutClass" => true,
-        "PangoLayoutIter" => true,
-        "PangoLayoutLine" => true,
-        "PangoLogAttr" => true,
-        "PangoMap" => true,
-        "PangoMapEntry" => true,
-        "PangoRendererPrivate" => true,
-        "PangoScriptIter" => true,
-        "PangoTabArray" => true,
-
         // Removed from pango?
         "PangoScriptForLang" => true,
 

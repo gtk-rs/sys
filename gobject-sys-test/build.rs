@@ -22,6 +22,7 @@ fn main() {
     }
 
     cfg.header("glib-object.h");
+    cfg.header("gobject/gvaluecollector.h");
 
     cfg.skip_const(|_| true);
     cfg.skip_fn(|_| true);
@@ -60,15 +61,6 @@ fn main() {
     }.to_string());
 
     cfg.skip_struct(|typ| match typ {
-        // Incomplete types:
-        "GBinding" => true,
-        "GCClosure" => true,
-        "GClosure" => true,
-        "GParamSpecPool" => true,
-        "GParamSpecString" => true,
-        "GTypeCValue" => true,
-        "GTypePlugin" => true,
-
         // Unnamed types:
         "GValue_data" => true,
         "GWeakRef_priv" => true,

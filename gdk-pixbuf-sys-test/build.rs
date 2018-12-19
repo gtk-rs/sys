@@ -42,14 +42,6 @@ fn main() {
     cfg.skip_type(|typ| typ == "Colorspace");
 
     cfg.skip_struct(|typ| match typ {
-        // Incomplete types:
-        "GdkPixbuf" => true,
-        "GdkPixbufAnimation" => true,
-        "GdkPixbufAnimationIter" => true,
-        "GdkPixbufFormat" => true,
-        "GdkPixbufSimpleAnim" => true,
-        "GdkPixbufSimpleAnimClass" => true,
-
         // Not part of public headers ...
         "GdkPixbufSimpleAnimIter" => true,
 

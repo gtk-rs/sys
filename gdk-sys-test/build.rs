@@ -46,38 +46,6 @@ fn main() {
         _ => false,
     });
 
-    cfg.skip_struct(|typ| match typ {
-        // Incomplete types:
-        "GdkAppLaunchContext" => true,
-        "GdkCursor" => true,
-        "GdkDevice" => true,
-        "GdkDeviceManager" => true,
-        "GdkDevicePad" => true,
-        "GdkDevicePadInterface" => true,
-        "GdkDeviceTool" => true,
-        "GdkDisplay" => true,
-        "GdkDisplayManager" => true,
-        "GdkDragContext" => true,
-        "GdkDrawingContext" => true,
-        "GdkDrawingContextClass" => true,
-        "GdkEventSequence" => true,
-        "GdkFrameClock" => true,
-        "GdkFrameClockClass" => true,
-        "GdkFrameClockPrivate" => true,
-        "GdkFrameTimings" => true,
-        "GdkGLContext" => true,
-        "GdkKeymap" => true,
-        "GdkMonitor" => true,
-        "GdkMonitorClass" => true,
-        "GdkScreen" => true,
-        "GdkVisual" => true,
-        "GdkWindow" => true,
-        "GdkWindowRedirect" => true,
-        "_GdkAtom" => true,
-
-        _ => false,
-    });
-
     cfg.generate("../gdk-sys/src/lib.rs", "all.rs");
 }
 

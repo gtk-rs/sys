@@ -49,25 +49,6 @@ fn main() {
     });
 
     cfg.skip_struct(|typ| match typ {
-        // Incomplete types:
-        "AtkAction" => true,
-        "AtkComponent" => true,
-        "AtkDocument" => true,
-        "AtkEditableText" => true,
-        "AtkHyperlinkImpl" => true,
-        "AtkHypertext" => true,
-        "AtkImage" => true,
-        "AtkImplementor" => true,
-        "AtkImplementorIface" => true,
-        "AtkRange" => true,
-        "AtkSelection" => true,
-        "AtkStreamableContent" => true,
-        "AtkTable" => true,
-        "AtkTableCell" => true,
-        "AtkText" => true,
-        "AtkValue" => true,
-        "AtkWindow" => true,
-
         // Interface was changed upstream
         "AtkComponentIface" => true,
 

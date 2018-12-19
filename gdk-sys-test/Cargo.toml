@@ -11,6 +11,6 @@ gdk-sys = { path = "../gdk-sys" }
 libc = "0.2"
 
 [build-dependencies]
-ctest = "0.2"
+ctest = { git = "https://github.com/tmiasko/gir-ctest", branch = "master" }
 shell-words = "0.1.0"
 
