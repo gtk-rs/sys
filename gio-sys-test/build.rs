@@ -1,7 +1,6 @@
 extern crate ctest;
 extern crate shell_words;
 
-
 static UNIX_TYPES: &[&str] = &[
     "GDesktopAppInfoClass",
     "GDesktopAppInfoLookupIface",
@@ -33,8 +32,7 @@ fn pkg_config_cflags(windows: bool) -> Result<Vec<String>, Box<std::error::Error
     }
     let out = cmd.output()?;
     if !out.status.success() {
-        return Err(format!("command {:?} returned {}",
-                           &cmd, out.status).into());
+        return Err(format!("command {:?} returned {}", &cmd, out.status).into());
     }
     let stdout = std::str::from_utf8(&out.stdout)?;
     Ok(shell_words::split(stdout.trim())?)
@@ -68,13 +66,16 @@ fn main() {
     cfg.skip_fn(|_| true);
     cfg.skip_signededness(|_| true);
 
-    cfg.type_name(|typ, _is_struct, _is_union| match typ {
-        // FIXME in gir:
-        "TlsCertificateRequestFlags" => "GTlsCertificateRequestFlags",
+    cfg.type_name(|typ, _is_struct, _is_union| {
+        match typ {
+            // FIXME in gir:
+            "TlsCertificateRequestFlags" => "GTlsCertificateRequestFlags",
 
-        // Use Foo, instead of struct Foo, etc.
-        _ => typ,
-    }.to_string());
+            // Use Foo, instead of struct Foo, etc.
+            _ => typ,
+        }
+        .to_string()
+    });
 
     cfg.skip_field_type(|typ, field| match (typ, field) {
         // FIXME in gir: const mismatch:
@@ -106,13 +107,16 @@ fn main() {
         _ => false,
     });
 
-    cfg.field_name(|_typ, field| match field {
-        // Unfix rust keywords in field names.
-        "move_" => "move",
-        "priv_" => "priv",
-        "type_" => "type",
-        _ => field,
-    }.to_string());
+    cfg.field_name(|_typ, field| {
+        match field {
+            // Unfix rust keywords in field names.
+            "move_" => "move",
+            "priv_" => "priv",
+            "type_" => "type",
+            _ => field,
+        }
+        .to_string()
+    });
 
     cfg.skip_type(move |typ| match typ {
         t if windows => UNIX_TYPES.contains(&t),

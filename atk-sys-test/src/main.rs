@@ -6,4 +6,3 @@ extern crate libc;
 use atk_sys::*;
 
 include!(concat!(env!("OUT_DIR"), "/all.rs"));
-

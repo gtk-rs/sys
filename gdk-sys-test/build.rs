@@ -7,8 +7,7 @@ fn pkg_config_cflags() -> Result<Vec<String>, Box<std::error::Error>> {
     cmd.arg("gdk-3.0");
     let out = cmd.output()?;
     if !out.status.success() {
-        return Err(format!("command {:?} returned {}",
-                           &cmd, out.status).into());
+        return Err(format!("command {:?} returned {}", &cmd, out.status).into());
     }
     let stdout = std::str::from_utf8(&out.stdout)?;
     Ok(shell_words::split(stdout.trim())?)
@@ -31,14 +30,17 @@ fn main() {
         ty.to_string()
     });
 
-    cfg.field_name(|_typ, field| match field {
-        // Restore original field names:
-        "in_" => "in",
-        "type_" => "type",
-        _ => field,
-    }.to_string());
+    cfg.field_name(|_typ, field| {
+        match field {
+            // Restore original field names:
+            "in_" => "in",
+            "type_" => "type",
+            _ => field,
+        }
+        .to_string()
+    });
 
-    cfg.skip_field(|typ,field| match (typ, field) {
+    cfg.skip_field(|typ, field| match (typ, field) {
         // Bit fields:
         ("GdkEventKey", "is_modifier") => true,
         ("GdkEventScroll", "is_stop") => true,

@@ -7,8 +7,7 @@ fn pkg_config_cflags() -> Result<Vec<String>, Box<std::error::Error>> {
     cmd.arg("pango");
     let out = cmd.output()?;
     if !out.status.success() {
-        return Err(format!("command {:?} returned {}",
-                           &cmd, out.status).into());
+        return Err(format!("command {:?} returned {}", &cmd, out.status).into());
     }
     let stdout = std::str::from_utf8(&out.stdout)?;
     Ok(shell_words::split(stdout.trim())?)
@@ -35,16 +34,19 @@ fn main() {
         ty.to_string()
     });
 
-    cfg.field_name(|_typ, field| match field {
-        // Restore original field names:
-        "priv_" => "priv",
-        "type_" => "type",
-        _ => field,
-    }.to_string());
+    cfg.field_name(|_typ, field| {
+        match field {
+            // Restore original field names:
+            "priv_" => "priv",
+            "type_" => "type",
+            _ => field,
+        }
+        .to_string()
+    });
 
     cfg.skip_type(|typ| typ == "TabAlign");
 
-    cfg.skip_field(|typ,field| match (typ, field) {
+    cfg.skip_field(|typ, field| match (typ, field) {
         // Bit fields:
         ("PangoAttrSize", "absolute") => true,
         ("PangoGlyphVisAttr", "is_cluster_start") => true,

@@ -9,4 +9,3 @@ use glib_sys::gboolean;
 use libc::*;
 
 include!(concat!(env!("OUT_DIR"), "/all.rs"));
-

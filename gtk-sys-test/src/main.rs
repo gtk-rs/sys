@@ -3,9 +3,8 @@
 extern crate gtk_sys;
 extern crate libc;
 
-use libc::*;
-use gtk_sys::*;
 use gtk_sys::xlib::*;
+use gtk_sys::*;
+use libc::*;
 
 include!(concat!(env!("OUT_DIR"), "/all.rs"));
-

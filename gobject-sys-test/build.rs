@@ -7,8 +7,7 @@ fn pkg_config_cflags() -> Result<Vec<String>, Box<std::error::Error>> {
     cmd.arg("gobject-2.0");
     let out = cmd.output()?;
     if !out.status.success() {
-        return Err(format!("command {:?} returned {}",
-                           &cmd, out.status).into());
+        return Err(format!("command {:?} returned {}", &cmd, out.status).into());
     }
     let stdout = std::str::from_utf8(&out.stdout)?;
     Ok(shell_words::split(stdout.trim())?)
@@ -52,12 +51,15 @@ fn main() {
         _ => false,
     });
 
-    cfg.field_name(|_typ, field| match field {
-        // Unfix rust keywords in field names.
-        "priv_" => "priv",
-        "type_" => "type",
-        _ => field,
-    }.to_string());
+    cfg.field_name(|_typ, field| {
+        match field {
+            // Unfix rust keywords in field names.
+            "priv_" => "priv",
+            "type_" => "type",
+            _ => field,
+        }
+        .to_string()
+    });
 
     cfg.skip_struct(|typ| match typ {
         // Unnamed types:

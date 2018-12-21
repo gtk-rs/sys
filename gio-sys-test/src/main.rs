@@ -7,4 +7,3 @@ use gio_sys::*;
 use libc::*;
 
 include!(concat!(env!("OUT_DIR"), "/all.rs"));
-
