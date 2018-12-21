@@ -46,7 +46,7 @@ fn main() {
 
     let mut cfg = ctest::TestGenerator::new();
 
-    for flag in pkg_config_cflags(windows).unwrap() {
+    for flag in pkg_config_cflags(windows).expect("cflags from pkg-config") {
         cfg.flag(&flag);
     }
 
@@ -127,4 +127,3 @@ fn main() {
 
     cfg.generate("../gio-sys/src/lib.rs", "all.rs");
 }
-

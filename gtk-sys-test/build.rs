@@ -28,7 +28,7 @@ fn main() {
 
     let mut cfg = ctest::TestGenerator::new();
 
-    for flag in pkg_config_cflags().unwrap() {
+    for flag in pkg_config_cflags().expect("cflags from pkg-config") {
         cfg.flag(&flag);
     }
 

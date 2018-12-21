@@ -17,7 +17,7 @@ fn pkg_config_cflags() -> Result<Vec<String>, Box<std::error::Error>> {
 fn main() {
     let mut cfg = ctest::TestGenerator::new();
 
-    for flag in pkg_config_cflags().unwrap() {
+    for flag in pkg_config_cflags().expect("cflags from pkg-config") {
         cfg.flag(&flag);
     }
 
@@ -48,4 +48,3 @@ fn main() {
 
     cfg.generate("../gdk-sys/src/lib.rs", "all.rs");
 }
-

@@ -69,4 +69,3 @@ fn find() -> Result<(), Error> {
         Err(err) => Err(err),
     }
 }
-

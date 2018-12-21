@@ -20,7 +20,7 @@ fn main() {
     cfg.define("PANGO_ENABLE_BACKEND", None);
     cfg.define("PANGO_ENABLE_ENGINE", None);
 
-    for flag in pkg_config_cflags().unwrap() {
+    for flag in pkg_config_cflags().expect("cflags from pkg-config") {
         cfg.flag(&flag);
     }
 
@@ -60,4 +60,3 @@ fn main() {
 
     cfg.generate("../pango-sys/src/lib.rs", "all.rs");
 }
-
