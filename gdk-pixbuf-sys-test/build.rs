@@ -24,7 +24,6 @@ fn main() {
     cfg.header("gdk-pixbuf/gdk-pixbuf.h");
     cfg.header("gdk-pixbuf/gdk-pixdata.h");
 
-    cfg.skip_const(|c| c == "GDK_COLORSPACE_RGB");
     cfg.skip_fn(|_| true);
     cfg.skip_signededness(|_| true);
 
@@ -38,8 +37,6 @@ fn main() {
         "priv_" => "priv",
         _ => field,
     }.to_string());
-
-    cfg.skip_type(|typ| typ == "Colorspace");
 
     cfg.skip_struct(|typ| match typ {
         // Not part of public headers ...

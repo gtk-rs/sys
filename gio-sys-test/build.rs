@@ -65,7 +65,6 @@ fn main() {
         cfg.header("gio/gunixsocketaddress.h");
     }
 
-    cfg.skip_const(|_| true);
     cfg.skip_fn(|_| true);
     cfg.skip_signededness(|_| true);
 

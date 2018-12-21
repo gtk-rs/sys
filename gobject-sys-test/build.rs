@@ -24,7 +24,6 @@ fn main() {
     cfg.header("glib-object.h");
     cfg.header("gobject/gvaluecollector.h");
 
-    cfg.skip_const(|_| true);
     cfg.skip_fn(|_| true);
     cfg.skip_signededness(|_| true);
 

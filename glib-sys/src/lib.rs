@@ -686,7 +686,6 @@ pub const G_LITTLE_ENDIAN: c_int = 1234;
 pub const G_LN10: c_double = 2.302585;
 pub const G_LN2: c_double = 0.693147;
 pub const G_LOG_2_BASE_10: c_double = 0.301030;
-pub const G_LOG_DOMAIN: c_char = 0;
 pub const G_LOG_FATAL_MASK: c_int = 5;
 pub const G_LOG_LEVEL_USER_SHIFT: c_int = 8;
 pub const G_OPTION_REMAINING: *const c_char = b"\0" as *const u8 as *const c_char;

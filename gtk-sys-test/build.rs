@@ -38,7 +38,8 @@ fn main() {
         cfg.header("gtk/gtkx.h");
     }
 
-    cfg.skip_const(|_| true);
+    // Removed from gtk.
+    cfg.skip_const(|c| c == "GTK_CELL_RENDERER_ACCEL_MODE_MODIFIER_TAP");
     cfg.skip_fn(|_| true);
     cfg.skip_signededness(|_| true);
 

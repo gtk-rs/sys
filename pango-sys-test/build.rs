@@ -27,7 +27,6 @@ fn main() {
     cfg.header("pango/pango.h");
     cfg.header("pango/pango-modules.h");
 
-    cfg.skip_const(|_| true);
     cfg.skip_fn(|_| true);
     cfg.skip_signededness(|_| true);
 

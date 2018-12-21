@@ -35,7 +35,16 @@ fn main() {
         cfg.header("glib-unix.h");
     }
 
-    cfg.skip_const(|_| true);
+    cfg.skip_const(|c| match c {
+        // GLib header define it on Windows only.
+        "G_WIN32_MSG_HANDLE" => true,
+
+        // GLib uses TRUE and FALSE
+        "GTRUE" => true,
+        "GFALSE" => true,
+
+        _ => false,
+    });
     cfg.skip_fn(|_| true);
     cfg.skip_signededness(|_| true);
 

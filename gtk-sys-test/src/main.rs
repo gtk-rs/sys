@@ -3,6 +3,7 @@
 extern crate gtk_sys;
 extern crate libc;
 
+use libc::*;
 use gtk_sys::*;
 use gtk_sys::xlib::*;
 
