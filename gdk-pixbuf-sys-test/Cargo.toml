@@ -10,5 +10,5 @@ gdk-pixbuf-sys = { path = "../gdk-pixbuf-sys" }
 libc = "0.2"
 
 [build-dependencies]
-ctest = { git = "https://github.com/tmiasko/gir-ctest", branch = "master" }
+ctest = { git = "https://github.com/gtk-rs/gir-ctest", branch = "master" }
 shell-words = "0.1.0"
