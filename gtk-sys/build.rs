@@ -3,6 +3,7 @@
 // DO NOT EDIT
 
 extern crate pkg_config;
+extern crate vcpkg;
 
 use pkg_config::{Config, Error};
 use std::env;
@@ -14,6 +15,12 @@ fn main() {
     if let Err(s) = find() {
         let _ = writeln!(io::stderr(), "{}", s);
         process::exit(1);
+    }
+}
+
+fn print_shared_dylibs(shared_libs: &[&str]) {
+    for lib_ in shared_libs.iter() {
+        println!("cargo:rustc-link-lib=dylib={}", lib_);
     }
 }
 
@@ -54,9 +61,7 @@ fn find() -> Result<(), Error> {
         println!("cargo:include={}", inc_dir);
     }
     if let Ok(lib_dir) = env::var("GTK_LIB_DIR") {
-        for lib_ in shared_libs.iter() {
-            println!("cargo:rustc-link-lib=dylib={}", lib_);
-        }
+        print_shared_dylibs(&shared_libs);
         println!("cargo:rustc-link-search=native={}", lib_dir);
         return Ok(())
     }
@@ -70,29 +75,28 @@ fn find() -> Result<(), Error> {
     if hardcode_shared_libs {
         config.cargo_metadata(false);
     }
-    match config.probe(package_name) {
-        Ok(library) => {
-            if let Ok(paths) = std::env::join_paths(library.include_paths) {
-                println!("cargo:include={}", paths.to_string_lossy());
-            }
-            if hardcode_shared_libs {
-                for lib_ in shared_libs.iter() {
-                    println!("cargo:rustc-link-lib=dylib={}", lib_);
-                }
-                for path in library.link_paths.iter() {
-                    println!("cargo:rustc-link-search=native={}",
-                             path.to_str().expect("library path doesn't exist"));
-                }
-            }
-            Ok(())
+    config.probe(package_name).map(|library| {
+        if let Ok(paths) = std::env::join_paths(library.include_paths) {
+            println!("cargo:include={}", paths.to_string_lossy());
         }
-        Err(Error::EnvNoPkgConfig(_)) | Err(Error::Command { .. }) => {
-            for lib_ in shared_libs.iter() {
-                println!("cargo:rustc-link-lib=dylib={}", lib_);
+        if hardcode_shared_libs {
+            print_shared_dylibs(&shared_libs);
+            for path in library.link_paths.iter() {
+                println!("cargo:rustc-link-search=native={}",
+                    path.to_str().expect("library path doesn't exist"));
             }
-            Ok(())
         }
-        Err(err) => Err(err),
-    }
+    })
+    .or_else(|err1| match vcpkg::Config::new().find_package("gtk") {
+        Ok(_library) => Ok(()),
+        Err(vcpkg::Error::NotMSVC) => Err(err1),
+        Err(err2) => {
+            let _ = writeln!(io::stderr(), "{}", err2);
+            Err(err1)
+        }
+    })
+    .or_else(|err| match err {
+        Error::EnvNoPkgConfig(_) | Error::Command { .. } => Ok(()),
+        _ => Err(err),
+    })
 }
-

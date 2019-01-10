@@ -17,6 +17,12 @@ fn main() {
     }
 }
 
+fn print_shared_dylibs(shared_libs: &[&str]) {
+    for lib_ in shared_libs.iter() {
+        println!("cargo:rustc-link-lib=dylib={}", lib_);
+    }
+}
+
 fn find() -> Result<(), Error> {
     let package_name = "gdk-3.0";
     let shared_libs = ["gdk-3"];
@@ -62,29 +68,20 @@ fn find() -> Result<(), Error> {
     if hardcode_shared_libs {
         config.cargo_metadata(false);
     }
-    match config.probe(package_name) {
-        Ok(library) => {
-            if let Ok(paths) = std::env::join_paths(library.include_paths) {
-                println!("cargo:include={}", paths.to_string_lossy());
-            }
-            if hardcode_shared_libs {
-                for lib_ in shared_libs.iter() {
-                    println!("cargo:rustc-link-lib=dylib={}", lib_);
-                }
-                for path in library.link_paths.iter() {
-                    println!("cargo:rustc-link-search=native={}",
-                             path.to_str().expect("library path doesn't exist"));
-                }
-            }
-            Ok(())
+    config.probe(package_name).map(|library| {
+        if let Ok(paths) = std::env::join_paths(library.include_paths) {
+            println!("cargo:include={}", paths.to_string_lossy());
         }
-        Err(Error::EnvNoPkgConfig(_)) | Err(Error::Command { .. }) => {
-            for lib_ in shared_libs.iter() {
-                println!("cargo:rustc-link-lib=dylib={}", lib_);
+        if hardcode_shared_libs {
+            print_shared_dylibs(&shared_libs);
+            for path in library.link_paths.iter() {
+                println!("cargo:rustc-link-search=native={}",
+                    path.to_str().expect("library path doesn't exist"));
             }
-            Ok(())
         }
-        Err(err) => Err(err),
-    }
+    })
+    .or_else(|err| match err {
+        Error::EnvNoPkgConfig(_) | Error::Command { .. } => Ok(()),
+        _ => Err(err),
+    })
 }
-

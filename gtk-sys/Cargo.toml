@@ -1,5 +1,6 @@
 [build-dependencies]
-pkg-config = "0.3.7"
+pkg-config = "0.3.14"
+vcpkg = "0.2.6"
 
 [dependencies]
 libc = "0.2"
