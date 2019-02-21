@@ -3,7 +3,7 @@
 // DO NOT EDIT
 
 #![allow(non_camel_case_types, non_upper_case_globals, non_snake_case)]
-#![cfg_attr(feature = "cargo-clippy", allow(approx_constant, type_complexity, unreadable_literal))]
+#![allow(clippy::approx_constant, clippy::type_complexity, clippy::unreadable_literal)]
 
 extern crate libc;
 extern crate glib_sys as glib;
@@ -252,9 +252,8 @@ pub const PANGO_STYLE_NORMAL: PangoStyle = 0;
 pub const PANGO_STYLE_OBLIQUE: PangoStyle = 1;
 pub const PANGO_STYLE_ITALIC: PangoStyle = 2;
 
-pub type TabAlign = c_int;
-pub const PANGO_TAB_LEFT: TabAlign = 0;
-pub type PangoTabAlign = TabAlign;
+pub type PangoTabAlign = c_int;
+pub const PANGO_TAB_LEFT: PangoTabAlign = 0;
 
 pub type PangoUnderline = c_int;
 pub const PANGO_UNDERLINE_NONE: PangoUnderline = 0;
@@ -310,6 +309,7 @@ pub const PANGO_FONT_MASK_WEIGHT: PangoFontMask = 8;
 pub const PANGO_FONT_MASK_STRETCH: PangoFontMask = 16;
 pub const PANGO_FONT_MASK_SIZE: PangoFontMask = 32;
 pub const PANGO_FONT_MASK_GRAVITY: PangoFontMask = 64;
+pub const PANGO_FONT_MASK_VARIATIONS: PangoFontMask = 128;
 
 // Callbacks
 pub type PangoAttrDataCopyFunc = Option<unsafe extern "C" fn(gconstpointer) -> gpointer>;
@@ -508,11 +508,11 @@ impl ::std::fmt::Debug for PangoAttrShape {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct PangoAttrSize {
     pub attr: PangoAttribute,
     pub size: c_int,
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field absolute has incomplete type
+    pub absolute: c_uint,
 }
 
 impl ::std::fmt::Debug for PangoAttrSize {
@@ -520,6 +520,7 @@ impl ::std::fmt::Debug for PangoAttrSize {
         f.debug_struct(&format!("PangoAttrSize @ {:?}", self as *const _))
          .field("attr", &self.attr)
          .field("size", &self.size)
+         .field("absolute", &self.absolute)
          .finish()
     }
 }
@@ -883,11 +884,11 @@ impl ::std::fmt::Debug for PangoGlyphGeometry {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct PangoGlyphInfo {
     pub glyph: PangoGlyph,
     pub geometry: PangoGlyphGeometry,
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field attr has incomplete type
+    pub attr: PangoGlyphVisAttr,
 }
 
 impl ::std::fmt::Debug for PangoGlyphInfo {
@@ -895,6 +896,7 @@ impl ::std::fmt::Debug for PangoGlyphInfo {
         f.debug_struct(&format!("PangoGlyphInfo @ {:?}", self as *const _))
          .field("glyph", &self.glyph)
          .field("geometry", &self.geometry)
+         .field("attr", &self.attr)
          .finish()
     }
 }
@@ -963,14 +965,15 @@ impl ::std::fmt::Debug for PangoGlyphString {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct PangoGlyphVisAttr {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field is_cluster_start has incomplete type
+    pub is_cluster_start: c_uint,
 }
 
 impl ::std::fmt::Debug for PangoGlyphVisAttr {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("PangoGlyphVisAttr @ {:?}", self as *const _))
+         .field("is_cluster_start", &self.is_cluster_start)
          .finish()
     }
 }
@@ -1051,8 +1054,9 @@ pub struct PangoLayoutLine {
     pub start_index: c_int,
     pub length: c_int,
     pub runs: *mut glib::GSList,
+    pub is_paragraph_start: c_uint,
     _truncated_record_marker: c_void,
-    // /*Ignored*/field is_paragraph_start has incomplete type
+    // field resolved_dir has incomplete type
 }
 
 impl ::std::fmt::Debug for PangoLayoutLine {
@@ -1062,19 +1066,22 @@ impl ::std::fmt::Debug for PangoLayoutLine {
          .field("start_index", &self.start_index)
          .field("length", &self.length)
          .field("runs", &self.runs)
+         .field("is_paragraph_start", &self.is_paragraph_start)
          .finish()
     }
 }
 
 #[repr(C)]
 pub struct PangoLogAttr {
+    pub is_line_break: c_uint,
     _truncated_record_marker: c_void,
-    // /*Ignored*/field is_line_break has incomplete type
+    // field is_mandatory_break has incomplete type
 }
 
 impl ::std::fmt::Debug for PangoLogAttr {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("PangoLogAttr @ {:?}", self as *const _))
+         .field("is_line_break", &self.is_line_break)
          .finish()
     }
 }
@@ -1190,22 +1197,6 @@ pub struct PangoRendererPrivate(c_void);
 impl ::std::fmt::Debug for PangoRendererPrivate {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("PangoRendererPrivate @ {:?}", self as *const _))
-         .finish()
-    }
-}
-
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub struct PangoScriptForLang {
-    pub lang: [c_char; 7],
-    pub scripts: [PangoScript; 3],
-}
-
-impl ::std::fmt::Debug for PangoScriptForLang {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("PangoScriptForLang @ {:?}", self as *const _))
-         .field("lang", &self.lang)
-         .field("scripts", &self.scripts)
          .finish()
     }
 }
@@ -1593,6 +1584,8 @@ extern "C" {
     pub fn pango_font_description_get_stretch(desc: *const PangoFontDescription) -> PangoStretch;
     pub fn pango_font_description_get_style(desc: *const PangoFontDescription) -> PangoStyle;
     pub fn pango_font_description_get_variant(desc: *const PangoFontDescription) -> PangoVariant;
+    #[cfg(any(feature = "v1_42", feature = "dox"))]
+    pub fn pango_font_description_get_variations(desc: *const PangoFontDescription) -> *const c_char;
     pub fn pango_font_description_get_weight(desc: *const PangoFontDescription) -> PangoWeight;
     pub fn pango_font_description_hash(desc: *const PangoFontDescription) -> c_uint;
     pub fn pango_font_description_merge(desc: *mut PangoFontDescription, desc_to_merge: *const PangoFontDescription, replace_existing: gboolean);
@@ -1605,6 +1598,10 @@ extern "C" {
     pub fn pango_font_description_set_stretch(desc: *mut PangoFontDescription, stretch: PangoStretch);
     pub fn pango_font_description_set_style(desc: *mut PangoFontDescription, style: PangoStyle);
     pub fn pango_font_description_set_variant(desc: *mut PangoFontDescription, variant: PangoVariant);
+    #[cfg(any(feature = "v1_42", feature = "dox"))]
+    pub fn pango_font_description_set_variations(desc: *mut PangoFontDescription, settings: *const c_char);
+    #[cfg(any(feature = "v1_42", feature = "dox"))]
+    pub fn pango_font_description_set_variations_static(desc: *mut PangoFontDescription, settings: *const c_char);
     pub fn pango_font_description_set_weight(desc: *mut PangoFontDescription, weight: PangoWeight);
     pub fn pango_font_description_to_filename(desc: *const PangoFontDescription) -> *mut c_char;
     pub fn pango_font_description_to_string(desc: *const PangoFontDescription) -> *mut c_char;
@@ -1678,7 +1675,7 @@ extern "C" {
     //=========================================================================
     pub fn pango_language_get_type() -> GType;
     pub fn pango_language_get_sample_string(language: *mut PangoLanguage) -> *const c_char;
-    pub fn pango_language_get_scripts(language: *mut PangoLanguage, num_scripts: *mut c_int) -> *mut PangoScript;
+    pub fn pango_language_get_scripts(language: *mut PangoLanguage, num_scripts: *mut c_int) -> *const PangoScript;
     pub fn pango_language_includes_script(language: *mut PangoLanguage, script: PangoScript) -> gboolean;
     pub fn pango_language_matches(language: *mut PangoLanguage, range_list: *const c_char) -> gboolean;
     pub fn pango_language_to_string(language: *mut PangoLanguage) -> *const c_char;
@@ -1774,7 +1771,6 @@ extern "C" {
     //=========================================================================
     pub fn pango_context_get_type() -> GType;
     pub fn pango_context_new() -> *mut PangoContext;
-    #[cfg(any(feature = "v1_32_4", feature = "dox"))]
     pub fn pango_context_changed(context: *mut PangoContext);
     pub fn pango_context_get_base_dir(context: *mut PangoContext) -> PangoDirection;
     pub fn pango_context_get_base_gravity(context: *mut PangoContext) -> PangoGravity;
@@ -1785,7 +1781,6 @@ extern "C" {
     pub fn pango_context_get_language(context: *mut PangoContext) -> *mut PangoLanguage;
     pub fn pango_context_get_matrix(context: *mut PangoContext) -> *const PangoMatrix;
     pub fn pango_context_get_metrics(context: *mut PangoContext, desc: *const PangoFontDescription, language: *mut PangoLanguage) -> *mut PangoFontMetrics;
-    #[cfg(any(feature = "v1_32_4", feature = "dox"))]
     pub fn pango_context_get_serial(context: *mut PangoContext) -> c_uint;
     pub fn pango_context_list_families(context: *mut PangoContext, families: *mut *mut *mut PangoFontFamily, n_families: *mut c_int);
     pub fn pango_context_load_font(context: *mut PangoContext, desc: *const PangoFontDescription) -> *mut PangoFont;
@@ -1847,10 +1842,8 @@ extern "C" {
     // PangoFontMap
     //=========================================================================
     pub fn pango_font_map_get_type() -> GType;
-    #[cfg(any(feature = "v1_34", feature = "dox"))]
     pub fn pango_font_map_changed(fontmap: *mut PangoFontMap);
     pub fn pango_font_map_create_context(fontmap: *mut PangoFontMap) -> *mut PangoContext;
-    #[cfg(any(feature = "v1_32_4", feature = "dox"))]
     pub fn pango_font_map_get_serial(fontmap: *mut PangoFontMap) -> c_uint;
     pub fn pango_font_map_get_shape_engine_type(fontmap: *mut PangoFontMap) -> *const c_char;
     pub fn pango_font_map_list_families(fontmap: *mut PangoFontMap, families: *mut *mut *mut PangoFontFamily, n_families: *mut c_int);
@@ -1900,10 +1893,9 @@ extern "C" {
     pub fn pango_layout_get_lines(layout: *mut PangoLayout) -> *mut glib::GSList;
     pub fn pango_layout_get_lines_readonly(layout: *mut PangoLayout) -> *mut glib::GSList;
     pub fn pango_layout_get_log_attrs(layout: *mut PangoLayout, attrs: *mut *mut PangoLogAttr, n_attrs: *mut c_int);
-    pub fn pango_layout_get_log_attrs_readonly(layout: *mut PangoLayout, n_attrs: *mut c_int) -> *mut PangoLogAttr;
+    pub fn pango_layout_get_log_attrs_readonly(layout: *mut PangoLayout, n_attrs: *mut c_int) -> *const PangoLogAttr;
     pub fn pango_layout_get_pixel_extents(layout: *mut PangoLayout, ink_rect: *mut PangoRectangle, logical_rect: *mut PangoRectangle);
     pub fn pango_layout_get_pixel_size(layout: *mut PangoLayout, width: *mut c_int, height: *mut c_int);
-    #[cfg(any(feature = "v1_32_4", feature = "dox"))]
     pub fn pango_layout_get_serial(layout: *mut PangoLayout) -> c_uint;
     pub fn pango_layout_get_single_paragraph_mode(layout: *mut PangoLayout) -> gboolean;
     pub fn pango_layout_get_size(layout: *mut PangoLayout, width: *mut c_int, height: *mut c_int);
@@ -2003,9 +1995,7 @@ extern "C" {
     pub fn pango_itemize_with_base_dir(context: *mut PangoContext, base_dir: PangoDirection, text: *const c_char, start_index: c_int, length: c_int, attrs: *mut PangoAttrList, cached_iter: *mut PangoAttrIterator) -> *mut glib::GList;
     pub fn pango_log2vis_get_embedding_levels(text: *const c_char, length: c_int, pbase_dir: *mut PangoDirection) -> *mut u8;
     pub fn pango_lookup_aliases(fontname: *const c_char, families: *mut *mut *mut c_char, n_families: *mut c_int);
-    #[cfg(any(feature = "v1_31", feature = "dox"))]
     pub fn pango_markup_parser_finish(context: *mut glib::GMarkupParseContext, attr_list: *mut *mut PangoAttrList, text: *mut *mut c_char, accel_char: *mut u32, error: *mut *mut glib::GError) -> gboolean;
-    #[cfg(any(feature = "v1_31", feature = "dox"))]
     pub fn pango_markup_parser_new(accel_marker: u32) -> *mut glib::GMarkupParseContext;
     pub fn pango_module_register(module: *mut PangoIncludedModule);
     pub fn pango_parse_enum(type_: GType, str: *const c_char, value: *mut c_int, warn: gboolean, possible_values: *mut *mut c_char) -> gboolean;
@@ -2021,7 +2011,6 @@ extern "C" {
     pub fn pango_scan_string(pos: *mut *const c_char, out: *mut glib::GString) -> gboolean;
     pub fn pango_scan_word(pos: *mut *const c_char, out: *mut glib::GString) -> gboolean;
     pub fn pango_shape(text: *const c_char, length: c_int, analysis: *const PangoAnalysis, glyphs: *mut PangoGlyphString);
-    #[cfg(any(feature = "v1_32", feature = "dox"))]
     pub fn pango_shape_full(item_text: *const c_char, item_length: c_int, paragraph_text: *const c_char, paragraph_length: c_int, analysis: *const PangoAnalysis, glyphs: *mut PangoGlyphString);
     pub fn pango_skip_space(pos: *mut *const c_char) -> gboolean;
     pub fn pango_split_file_list(str: *const c_char) -> *mut *mut c_char;

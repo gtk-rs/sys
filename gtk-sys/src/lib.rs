@@ -3,7 +3,7 @@
 // DO NOT EDIT
 
 #![allow(non_camel_case_types, non_upper_case_globals, non_snake_case)]
-#![cfg_attr(feature = "cargo-clippy", allow(approx_constant, type_complexity, unreadable_literal))]
+#![allow(clippy::approx_constant, clippy::type_complexity, clippy::unreadable_literal)]
 
 extern crate libc;
 extern crate glib_sys as glib;
@@ -1063,11 +1063,26 @@ pub const GTK_DIALOG_MODAL: GtkDialogFlags = 1;
 pub const GTK_DIALOG_DESTROY_WITH_PARENT: GtkDialogFlags = 2;
 pub const GTK_DIALOG_USE_HEADER_BAR: GtkDialogFlags = 4;
 
+pub type GtkEventControllerScrollFlags = c_uint;
+pub const GTK_EVENT_CONTROLLER_SCROLL_NONE: GtkEventControllerScrollFlags = 0;
+pub const GTK_EVENT_CONTROLLER_SCROLL_VERTICAL: GtkEventControllerScrollFlags = 1;
+pub const GTK_EVENT_CONTROLLER_SCROLL_HORIZONTAL: GtkEventControllerScrollFlags = 2;
+pub const GTK_EVENT_CONTROLLER_SCROLL_DISCRETE: GtkEventControllerScrollFlags = 4;
+pub const GTK_EVENT_CONTROLLER_SCROLL_KINETIC: GtkEventControllerScrollFlags = 8;
+pub const GTK_EVENT_CONTROLLER_SCROLL_BOTH_AXES: GtkEventControllerScrollFlags = 3;
+
 pub type GtkFileFilterFlags = c_uint;
 pub const GTK_FILE_FILTER_FILENAME: GtkFileFilterFlags = 1;
 pub const GTK_FILE_FILTER_URI: GtkFileFilterFlags = 2;
 pub const GTK_FILE_FILTER_DISPLAY_NAME: GtkFileFilterFlags = 4;
 pub const GTK_FILE_FILTER_MIME_TYPE: GtkFileFilterFlags = 8;
+
+pub type GtkFontChooserLevel = c_uint;
+pub const GTK_FONT_CHOOSER_LEVEL_FAMILY: GtkFontChooserLevel = 0;
+pub const GTK_FONT_CHOOSER_LEVEL_STYLE: GtkFontChooserLevel = 1;
+pub const GTK_FONT_CHOOSER_LEVEL_SIZE: GtkFontChooserLevel = 2;
+pub const GTK_FONT_CHOOSER_LEVEL_VARIATIONS: GtkFontChooserLevel = 4;
+pub const GTK_FONT_CHOOSER_LEVEL_FEATURES: GtkFontChooserLevel = 8;
 
 pub type GtkIconLookupFlags = c_uint;
 pub const GTK_ICON_LOOKUP_NO_SVG: GtkIconLookupFlags = 1;
@@ -1207,7 +1222,7 @@ impl ::std::fmt::Debug for GtkBindingArg_d {
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub union GtkTextAppearance_u1 {
-    pub rgba: [gdk::GdkRGBA; 2],
+    pub rgba: [*mut gdk::GdkRGBA; 2],
     pub padding: [c_uint; 4],
 }
 
@@ -1253,8 +1268,8 @@ pub type GtkClipboardRichTextReceivedFunc = Option<unsafe extern "C" fn(*mut Gtk
 pub type GtkClipboardTargetsReceivedFunc = Option<unsafe extern "C" fn(*mut GtkClipboard, *mut gdk::GdkAtom, c_int, gpointer)>;
 pub type GtkClipboardTextReceivedFunc = Option<unsafe extern "C" fn(*mut GtkClipboard, *const c_char, gpointer)>;
 pub type GtkClipboardURIReceivedFunc = Option<unsafe extern "C" fn(*mut GtkClipboard, *mut *mut c_char, gpointer)>;
-pub type GtkColorSelectionChangePaletteFunc = Option<unsafe extern "C" fn(*mut gdk::GdkColor, c_int)>;
-pub type GtkColorSelectionChangePaletteWithScreenFunc = Option<unsafe extern "C" fn(*mut gdk::GdkScreen, *mut gdk::GdkColor, c_int)>;
+pub type GtkColorSelectionChangePaletteFunc = Option<unsafe extern "C" fn(*const gdk::GdkColor, c_int)>;
+pub type GtkColorSelectionChangePaletteWithScreenFunc = Option<unsafe extern "C" fn(*mut gdk::GdkScreen, *const gdk::GdkColor, c_int)>;
 pub type GtkEntryCompletionMatchFunc = Option<unsafe extern "C" fn(*mut GtkEntryCompletion, *const c_char, *mut GtkTreeIter, gpointer) -> gboolean>;
 pub type GtkFileFilterFunc = Option<unsafe extern "C" fn(*const GtkFileFilterInfo, gpointer) -> gboolean>;
 pub type GtkFlowBoxCreateWidgetFunc = Option<unsafe extern "C" fn(*mut gobject::GObject, gpointer) -> *mut GtkWidget>;
@@ -1279,7 +1294,7 @@ pub type GtkRcPropertyParser = Option<unsafe extern "C" fn(*const gobject::GPara
 pub type GtkRecentFilterFunc = Option<unsafe extern "C" fn(*const GtkRecentFilterInfo, gpointer) -> gboolean>;
 pub type GtkRecentSortFunc = Option<unsafe extern "C" fn(*mut GtkRecentInfo, *mut GtkRecentInfo, gpointer) -> c_int>;
 pub type GtkStylePropertyParser = Option<unsafe extern "C" fn(*const c_char, *mut gobject::GValue, *mut *mut glib::GError) -> gboolean>;
-pub type GtkTextBufferDeserializeFunc = Option<unsafe extern "C" fn(*mut GtkTextBuffer, *mut GtkTextBuffer, *mut GtkTextIter, *mut u8, size_t, gboolean, gpointer, *mut *mut glib::GError) -> gboolean>;
+pub type GtkTextBufferDeserializeFunc = Option<unsafe extern "C" fn(*mut GtkTextBuffer, *mut GtkTextBuffer, *mut GtkTextIter, *const u8, size_t, gboolean, gpointer, *mut *mut glib::GError) -> gboolean>;
 pub type GtkTextBufferSerializeFunc = Option<unsafe extern "C" fn(*mut GtkTextBuffer, *mut GtkTextBuffer, *const GtkTextIter, *const GtkTextIter, *mut size_t, gpointer) -> *mut u8>;
 pub type GtkTextCharPredicate = Option<unsafe extern "C" fn(u32, gpointer) -> gboolean>;
 pub type GtkTextTagTableForeach = Option<unsafe extern "C" fn(*mut GtkTextTag, gpointer)>;
@@ -1301,14 +1316,25 @@ pub type GtkTreeViewSearchPositionFunc = Option<unsafe extern "C" fn(*mut GtkTre
 
 // Records
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkAboutDialogClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkDialogClass,
+    pub activate_link: Option<unsafe extern "C" fn(*mut GtkAboutDialog, *const c_char) -> gboolean>,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved4: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkAboutDialogClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkAboutDialogClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("activate_link", &self.activate_link)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
+         .field("_gtk_reserved4", &self._gtk_reserved4)
          .finish()
     }
 }
@@ -1348,14 +1374,19 @@ impl ::std::fmt::Debug for GtkAccelGroupClass {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkAccelGroupEntry {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field key has incomplete type
+    pub key: GtkAccelKey,
+    pub closure: *mut gobject::GClosure,
+    pub accel_path_quark: glib::GQuark,
 }
 
 impl ::std::fmt::Debug for GtkAccelGroupEntry {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkAccelGroupEntry @ {:?}", self as *const _))
+         .field("key", &self.key)
+         .field("closure", &self.closure)
+         .field("accel_path_quark", &self.accel_path_quark)
          .finish()
     }
 }
@@ -1371,11 +1402,11 @@ impl ::std::fmt::Debug for GtkAccelGroupPrivate {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkAccelKey {
     pub accel_key: c_uint,
     pub accel_mods: gdk::GdkModifierType,
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field accel_flags has incomplete type
+    pub accel_flags: c_uint,
 }
 
 impl ::std::fmt::Debug for GtkAccelKey {
@@ -1383,6 +1414,7 @@ impl ::std::fmt::Debug for GtkAccelKey {
         f.debug_struct(&format!("GtkAccelKey @ {:?}", self as *const _))
          .field("accel_key", &self.accel_key)
          .field("accel_mods", &self.accel_mods)
+         .field("accel_flags", &self.accel_flags)
          .finish()
     }
 }
@@ -1476,14 +1508,22 @@ impl ::std::fmt::Debug for GtkAccessiblePrivate {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkActionBarClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkBinClass,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved4: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkActionBarClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkActionBarClass @ {:?}", self as *const _))
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
+         .field("_gtk_reserved4", &self._gtk_reserved4)
          .finish()
     }
 }
@@ -1677,14 +1717,23 @@ impl ::std::fmt::Debug for GtkAdjustmentPrivate {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkAlignmentClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkBinClass,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved4: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkAlignmentClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkAlignmentClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
+         .field("_gtk_reserved4", &self._gtk_reserved4)
          .finish()
     }
 }
@@ -1700,14 +1749,18 @@ impl ::std::fmt::Debug for GtkAlignmentPrivate {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkAppChooserButtonClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkComboBoxClass,
+    pub custom_item_activated: Option<unsafe extern "C" fn(*mut GtkAppChooserButton, *const c_char)>,
+    pub padding: [gpointer; 16],
 }
 
 impl ::std::fmt::Debug for GtkAppChooserButtonClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkAppChooserButtonClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("custom_item_activated", &self.custom_item_activated)
          .finish()
     }
 }
@@ -1723,14 +1776,16 @@ impl ::std::fmt::Debug for GtkAppChooserButtonPrivate {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkAppChooserDialogClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkDialogClass,
+    pub padding: [gpointer; 16],
 }
 
 impl ::std::fmt::Debug for GtkAppChooserDialogClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkAppChooserDialogClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
          .finish()
     }
 }
@@ -1746,14 +1801,22 @@ impl ::std::fmt::Debug for GtkAppChooserDialogPrivate {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkAppChooserWidgetClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkBoxClass,
+    pub application_selected: Option<unsafe extern "C" fn(*mut GtkAppChooserWidget, *mut gio::GAppInfo)>,
+    pub application_activated: Option<unsafe extern "C" fn(*mut GtkAppChooserWidget, *mut gio::GAppInfo)>,
+    pub populate_popup: Option<unsafe extern "C" fn(*mut GtkAppChooserWidget, *mut GtkMenu, *mut gio::GAppInfo)>,
+    pub padding: [gpointer; 16],
 }
 
 impl ::std::fmt::Debug for GtkAppChooserWidgetClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkAppChooserWidgetClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("application_selected", &self.application_selected)
+         .field("application_activated", &self.application_activated)
+         .field("populate_popup", &self.populate_popup)
          .finish()
     }
 }
@@ -1798,14 +1861,16 @@ impl ::std::fmt::Debug for GtkApplicationPrivate {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkApplicationWindowClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkWindowClass,
+    pub padding: [gpointer; 14],
 }
 
 impl ::std::fmt::Debug for GtkApplicationWindowClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkApplicationWindowClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
          .finish()
     }
 }
@@ -1877,14 +1942,23 @@ impl ::std::fmt::Debug for GtkArrowPrivate {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkAspectFrameClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkFrameClass,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved4: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkAspectFrameClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkAspectFrameClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
+         .field("_gtk_reserved4", &self._gtk_reserved4)
          .finish()
     }
 }
@@ -1900,14 +1974,33 @@ impl ::std::fmt::Debug for GtkAspectFramePrivate {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkAssistantClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkWindowClass,
+    pub prepare: Option<unsafe extern "C" fn(*mut GtkAssistant, *mut GtkWidget)>,
+    pub apply: Option<unsafe extern "C" fn(*mut GtkAssistant)>,
+    pub close: Option<unsafe extern "C" fn(*mut GtkAssistant)>,
+    pub cancel: Option<unsafe extern "C" fn(*mut GtkAssistant)>,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved4: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved5: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkAssistantClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkAssistantClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("prepare", &self.prepare)
+         .field("apply", &self.apply)
+         .field("close", &self.close)
+         .field("cancel", &self.cancel)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
+         .field("_gtk_reserved4", &self._gtk_reserved4)
+         .field("_gtk_reserved5", &self._gtk_reserved5)
          .finish()
     }
 }
@@ -1923,14 +2016,23 @@ impl ::std::fmt::Debug for GtkAssistantPrivate {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkBinClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkContainerClass,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved4: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkBinClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkBinClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
+         .field("_gtk_reserved4", &self._gtk_reserved4)
          .finish()
     }
 }
@@ -1966,8 +2068,9 @@ pub struct GtkBindingEntry {
     pub keyval: c_uint,
     pub modifiers: gdk::GdkModifierType,
     pub binding_set: *mut GtkBindingSet,
+    pub destroyed: c_uint,
     _truncated_record_marker: c_void,
-    // /*Ignored*/field destroyed has incomplete type
+    // field in_emission has incomplete type
 }
 
 impl ::std::fmt::Debug for GtkBindingEntry {
@@ -1976,11 +2079,13 @@ impl ::std::fmt::Debug for GtkBindingEntry {
          .field("keyval", &self.keyval)
          .field("modifiers", &self.modifiers)
          .field("binding_set", &self.binding_set)
+         .field("destroyed", &self.destroyed)
          .finish()
     }
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkBindingSet {
     pub set_name: *mut c_char,
     pub priority: c_int,
@@ -1989,8 +2094,7 @@ pub struct GtkBindingSet {
     pub class_branch_pspecs: *mut glib::GSList,
     pub entries: *mut GtkBindingEntry,
     pub current: *mut GtkBindingEntry,
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parsed has incomplete type
+    pub parsed: c_uint,
 }
 
 impl ::std::fmt::Debug for GtkBindingSet {
@@ -2003,6 +2107,7 @@ impl ::std::fmt::Debug for GtkBindingSet {
          .field("class_branch_pspecs", &self.class_branch_pspecs)
          .field("entries", &self.entries)
          .field("current", &self.current)
+         .field("parsed", &self.parsed)
          .finish()
     }
 }
@@ -2072,14 +2177,23 @@ impl ::std::fmt::Debug for GtkBorder {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkBoxClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkContainerClass,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved4: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkBoxClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkBoxClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
+         .field("_gtk_reserved4", &self._gtk_reserved4)
          .finish()
     }
 }
@@ -2195,14 +2309,23 @@ impl ::std::fmt::Debug for GtkButtonAccessiblePrivate {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkButtonBoxClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkBoxClass,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved4: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkButtonBoxClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkButtonBoxClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
+         .field("_gtk_reserved4", &self._gtk_reserved4)
          .finish()
     }
 }
@@ -2218,14 +2341,35 @@ impl ::std::fmt::Debug for GtkButtonBoxPrivate {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkButtonClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkBinClass,
+    pub pressed: Option<unsafe extern "C" fn(*mut GtkButton)>,
+    pub released: Option<unsafe extern "C" fn(*mut GtkButton)>,
+    pub clicked: Option<unsafe extern "C" fn(*mut GtkButton)>,
+    pub enter: Option<unsafe extern "C" fn(*mut GtkButton)>,
+    pub leave: Option<unsafe extern "C" fn(*mut GtkButton)>,
+    pub activate: Option<unsafe extern "C" fn(*mut GtkButton)>,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved4: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkButtonClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkButtonClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("pressed", &self.pressed)
+         .field("released", &self.released)
+         .field("clicked", &self.clicked)
+         .field("enter", &self.enter)
+         .field("leave", &self.leave)
+         .field("activate", &self.activate)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
+         .field("_gtk_reserved4", &self._gtk_reserved4)
          .finish()
     }
 }
@@ -2908,14 +3052,25 @@ impl ::std::fmt::Debug for GtkCellViewPrivate {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkCheckButtonClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkToggleButtonClass,
+    pub draw_indicator: Option<unsafe extern "C" fn(*mut GtkCheckButton, *mut cairo::cairo_t)>,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved4: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkCheckButtonClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkCheckButtonClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("draw_indicator", &self.draw_indicator)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
+         .field("_gtk_reserved4", &self._gtk_reserved4)
          .finish()
     }
 }
@@ -2945,14 +3100,27 @@ impl ::std::fmt::Debug for GtkCheckMenuItemAccessiblePrivate {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkCheckMenuItemClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkMenuItemClass,
+    pub toggled: Option<unsafe extern "C" fn(*mut GtkCheckMenuItem)>,
+    pub draw_indicator: Option<unsafe extern "C" fn(*mut GtkCheckMenuItem, *mut cairo::cairo_t)>,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved4: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkCheckMenuItemClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkCheckMenuItemClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("toggled", &self.toggled)
+         .field("draw_indicator", &self.draw_indicator)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
+         .field("_gtk_reserved4", &self._gtk_reserved4)
          .finish()
     }
 }
@@ -2968,14 +3136,25 @@ impl ::std::fmt::Debug for GtkCheckMenuItemPrivate {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkColorButtonClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkButtonClass,
+    pub color_set: Option<unsafe extern "C" fn(*mut GtkColorButton)>,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved4: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkColorButtonClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkColorButtonClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("color_set", &self.color_set)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
+         .field("_gtk_reserved4", &self._gtk_reserved4)
          .finish()
     }
 }
@@ -2991,14 +3170,23 @@ impl ::std::fmt::Debug for GtkColorButtonPrivate {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkColorChooserDialogClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkDialogClass,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved4: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkColorChooserDialogClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkColorChooserDialogClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
+         .field("_gtk_reserved4", &self._gtk_reserved4)
          .finish()
     }
 }
@@ -3038,14 +3226,31 @@ impl ::std::fmt::Debug for GtkColorChooserInterface {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkColorChooserWidgetClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkBoxClass,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved4: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved5: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved6: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved7: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved8: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkColorChooserWidgetClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkColorChooserWidgetClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
+         .field("_gtk_reserved4", &self._gtk_reserved4)
+         .field("_gtk_reserved5", &self._gtk_reserved5)
+         .field("_gtk_reserved6", &self._gtk_reserved6)
+         .field("_gtk_reserved7", &self._gtk_reserved7)
+         .field("_gtk_reserved8", &self._gtk_reserved8)
          .finish()
     }
 }
@@ -3061,27 +3266,47 @@ impl ::std::fmt::Debug for GtkColorChooserWidgetPrivate {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkColorSelectionClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkBoxClass,
+    pub color_changed: Option<unsafe extern "C" fn(*mut GtkColorSelection)>,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved4: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkColorSelectionClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkColorSelectionClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("color_changed", &self.color_changed)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
+         .field("_gtk_reserved4", &self._gtk_reserved4)
          .finish()
     }
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkColorSelectionDialogClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkDialogClass,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved4: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkColorSelectionDialogClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkColorSelectionDialogClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
+         .field("_gtk_reserved4", &self._gtk_reserved4)
          .finish()
     }
 }
@@ -3131,14 +3356,25 @@ impl ::std::fmt::Debug for GtkComboBoxAccessiblePrivate {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkComboBoxClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkBinClass,
+    pub changed: Option<unsafe extern "C" fn(*mut GtkComboBox)>,
+    pub format_entry_text: Option<unsafe extern "C" fn(*mut GtkComboBox, *const c_char) -> *mut c_char>,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkComboBoxClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkComboBoxClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("changed", &self.changed)
+         .field("format_entry_text", &self.format_entry_text)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
          .finish()
     }
 }
@@ -3154,14 +3390,23 @@ impl ::std::fmt::Debug for GtkComboBoxPrivate {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkComboBoxTextClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkComboBoxClass,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved4: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkComboBoxTextClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkComboBoxTextClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
+         .field("_gtk_reserved4", &self._gtk_reserved4)
          .finish()
     }
 }
@@ -3229,6 +3474,7 @@ impl ::std::fmt::Debug for GtkContainerCellAccessiblePrivate {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkContainerClass {
     pub parent_class: GtkWidgetClass,
     pub add: Option<unsafe extern "C" fn(*mut GtkContainer, *mut GtkWidget)>,
@@ -3241,8 +3487,15 @@ pub struct GtkContainerClass {
     pub set_child_property: Option<unsafe extern "C" fn(*mut GtkContainer, *mut GtkWidget, c_uint, *mut gobject::GValue, *mut gobject::GParamSpec)>,
     pub get_child_property: Option<unsafe extern "C" fn(*mut GtkContainer, *mut GtkWidget, c_uint, *mut gobject::GValue, *mut gobject::GParamSpec)>,
     pub get_path_for_child: Option<unsafe extern "C" fn(*mut GtkContainer, *mut GtkWidget) -> *mut GtkWidgetPath>,
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field _handle_border_width has incomplete type
+    pub _handle_border_width: c_uint,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved4: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved5: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved6: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved7: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved8: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkContainerClass {
@@ -3259,6 +3512,14 @@ impl ::std::fmt::Debug for GtkContainerClass {
          .field("set_child_property", &self.set_child_property)
          .field("get_child_property", &self.get_child_property)
          .field("get_path_for_child", &self.get_path_for_child)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
+         .field("_gtk_reserved4", &self._gtk_reserved4)
+         .field("_gtk_reserved5", &self._gtk_reserved5)
+         .field("_gtk_reserved6", &self._gtk_reserved6)
+         .field("_gtk_reserved7", &self._gtk_reserved7)
+         .field("_gtk_reserved8", &self._gtk_reserved8)
          .finish()
     }
 }
@@ -3316,14 +3577,27 @@ impl ::std::fmt::Debug for GtkCssSection {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkDialogClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkWindowClass,
+    pub response: Option<unsafe extern "C" fn(*mut GtkDialog, GtkResponseType)>,
+    pub close: Option<unsafe extern "C" fn(*mut GtkDialog)>,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved4: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkDialogClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkDialogClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("response", &self.response)
+         .field("close", &self.close)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
+         .field("_gtk_reserved4", &self._gtk_reserved4)
          .finish()
     }
 }
@@ -3573,14 +3847,23 @@ impl ::std::fmt::Debug for GtkEntryPrivate {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkEventBoxClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkBinClass,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved4: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkEventBoxClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkEventBoxClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
+         .field("_gtk_reserved4", &self._gtk_reserved4)
          .finish()
     }
 }
@@ -3601,6 +3884,36 @@ pub struct GtkEventControllerClass(c_void);
 impl ::std::fmt::Debug for GtkEventControllerClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkEventControllerClass @ {:?}", self as *const _))
+         .finish()
+    }
+}
+
+#[repr(C)]
+pub struct GtkEventControllerKeyClass(c_void);
+
+impl ::std::fmt::Debug for GtkEventControllerKeyClass {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+        f.debug_struct(&format!("GtkEventControllerKeyClass @ {:?}", self as *const _))
+         .finish()
+    }
+}
+
+#[repr(C)]
+pub struct GtkEventControllerMotionClass(c_void);
+
+impl ::std::fmt::Debug for GtkEventControllerMotionClass {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+        f.debug_struct(&format!("GtkEventControllerMotionClass @ {:?}", self as *const _))
+         .finish()
+    }
+}
+
+#[repr(C)]
+pub struct GtkEventControllerScrollClass(c_void);
+
+impl ::std::fmt::Debug for GtkEventControllerScrollClass {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+        f.debug_struct(&format!("GtkEventControllerScrollClass @ {:?}", self as *const _))
          .finish()
     }
 }
@@ -3630,14 +3943,25 @@ impl ::std::fmt::Debug for GtkExpanderAccessiblePrivate {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkExpanderClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkBinClass,
+    pub activate: Option<unsafe extern "C" fn(*mut GtkExpander)>,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved4: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkExpanderClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkExpanderClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("activate", &self.activate)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
+         .field("_gtk_reserved4", &self._gtk_reserved4)
          .finish()
     }
 }
@@ -3653,14 +3977,25 @@ impl ::std::fmt::Debug for GtkExpanderPrivate {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkFileChooserButtonClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkBoxClass,
+    pub file_set: Option<unsafe extern "C" fn(*mut GtkFileChooserButton)>,
+    pub __gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub __gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub __gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub __gtk_reserved4: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkFileChooserButtonClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkFileChooserButtonClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("file_set", &self.file_set)
+         .field("__gtk_reserved1", &self.__gtk_reserved1)
+         .field("__gtk_reserved2", &self.__gtk_reserved2)
+         .field("__gtk_reserved3", &self.__gtk_reserved3)
+         .field("__gtk_reserved4", &self.__gtk_reserved4)
          .finish()
     }
 }
@@ -3676,14 +4011,23 @@ impl ::std::fmt::Debug for GtkFileChooserButtonPrivate {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkFileChooserDialogClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkDialogClass,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved4: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkFileChooserDialogClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkFileChooserDialogClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
+         .field("_gtk_reserved4", &self._gtk_reserved4)
          .finish()
     }
 }
@@ -3713,14 +4057,23 @@ impl ::std::fmt::Debug for GtkFileChooserNativeClass {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkFileChooserWidgetClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkBoxClass,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved4: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkFileChooserWidgetClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkFileChooserWidgetClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
+         .field("_gtk_reserved4", &self._gtk_reserved4)
          .finish()
     }
 }
@@ -3776,14 +4129,23 @@ impl ::std::fmt::Debug for GtkFixedChild {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkFixedClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkContainerClass,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved4: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkFixedClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkFixedClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
+         .field("_gtk_reserved4", &self._gtk_reserved4)
          .finish()
     }
 }
@@ -3837,40 +4199,85 @@ impl ::std::fmt::Debug for GtkFlowBoxChildAccessibleClass {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkFlowBoxChildClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkBinClass,
+    pub activate: Option<unsafe extern "C" fn(*mut GtkFlowBoxChild)>,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkFlowBoxChildClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkFlowBoxChildClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("activate", &self.activate)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
          .finish()
     }
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkFlowBoxClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkContainerClass,
+    pub child_activated: Option<unsafe extern "C" fn(*mut GtkFlowBox, *mut GtkFlowBoxChild)>,
+    pub selected_children_changed: Option<unsafe extern "C" fn(*mut GtkFlowBox)>,
+    pub activate_cursor_child: Option<unsafe extern "C" fn(*mut GtkFlowBox)>,
+    pub toggle_cursor_child: Option<unsafe extern "C" fn(*mut GtkFlowBox)>,
+    pub move_cursor: Option<unsafe extern "C" fn(*mut GtkFlowBox, GtkMovementStep, c_int) -> gboolean>,
+    pub select_all: Option<unsafe extern "C" fn(*mut GtkFlowBox)>,
+    pub unselect_all: Option<unsafe extern "C" fn(*mut GtkFlowBox)>,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved4: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved5: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved6: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkFlowBoxClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkFlowBoxClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("child_activated", &self.child_activated)
+         .field("selected_children_changed", &self.selected_children_changed)
+         .field("activate_cursor_child", &self.activate_cursor_child)
+         .field("toggle_cursor_child", &self.toggle_cursor_child)
+         .field("move_cursor", &self.move_cursor)
+         .field("select_all", &self.select_all)
+         .field("unselect_all", &self.unselect_all)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
+         .field("_gtk_reserved4", &self._gtk_reserved4)
+         .field("_gtk_reserved5", &self._gtk_reserved5)
+         .field("_gtk_reserved6", &self._gtk_reserved6)
          .finish()
     }
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkFontButtonClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkButtonClass,
+    pub font_set: Option<unsafe extern "C" fn(*mut GtkFontButton)>,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved4: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkFontButtonClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkFontButtonClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("font_set", &self.font_set)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
+         .field("_gtk_reserved4", &self._gtk_reserved4)
          .finish()
     }
 }
@@ -3886,14 +4293,23 @@ impl ::std::fmt::Debug for GtkFontButtonPrivate {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkFontChooserDialogClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkDialogClass,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved4: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkFontChooserDialogClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkFontChooserDialogClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
+         .field("_gtk_reserved4", &self._gtk_reserved4)
          .finish()
     }
 }
@@ -3939,14 +4355,31 @@ impl ::std::fmt::Debug for GtkFontChooserIface {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkFontChooserWidgetClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkBoxClass,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved4: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved5: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved6: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved7: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved8: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkFontChooserWidgetClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkFontChooserWidgetClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
+         .field("_gtk_reserved4", &self._gtk_reserved4)
+         .field("_gtk_reserved5", &self._gtk_reserved5)
+         .field("_gtk_reserved6", &self._gtk_reserved6)
+         .field("_gtk_reserved7", &self._gtk_reserved7)
+         .field("_gtk_reserved8", &self._gtk_reserved8)
          .finish()
     }
 }
@@ -3962,27 +4395,45 @@ impl ::std::fmt::Debug for GtkFontChooserWidgetPrivate {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkFontSelectionClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkBoxClass,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved4: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkFontSelectionClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkFontSelectionClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
+         .field("_gtk_reserved4", &self._gtk_reserved4)
          .finish()
     }
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkFontSelectionDialogClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkDialogClass,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved4: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkFontSelectionDialogClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkFontSelectionDialogClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
+         .field("_gtk_reserved4", &self._gtk_reserved4)
          .finish()
     }
 }
@@ -4032,14 +4483,25 @@ impl ::std::fmt::Debug for GtkFrameAccessiblePrivate {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkFrameClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkBinClass,
+    pub compute_child_allocation: Option<unsafe extern "C" fn(*mut GtkFrame, *mut GtkAllocation)>,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved4: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkFrameClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkFrameClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("compute_child_allocation", &self.compute_child_allocation)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
+         .field("_gtk_reserved4", &self._gtk_reserved4)
          .finish()
     }
 }
@@ -4145,6 +4607,16 @@ impl ::std::fmt::Debug for GtkGestureSingleClass {
 }
 
 #[repr(C)]
+pub struct GtkGestureStylusClass(c_void);
+
+impl ::std::fmt::Debug for GtkGestureStylusClass {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+        f.debug_struct(&format!("GtkGestureStylusClass @ {:?}", self as *const _))
+         .finish()
+    }
+}
+
+#[repr(C)]
 pub struct GtkGestureSwipeClass(c_void);
 
 impl ::std::fmt::Debug for GtkGestureSwipeClass {
@@ -4175,14 +4647,31 @@ impl ::std::fmt::Debug for GtkGradient {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkGridClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkContainerClass,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved4: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved5: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved6: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved7: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved8: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkGridClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkGridClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
+         .field("_gtk_reserved4", &self._gtk_reserved4)
+         .field("_gtk_reserved5", &self._gtk_reserved5)
+         .field("_gtk_reserved6", &self._gtk_reserved6)
+         .field("_gtk_reserved7", &self._gtk_reserved7)
+         .field("_gtk_reserved8", &self._gtk_reserved8)
          .finish()
     }
 }
@@ -4198,40 +4687,43 @@ impl ::std::fmt::Debug for GtkGridPrivate {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkHBoxClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkBoxClass,
 }
 
 impl ::std::fmt::Debug for GtkHBoxClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkHBoxClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
          .finish()
     }
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkHButtonBoxClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkButtonBoxClass,
 }
 
 impl ::std::fmt::Debug for GtkHButtonBoxClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkHButtonBoxClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
          .finish()
     }
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkHPanedClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkPanedClass,
 }
 
 impl ::std::fmt::Debug for GtkHPanedClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkHPanedClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
          .finish()
     }
 }
@@ -4315,14 +4807,27 @@ impl ::std::fmt::Debug for GtkHSeparatorClass {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkHandleBoxClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkBinClass,
+    pub child_attached: Option<unsafe extern "C" fn(*mut GtkHandleBox, *mut GtkWidget)>,
+    pub child_detached: Option<unsafe extern "C" fn(*mut GtkHandleBox, *mut GtkWidget)>,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved4: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkHandleBoxClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkHandleBoxClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("child_attached", &self.child_attached)
+         .field("child_detached", &self.child_detached)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
+         .field("_gtk_reserved4", &self._gtk_reserved4)
          .finish()
     }
 }
@@ -4338,14 +4843,23 @@ impl ::std::fmt::Debug for GtkHandleBoxPrivate {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkHeaderBarClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkContainerClass,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved4: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkHeaderBarClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkHeaderBarClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
+         .field("_gtk_reserved4", &self._gtk_reserved4)
          .finish()
     }
 }
@@ -4616,14 +5130,39 @@ impl ::std::fmt::Debug for GtkIconViewAccessiblePrivate {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkIconViewClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkContainerClass,
+    pub item_activated: Option<unsafe extern "C" fn(*mut GtkIconView, *mut GtkTreePath)>,
+    pub selection_changed: Option<unsafe extern "C" fn(*mut GtkIconView)>,
+    pub select_all: Option<unsafe extern "C" fn(*mut GtkIconView)>,
+    pub unselect_all: Option<unsafe extern "C" fn(*mut GtkIconView)>,
+    pub select_cursor_item: Option<unsafe extern "C" fn(*mut GtkIconView)>,
+    pub toggle_cursor_item: Option<unsafe extern "C" fn(*mut GtkIconView)>,
+    pub move_cursor: Option<unsafe extern "C" fn(*mut GtkIconView, GtkMovementStep, c_int) -> gboolean>,
+    pub activate_cursor_item: Option<unsafe extern "C" fn(*mut GtkIconView) -> gboolean>,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved4: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkIconViewClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkIconViewClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("item_activated", &self.item_activated)
+         .field("selection_changed", &self.selection_changed)
+         .field("select_all", &self.select_all)
+         .field("unselect_all", &self.unselect_all)
+         .field("select_cursor_item", &self.select_cursor_item)
+         .field("toggle_cursor_item", &self.toggle_cursor_item)
+         .field("move_cursor", &self.move_cursor)
+         .field("activate_cursor_item", &self.activate_cursor_item)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
+         .field("_gtk_reserved4", &self._gtk_reserved4)
          .finish()
     }
 }
@@ -4709,14 +5248,23 @@ impl ::std::fmt::Debug for GtkImageClass {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkImageMenuItemClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkMenuItemClass,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved4: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkImageMenuItemClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkImageMenuItemClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
+         .field("_gtk_reserved4", &self._gtk_reserved4)
          .finish()
     }
 }
@@ -4742,14 +5290,27 @@ impl ::std::fmt::Debug for GtkImagePrivate {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkInfoBarClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkBoxClass,
+    pub response: Option<unsafe extern "C" fn(*mut GtkInfoBar, GtkResponseType)>,
+    pub close: Option<unsafe extern "C" fn(*mut GtkInfoBar)>,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved4: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkInfoBarClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkInfoBarClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("response", &self.response)
+         .field("close", &self.close)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
+         .field("_gtk_reserved4", &self._gtk_reserved4)
          .finish()
     }
 }
@@ -4879,14 +5440,23 @@ impl ::std::fmt::Debug for GtkLabelSelectionInfo {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkLayoutClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkContainerClass,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved4: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkLayoutClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkLayoutClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
+         .field("_gtk_reserved4", &self._gtk_reserved4)
          .finish()
     }
 }
@@ -4976,14 +5546,24 @@ impl ::std::fmt::Debug for GtkLinkButtonAccessiblePrivate {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkLinkButtonClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkButtonClass,
+    pub activate_link: Option<unsafe extern "C" fn(*mut GtkLinkButton) -> gboolean>,
+    pub _gtk_padding1: Option<unsafe extern "C" fn()>,
+    pub _gtk_padding2: Option<unsafe extern "C" fn()>,
+    pub _gtk_padding3: Option<unsafe extern "C" fn()>,
+    pub _gtk_padding4: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkLinkButtonClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkLinkButtonClass @ {:?}", self as *const _))
+         .field("activate_link", &self.activate_link)
+         .field("_gtk_padding1", &self._gtk_padding1)
+         .field("_gtk_padding2", &self._gtk_padding2)
+         .field("_gtk_padding3", &self._gtk_padding3)
+         .field("_gtk_padding4", &self._gtk_padding4)
          .finish()
     }
 }
@@ -5023,14 +5603,37 @@ impl ::std::fmt::Debug for GtkListBoxAccessiblePrivate {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkListBoxClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkContainerClass,
+    pub row_selected: Option<unsafe extern "C" fn(*mut GtkListBox, *mut GtkListBoxRow)>,
+    pub row_activated: Option<unsafe extern "C" fn(*mut GtkListBox, *mut GtkListBoxRow)>,
+    pub activate_cursor_row: Option<unsafe extern "C" fn(*mut GtkListBox)>,
+    pub toggle_cursor_row: Option<unsafe extern "C" fn(*mut GtkListBox)>,
+    pub move_cursor: Option<unsafe extern "C" fn(*mut GtkListBox, GtkMovementStep, c_int)>,
+    pub selected_rows_changed: Option<unsafe extern "C" fn(*mut GtkListBox)>,
+    pub select_all: Option<unsafe extern "C" fn(*mut GtkListBox)>,
+    pub unselect_all: Option<unsafe extern "C" fn(*mut GtkListBox)>,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkListBoxClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkListBoxClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("row_selected", &self.row_selected)
+         .field("row_activated", &self.row_activated)
+         .field("activate_cursor_row", &self.activate_cursor_row)
+         .field("toggle_cursor_row", &self.toggle_cursor_row)
+         .field("move_cursor", &self.move_cursor)
+         .field("selected_rows_changed", &self.selected_rows_changed)
+         .field("select_all", &self.select_all)
+         .field("unselect_all", &self.unselect_all)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
          .finish()
     }
 }
@@ -5050,14 +5653,21 @@ impl ::std::fmt::Debug for GtkListBoxRowAccessibleClass {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkListBoxRowClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkBinClass,
+    pub activate: Option<unsafe extern "C" fn(*mut GtkListBoxRow)>,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkListBoxRowClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkListBoxRowClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("activate", &self.activate)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
          .finish()
     }
 }
@@ -5119,14 +5729,31 @@ impl ::std::fmt::Debug for GtkLockButtonAccessiblePrivate {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkLockButtonClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkButtonClass,
+    pub reserved0: Option<unsafe extern "C" fn()>,
+    pub reserved1: Option<unsafe extern "C" fn()>,
+    pub reserved2: Option<unsafe extern "C" fn()>,
+    pub reserved3: Option<unsafe extern "C" fn()>,
+    pub reserved4: Option<unsafe extern "C" fn()>,
+    pub reserved5: Option<unsafe extern "C" fn()>,
+    pub reserved6: Option<unsafe extern "C" fn()>,
+    pub reserved7: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkLockButtonClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkLockButtonClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("reserved0", &self.reserved0)
+         .field("reserved1", &self.reserved1)
+         .field("reserved2", &self.reserved2)
+         .field("reserved3", &self.reserved3)
+         .field("reserved4", &self.reserved4)
+         .field("reserved5", &self.reserved5)
+         .field("reserved6", &self.reserved6)
+         .field("reserved7", &self.reserved7)
          .finish()
     }
 }
@@ -5166,14 +5793,23 @@ impl ::std::fmt::Debug for GtkMenuAccessiblePrivate {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkMenuBarClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkMenuShellClass,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved4: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkMenuBarClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkMenuBarClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
+         .field("_gtk_reserved4", &self._gtk_reserved4)
          .finish()
     }
 }
@@ -5213,14 +5849,23 @@ impl ::std::fmt::Debug for GtkMenuButtonAccessiblePrivate {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkMenuButtonClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkToggleButtonClass,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved4: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkMenuButtonClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkMenuButtonClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
+         .field("_gtk_reserved4", &self._gtk_reserved4)
          .finish()
     }
 }
@@ -5236,14 +5881,23 @@ impl ::std::fmt::Debug for GtkMenuButtonPrivate {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkMenuClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkMenuShellClass,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved4: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkMenuClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkMenuClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
+         .field("_gtk_reserved4", &self._gtk_reserved4)
          .finish()
     }
 }
@@ -5273,14 +5927,41 @@ impl ::std::fmt::Debug for GtkMenuItemAccessiblePrivate {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkMenuItemClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkBinClass,
+    pub hide_on_activate: c_uint,
+    pub activate: Option<unsafe extern "C" fn(*mut GtkMenuItem)>,
+    pub activate_item: Option<unsafe extern "C" fn(*mut GtkMenuItem)>,
+    pub toggle_size_request: Option<unsafe extern "C" fn(*mut GtkMenuItem, c_int)>,
+    pub toggle_size_allocate: Option<unsafe extern "C" fn(*mut GtkMenuItem, c_int)>,
+    pub set_label: Option<unsafe extern "C" fn(*mut GtkMenuItem, *const c_char)>,
+    pub get_label: Option<unsafe extern "C" fn(*mut GtkMenuItem) -> *const c_char>,
+    pub select: Option<unsafe extern "C" fn(*mut GtkMenuItem)>,
+    pub deselect: Option<unsafe extern "C" fn(*mut GtkMenuItem)>,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved4: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkMenuItemClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkMenuItemClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("hide_on_activate", &self.hide_on_activate)
+         .field("activate", &self.activate)
+         .field("activate_item", &self.activate_item)
+         .field("toggle_size_request", &self.toggle_size_request)
+         .field("toggle_size_allocate", &self.toggle_size_allocate)
+         .field("set_label", &self.set_label)
+         .field("get_label", &self.get_label)
+         .field("select", &self.select)
+         .field("deselect", &self.deselect)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
+         .field("_gtk_reserved4", &self._gtk_reserved4)
          .finish()
     }
 }
@@ -5330,14 +6011,43 @@ impl ::std::fmt::Debug for GtkMenuShellAccessiblePrivate {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkMenuShellClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkContainerClass,
+    pub submenu_placement: c_uint,
+    pub deactivate: Option<unsafe extern "C" fn(*mut GtkMenuShell)>,
+    pub selection_done: Option<unsafe extern "C" fn(*mut GtkMenuShell)>,
+    pub move_current: Option<unsafe extern "C" fn(*mut GtkMenuShell, GtkMenuDirectionType)>,
+    pub activate_current: Option<unsafe extern "C" fn(*mut GtkMenuShell, gboolean)>,
+    pub cancel: Option<unsafe extern "C" fn(*mut GtkMenuShell)>,
+    pub select_item: Option<unsafe extern "C" fn(*mut GtkMenuShell, *mut GtkWidget)>,
+    pub insert: Option<unsafe extern "C" fn(*mut GtkMenuShell, *mut GtkWidget, c_int)>,
+    pub get_popup_delay: Option<unsafe extern "C" fn(*mut GtkMenuShell) -> c_int>,
+    pub move_selected: Option<unsafe extern "C" fn(*mut GtkMenuShell, c_int) -> gboolean>,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved4: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkMenuShellClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkMenuShellClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("submenu_placement", &self.submenu_placement)
+         .field("deactivate", &self.deactivate)
+         .field("selection_done", &self.selection_done)
+         .field("move_current", &self.move_current)
+         .field("activate_current", &self.activate_current)
+         .field("cancel", &self.cancel)
+         .field("select_item", &self.select_item)
+         .field("insert", &self.insert)
+         .field("get_popup_delay", &self.get_popup_delay)
+         .field("move_selected", &self.move_selected)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
+         .field("_gtk_reserved4", &self._gtk_reserved4)
          .finish()
     }
 }
@@ -5353,14 +6063,25 @@ impl ::std::fmt::Debug for GtkMenuShellPrivate {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkMenuToolButtonClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkToolButtonClass,
+    pub show_menu: Option<unsafe extern "C" fn(*mut GtkMenuToolButton)>,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved4: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkMenuToolButtonClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkMenuToolButtonClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("show_menu", &self.show_menu)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
+         .field("_gtk_reserved4", &self._gtk_reserved4)
          .finish()
     }
 }
@@ -5376,14 +6097,23 @@ impl ::std::fmt::Debug for GtkMenuToolButtonPrivate {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkMessageDialogClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkDialogClass,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved4: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkMessageDialogClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkMessageDialogClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
+         .field("_gtk_reserved4", &self._gtk_reserved4)
          .finish()
     }
 }
@@ -5466,7 +6196,7 @@ impl ::std::fmt::Debug for GtkMountOperationPrivate {
 #[derive(Copy, Clone)]
 pub struct GtkNativeDialogClass {
     pub parent_class: gobject::GObjectClass,
-    pub response: Option<unsafe extern "C" fn(*mut GtkNativeDialog, c_int)>,
+    pub response: Option<unsafe extern "C" fn(*mut GtkNativeDialog, GtkResponseType)>,
     pub show: Option<unsafe extern "C" fn(*mut GtkNativeDialog)>,
     pub hide: Option<unsafe extern "C" fn(*mut GtkNativeDialog)>,
     pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
@@ -5515,14 +6245,53 @@ impl ::std::fmt::Debug for GtkNotebookAccessiblePrivate {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkNotebookClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkContainerClass,
+    pub switch_page: Option<unsafe extern "C" fn(*mut GtkNotebook, *mut GtkWidget, c_uint)>,
+    pub select_page: Option<unsafe extern "C" fn(*mut GtkNotebook, gboolean) -> gboolean>,
+    pub focus_tab: Option<unsafe extern "C" fn(*mut GtkNotebook, GtkNotebookTab) -> gboolean>,
+    pub change_current_page: Option<unsafe extern "C" fn(*mut GtkNotebook, c_int) -> gboolean>,
+    pub move_focus_out: Option<unsafe extern "C" fn(*mut GtkNotebook, GtkDirectionType)>,
+    pub reorder_tab: Option<unsafe extern "C" fn(*mut GtkNotebook, GtkDirectionType, gboolean) -> gboolean>,
+    pub insert_page: Option<unsafe extern "C" fn(*mut GtkNotebook, *mut GtkWidget, *mut GtkWidget, *mut GtkWidget, c_int) -> c_int>,
+    pub create_window: Option<unsafe extern "C" fn(*mut GtkNotebook, *mut GtkWidget, c_int, c_int) -> *mut GtkNotebook>,
+    pub page_reordered: Option<unsafe extern "C" fn(*mut GtkNotebook, *mut GtkWidget, c_uint)>,
+    pub page_removed: Option<unsafe extern "C" fn(*mut GtkNotebook, *mut GtkWidget, c_uint)>,
+    pub page_added: Option<unsafe extern "C" fn(*mut GtkNotebook, *mut GtkWidget, c_uint)>,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved4: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved5: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved6: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved7: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved8: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkNotebookClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkNotebookClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("switch_page", &self.switch_page)
+         .field("select_page", &self.select_page)
+         .field("focus_tab", &self.focus_tab)
+         .field("change_current_page", &self.change_current_page)
+         .field("move_focus_out", &self.move_focus_out)
+         .field("reorder_tab", &self.reorder_tab)
+         .field("insert_page", &self.insert_page)
+         .field("create_window", &self.create_window)
+         .field("page_reordered", &self.page_reordered)
+         .field("page_removed", &self.page_removed)
+         .field("page_added", &self.page_added)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
+         .field("_gtk_reserved4", &self._gtk_reserved4)
+         .field("_gtk_reserved5", &self._gtk_reserved5)
+         .field("_gtk_reserved6", &self._gtk_reserved6)
+         .field("_gtk_reserved7", &self._gtk_reserved7)
+         .field("_gtk_reserved8", &self._gtk_reserved8)
          .finish()
     }
 }
@@ -5588,14 +6357,23 @@ impl ::std::fmt::Debug for GtkNumerableIconPrivate {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkOffscreenWindowClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkWindowClass,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved4: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkOffscreenWindowClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkOffscreenWindowClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
+         .field("_gtk_reserved4", &self._gtk_reserved4)
          .finish()
     }
 }
@@ -5615,14 +6393,33 @@ impl ::std::fmt::Debug for GtkOrientableIface {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkOverlayClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkBinClass,
+    pub get_child_position: Option<unsafe extern "C" fn(*mut GtkOverlay, *mut GtkWidget, *mut GtkAllocation) -> gboolean>,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved4: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved5: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved6: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved7: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved8: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkOverlayClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkOverlayClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("get_child_position", &self.get_child_position)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
+         .field("_gtk_reserved4", &self._gtk_reserved4)
+         .field("_gtk_reserved5", &self._gtk_reserved5)
+         .field("_gtk_reserved6", &self._gtk_reserved6)
+         .field("_gtk_reserved7", &self._gtk_reserved7)
+         .field("_gtk_reserved8", &self._gtk_reserved8)
          .finish()
     }
 }
@@ -5710,14 +6507,35 @@ impl ::std::fmt::Debug for GtkPanedAccessiblePrivate {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkPanedClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkContainerClass,
+    pub cycle_child_focus: Option<unsafe extern "C" fn(*mut GtkPaned, gboolean) -> gboolean>,
+    pub toggle_handle_focus: Option<unsafe extern "C" fn(*mut GtkPaned) -> gboolean>,
+    pub move_handle: Option<unsafe extern "C" fn(*mut GtkPaned, GtkScrollType) -> gboolean>,
+    pub cycle_handle_focus: Option<unsafe extern "C" fn(*mut GtkPaned, gboolean) -> gboolean>,
+    pub accept_position: Option<unsafe extern "C" fn(*mut GtkPaned) -> gboolean>,
+    pub cancel_position: Option<unsafe extern "C" fn(*mut GtkPaned) -> gboolean>,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved4: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkPanedClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkPanedClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("cycle_child_focus", &self.cycle_child_focus)
+         .field("toggle_handle_focus", &self.toggle_handle_focus)
+         .field("move_handle", &self.move_handle)
+         .field("cycle_handle_focus", &self.cycle_handle_focus)
+         .field("accept_position", &self.accept_position)
+         .field("cancel_position", &self.cancel_position)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
+         .field("_gtk_reserved4", &self._gtk_reserved4)
          .finish()
     }
 }
@@ -5753,14 +6571,25 @@ impl ::std::fmt::Debug for GtkPlacesSidebarClass {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkPlugClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkWindowClass,
+    pub embedded: Option<unsafe extern "C" fn(*mut GtkPlug)>,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved4: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkPlugClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkPlugClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("embedded", &self.embedded)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
+         .field("_gtk_reserved4", &self._gtk_reserved4)
          .finish()
     }
 }
@@ -5790,27 +6619,33 @@ impl ::std::fmt::Debug for GtkPopoverAccessibleClass {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkPopoverClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkBinClass,
+    pub closed: Option<unsafe extern "C" fn(*mut GtkPopover)>,
+    pub reserved: [gpointer; 10],
 }
 
 impl ::std::fmt::Debug for GtkPopoverClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkPopoverClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("closed", &self.closed)
          .finish()
     }
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkPopoverMenuClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkPopoverClass,
+    pub reserved: [gpointer; 10],
 }
 
 impl ::std::fmt::Debug for GtkPopoverMenuClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkPopoverMenuClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
          .finish()
     }
 }
@@ -6066,14 +6901,25 @@ impl ::std::fmt::Debug for GtkRadioButtonAccessiblePrivate {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkRadioButtonClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkCheckButtonClass,
+    pub group_changed: Option<unsafe extern "C" fn(*mut GtkRadioButton)>,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved4: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkRadioButtonClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkRadioButtonClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("group_changed", &self.group_changed)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
+         .field("_gtk_reserved4", &self._gtk_reserved4)
          .finish()
     }
 }
@@ -6113,14 +6959,25 @@ impl ::std::fmt::Debug for GtkRadioMenuItemAccessiblePrivate {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkRadioMenuItemClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkCheckMenuItemClass,
+    pub group_changed: Option<unsafe extern "C" fn(*mut GtkRadioMenuItem)>,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved4: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkRadioMenuItemClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkRadioMenuItemClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("group_changed", &self.group_changed)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
+         .field("_gtk_reserved4", &self._gtk_reserved4)
          .finish()
     }
 }
@@ -6136,14 +6993,23 @@ impl ::std::fmt::Debug for GtkRadioMenuItemPrivate {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkRadioToolButtonClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkToggleToolButtonClass,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved4: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkRadioToolButtonClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkRadioToolButtonClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
+         .field("_gtk_reserved4", &self._gtk_reserved4)
          .finish()
     }
 }
@@ -6311,14 +7177,23 @@ impl ::std::fmt::Debug for GtkRecentActionPrivate {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkRecentChooserDialogClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkDialogClass,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved4: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkRecentChooserDialogClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkRecentChooserDialogClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
+         .field("_gtk_reserved4", &self._gtk_reserved4)
          .finish()
     }
 }
@@ -6375,14 +7250,23 @@ impl ::std::fmt::Debug for GtkRecentChooserIface {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkRecentChooserMenuClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkMenuClass,
+    pub gtk_recent1: Option<unsafe extern "C" fn()>,
+    pub gtk_recent2: Option<unsafe extern "C" fn()>,
+    pub gtk_recent3: Option<unsafe extern "C" fn()>,
+    pub gtk_recent4: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkRecentChooserMenuClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkRecentChooserMenuClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("gtk_recent1", &self.gtk_recent1)
+         .field("gtk_recent2", &self.gtk_recent2)
+         .field("gtk_recent3", &self.gtk_recent3)
+         .field("gtk_recent4", &self.gtk_recent4)
          .finish()
     }
 }
@@ -6398,14 +7282,23 @@ impl ::std::fmt::Debug for GtkRecentChooserMenuPrivate {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkRecentChooserWidgetClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkBoxClass,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved4: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkRecentChooserWidgetClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkRecentChooserWidgetClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
+         .field("_gtk_reserved4", &self._gtk_reserved4)
          .finish()
     }
 }
@@ -6453,8 +7346,8 @@ pub struct GtkRecentFilterInfo {
     pub uri: *const c_char,
     pub display_name: *const c_char,
     pub mime_type: *const c_char,
-    pub applications: *mut *mut c_char,
-    pub groups: *mut *mut c_char,
+    pub applications: *mut *const c_char,
+    pub groups: *mut *const c_char,
     pub age: c_int,
 }
 
@@ -6574,14 +7467,15 @@ impl ::std::fmt::Debug for GtkRequisition {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkRevealerClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkBinClass,
 }
 
 impl ::std::fmt::Debug for GtkRevealerClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkRevealerClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
          .finish()
     }
 }
@@ -6635,14 +7529,25 @@ impl ::std::fmt::Debug for GtkScaleButtonAccessiblePrivate {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkScaleButtonClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkButtonClass,
+    pub value_changed: Option<unsafe extern "C" fn(*mut GtkScaleButton, c_double)>,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved4: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkScaleButtonClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkScaleButtonClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("value_changed", &self.value_changed)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
+         .field("_gtk_reserved4", &self._gtk_reserved4)
          .finish()
     }
 }
@@ -6758,14 +7663,29 @@ impl ::std::fmt::Debug for GtkScrolledWindowAccessiblePrivate {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkScrolledWindowClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkBinClass,
+    pub scrollbar_spacing: c_int,
+    pub scroll_child: Option<unsafe extern "C" fn(*mut GtkScrolledWindow, GtkScrollType, gboolean) -> gboolean>,
+    pub move_focus_out: Option<unsafe extern "C" fn(*mut GtkScrolledWindow, GtkDirectionType)>,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved4: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkScrolledWindowClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkScrolledWindowClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("scrollbar_spacing", &self.scrollbar_spacing)
+         .field("scroll_child", &self.scroll_child)
+         .field("move_focus_out", &self.move_focus_out)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
+         .field("_gtk_reserved4", &self._gtk_reserved4)
          .finish()
     }
 }
@@ -6781,14 +7701,23 @@ impl ::std::fmt::Debug for GtkScrolledWindowPrivate {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkSearchBarClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkBinClass,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved4: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkSearchBarClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkSearchBarClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
+         .field("_gtk_reserved4", &self._gtk_reserved4)
          .finish()
     }
 }
@@ -6848,14 +7777,23 @@ impl ::std::fmt::Debug for GtkSeparatorClass {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkSeparatorMenuItemClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkMenuItemClass,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved4: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkSeparatorMenuItemClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkSeparatorMenuItemClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
+         .field("_gtk_reserved4", &self._gtk_reserved4)
          .finish()
     }
 }
@@ -6871,14 +7809,23 @@ impl ::std::fmt::Debug for GtkSeparatorPrivate {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkSeparatorToolItemClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkToolItemClass,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved4: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkSeparatorToolItemClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkSeparatorToolItemClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
+         .field("_gtk_reserved4", &self._gtk_reserved4)
          .finish()
     }
 }
@@ -6982,14 +7929,19 @@ impl ::std::fmt::Debug for GtkShortcutsShortcutClass {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkShortcutsWindowClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkWindowClass,
+    pub close: Option<unsafe extern "C" fn(*mut GtkShortcutsWindow)>,
+    pub search: Option<unsafe extern "C" fn(*mut GtkShortcutsWindow)>,
 }
 
 impl ::std::fmt::Debug for GtkShortcutsWindowClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkShortcutsWindowClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("close", &self.close)
+         .field("search", &self.search)
          .finish()
     }
 }
@@ -7027,14 +7979,27 @@ impl ::std::fmt::Debug for GtkSizeGroupPrivate {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkSocketClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkContainerClass,
+    pub plug_added: Option<unsafe extern "C" fn(*mut GtkSocket)>,
+    pub plug_removed: Option<unsafe extern "C" fn(*mut GtkSocket) -> gboolean>,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved4: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkSocketClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkSocketClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("plug_added", &self.plug_added)
+         .field("plug_removed", &self.plug_removed)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
+         .field("_gtk_reserved4", &self._gtk_reserved4)
          .finish()
     }
 }
@@ -7186,27 +8151,37 @@ impl ::std::fmt::Debug for GtkStackAccessibleClass {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkStackClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkContainerClass,
 }
 
 impl ::std::fmt::Debug for GtkStackClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkStackClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
          .finish()
     }
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkStackSidebarClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkBinClass,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved4: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkStackSidebarClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkStackSidebarClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
+         .field("_gtk_reserved4", &self._gtk_reserved4)
          .finish()
     }
 }
@@ -7222,14 +8197,23 @@ impl ::std::fmt::Debug for GtkStackSidebarPrivate {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkStackSwitcherClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkBoxClass,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved4: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkStackSwitcherClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkStackSwitcherClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
+         .field("_gtk_reserved4", &self._gtk_reserved4)
          .finish()
     }
 }
@@ -7245,10 +8229,10 @@ pub struct GtkStatusIconClass {
     pub button_release_event: Option<unsafe extern "C" fn(*mut GtkStatusIcon, *mut gdk::GdkEventButton) -> gboolean>,
     pub scroll_event: Option<unsafe extern "C" fn(*mut GtkStatusIcon, *mut gdk::GdkEventScroll) -> gboolean>,
     pub query_tooltip: Option<unsafe extern "C" fn(*mut GtkStatusIcon, c_int, c_int, gboolean, *mut GtkTooltip) -> gboolean>,
-    pub __gtk_reserved1: *mut c_void,
-    pub __gtk_reserved2: *mut c_void,
-    pub __gtk_reserved3: *mut c_void,
-    pub __gtk_reserved4: *mut c_void,
+    pub __gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub __gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub __gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub __gtk_reserved4: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkStatusIconClass {
@@ -7305,14 +8289,29 @@ impl ::std::fmt::Debug for GtkStatusbarAccessiblePrivate {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkStatusbarClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkBoxClass,
+    pub reserved: gpointer,
+    pub text_pushed: Option<unsafe extern "C" fn(*mut GtkStatusbar, c_uint, *const c_char)>,
+    pub text_popped: Option<unsafe extern "C" fn(*mut GtkStatusbar, c_uint, *const c_char)>,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved4: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkStatusbarClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkStatusbarClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("reserved", &self.reserved)
+         .field("text_pushed", &self.text_pushed)
+         .field("text_popped", &self.text_popped)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
+         .field("_gtk_reserved4", &self._gtk_reserved4)
          .finish()
     }
 }
@@ -7359,7 +8358,7 @@ pub struct GtkStyleClass {
     pub clone: Option<unsafe extern "C" fn(*mut GtkStyle) -> *mut GtkStyle>,
     pub init_from_rc: Option<unsafe extern "C" fn(*mut GtkStyle, *mut GtkRcStyle)>,
     pub set_background: Option<unsafe extern "C" fn(*mut GtkStyle, *mut gdk::GdkWindow, GtkStateType)>,
-    pub render_icon: Option<unsafe extern "C" fn(*mut GtkStyle, *const GtkIconSource, GtkTextDirection, GtkStateType, c_int, *mut GtkWidget, *const c_char) -> *mut gdk_pixbuf::GdkPixbuf>,
+    pub render_icon: Option<unsafe extern "C" fn(*mut GtkStyle, *const GtkIconSource, GtkTextDirection, GtkStateType, GtkIconSize, *mut GtkWidget, *const c_char) -> *mut gdk_pixbuf::GdkPixbuf>,
     pub draw_hline: Option<unsafe extern "C" fn(*mut GtkStyle, *mut cairo::cairo_t, GtkStateType, *mut GtkWidget, *const c_char, c_int, c_int, c_int)>,
     pub draw_vline: Option<unsafe extern "C" fn(*mut GtkStyle, *mut cairo::cairo_t, GtkStateType, *mut GtkWidget, *const c_char, c_int, c_int, c_int)>,
     pub draw_shadow: Option<unsafe extern "C" fn(*mut GtkStyle, *mut cairo::cairo_t, GtkStateType, GtkShadowType, *mut GtkWidget, *const c_char, c_int, c_int, c_int, c_int)>,
@@ -7602,8 +8601,9 @@ pub struct GtkTableChild {
     pub bottom_attach: u16,
     pub xpadding: u16,
     pub ypadding: u16,
+    pub xexpand: c_uint,
     _truncated_record_marker: c_void,
-    // /*Ignored*/field xexpand has incomplete type
+    // field yexpand has incomplete type
 }
 
 impl ::std::fmt::Debug for GtkTableChild {
@@ -7616,19 +8616,29 @@ impl ::std::fmt::Debug for GtkTableChild {
          .field("bottom_attach", &self.bottom_attach)
          .field("xpadding", &self.xpadding)
          .field("ypadding", &self.ypadding)
+         .field("xexpand", &self.xexpand)
          .finish()
     }
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkTableClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkContainerClass,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved4: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkTableClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkTableClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
+         .field("_gtk_reserved4", &self._gtk_reserved4)
          .finish()
     }
 }
@@ -7648,8 +8658,9 @@ pub struct GtkTableRowCol {
     pub requisition: u16,
     pub allocation: u16,
     pub spacing: u16,
+    pub need_expand: c_uint,
     _truncated_record_marker: c_void,
-    // /*Ignored*/field need_expand has incomplete type
+    // field need_shrink has incomplete type
 }
 
 impl ::std::fmt::Debug for GtkTableRowCol {
@@ -7658,6 +8669,7 @@ impl ::std::fmt::Debug for GtkTableRowCol {
          .field("requisition", &self.requisition)
          .field("allocation", &self.allocation)
          .field("spacing", &self.spacing)
+         .field("need_expand", &self.need_expand)
          .finish()
     }
 }
@@ -7709,14 +8721,23 @@ impl ::std::fmt::Debug for GtkTargetPair {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkTearoffMenuItemClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkMenuItemClass,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved4: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkTearoffMenuItemClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkTearoffMenuItemClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
+         .field("_gtk_reserved4", &self._gtk_reserved4)
          .finish()
     }
 }
@@ -7736,8 +8757,9 @@ pub struct GtkTextAppearance {
     pub bg_color: gdk::GdkColor,
     pub fg_color: gdk::GdkColor,
     pub rise: c_int,
+    pub underline: c_uint,
     _truncated_record_marker: c_void,
-    // /*Ignored*/field underline has incomplete type
+    // field strikethrough has incomplete type
 }
 
 impl ::std::fmt::Debug for GtkTextAppearance {
@@ -7746,6 +8768,7 @@ impl ::std::fmt::Debug for GtkTextAppearance {
          .field("bg_color", &self.bg_color)
          .field("fg_color", &self.fg_color)
          .field("rise", &self.rise)
+         .field("underline", &self.underline)
          .finish()
     }
 }
@@ -8023,14 +9046,51 @@ impl ::std::fmt::Debug for GtkTextViewAccessiblePrivate {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkTextViewClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkContainerClass,
+    pub populate_popup: Option<unsafe extern "C" fn(*mut GtkTextView, *mut GtkWidget)>,
+    pub move_cursor: Option<unsafe extern "C" fn(*mut GtkTextView, GtkMovementStep, c_int, gboolean)>,
+    pub set_anchor: Option<unsafe extern "C" fn(*mut GtkTextView)>,
+    pub insert_at_cursor: Option<unsafe extern "C" fn(*mut GtkTextView, *const c_char)>,
+    pub delete_from_cursor: Option<unsafe extern "C" fn(*mut GtkTextView, GtkDeleteType, c_int)>,
+    pub backspace: Option<unsafe extern "C" fn(*mut GtkTextView)>,
+    pub cut_clipboard: Option<unsafe extern "C" fn(*mut GtkTextView)>,
+    pub copy_clipboard: Option<unsafe extern "C" fn(*mut GtkTextView)>,
+    pub paste_clipboard: Option<unsafe extern "C" fn(*mut GtkTextView)>,
+    pub toggle_overwrite: Option<unsafe extern "C" fn(*mut GtkTextView)>,
+    pub create_buffer: Option<unsafe extern "C" fn(*mut GtkTextView) -> *mut GtkTextBuffer>,
+    pub draw_layer: Option<unsafe extern "C" fn(*mut GtkTextView, GtkTextViewLayer, *mut cairo::cairo_t)>,
+    pub extend_selection: Option<unsafe extern "C" fn(*mut GtkTextView, GtkTextExtendSelection, *const GtkTextIter, *mut GtkTextIter, *mut GtkTextIter) -> gboolean>,
+    pub insert_emoji: Option<unsafe extern "C" fn(*mut GtkTextView)>,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved4: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkTextViewClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkTextViewClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("populate_popup", &self.populate_popup)
+         .field("move_cursor", &self.move_cursor)
+         .field("set_anchor", &self.set_anchor)
+         .field("insert_at_cursor", &self.insert_at_cursor)
+         .field("delete_from_cursor", &self.delete_from_cursor)
+         .field("backspace", &self.backspace)
+         .field("cut_clipboard", &self.cut_clipboard)
+         .field("copy_clipboard", &self.copy_clipboard)
+         .field("paste_clipboard", &self.paste_clipboard)
+         .field("toggle_overwrite", &self.toggle_overwrite)
+         .field("create_buffer", &self.create_buffer)
+         .field("draw_layer", &self.draw_layer)
+         .field("extend_selection", &self.extend_selection)
+         .field("insert_emoji", &self.insert_emoji)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
+         .field("_gtk_reserved4", &self._gtk_reserved4)
          .finish()
     }
 }
@@ -8199,14 +9259,25 @@ impl ::std::fmt::Debug for GtkToggleButtonAccessiblePrivate {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkToggleButtonClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkButtonClass,
+    pub toggled: Option<unsafe extern "C" fn(*mut GtkToggleButton)>,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved4: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkToggleButtonClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkToggleButtonClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("toggled", &self.toggled)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
+         .field("_gtk_reserved4", &self._gtk_reserved4)
          .finish()
     }
 }
@@ -8222,14 +9293,25 @@ impl ::std::fmt::Debug for GtkToggleButtonPrivate {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkToggleToolButtonClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkToolButtonClass,
+    pub toggled: Option<unsafe extern "C" fn(*mut GtkToggleToolButton)>,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved4: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkToggleToolButtonClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkToggleToolButtonClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("toggled", &self.toggled)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
+         .field("_gtk_reserved4", &self._gtk_reserved4)
          .finish()
     }
 }
@@ -8245,14 +9327,27 @@ impl ::std::fmt::Debug for GtkToggleToolButtonPrivate {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkToolButtonClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkToolItemClass,
+    pub button_type: GType,
+    pub clicked: Option<unsafe extern "C" fn(*mut GtkToolButton)>,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved4: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkToolButtonClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkToolButtonClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("button_type", &self.button_type)
+         .field("clicked", &self.clicked)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
+         .field("_gtk_reserved4", &self._gtk_reserved4)
          .finish()
     }
 }
@@ -8268,27 +9363,49 @@ impl ::std::fmt::Debug for GtkToolButtonPrivate {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkToolItemClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkBinClass,
+    pub create_menu_proxy: Option<unsafe extern "C" fn(*mut GtkToolItem) -> gboolean>,
+    pub toolbar_reconfigured: Option<unsafe extern "C" fn(*mut GtkToolItem)>,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved4: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkToolItemClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkToolItemClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("create_menu_proxy", &self.create_menu_proxy)
+         .field("toolbar_reconfigured", &self.toolbar_reconfigured)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
+         .field("_gtk_reserved4", &self._gtk_reserved4)
          .finish()
     }
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkToolItemGroupClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkContainerClass,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved4: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkToolItemGroupClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkToolItemGroupClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
+         .field("_gtk_reserved4", &self._gtk_reserved4)
          .finish()
     }
 }
@@ -8314,14 +9431,23 @@ impl ::std::fmt::Debug for GtkToolItemPrivate {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkToolPaletteClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkContainerClass,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved4: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkToolPaletteClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkToolPaletteClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
+         .field("_gtk_reserved4", &self._gtk_reserved4)
          .finish()
     }
 }
@@ -8368,14 +9494,29 @@ impl ::std::fmt::Debug for GtkToolShellIface {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkToolbarClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkContainerClass,
+    pub orientation_changed: Option<unsafe extern "C" fn(*mut GtkToolbar, GtkOrientation)>,
+    pub style_changed: Option<unsafe extern "C" fn(*mut GtkToolbar, GtkToolbarStyle)>,
+    pub popup_context_menu: Option<unsafe extern "C" fn(*mut GtkToolbar, c_int, c_int, c_int) -> gboolean>,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved4: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkToolbarClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkToolbarClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("orientation_changed", &self.orientation_changed)
+         .field("style_changed", &self.style_changed)
+         .field("popup_context_menu", &self.popup_context_menu)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
+         .field("_gtk_reserved4", &self._gtk_reserved4)
          .finish()
     }
 }
@@ -8727,14 +9868,61 @@ impl ::std::fmt::Debug for GtkTreeViewAccessiblePrivate {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkTreeViewClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkContainerClass,
+    pub row_activated: Option<unsafe extern "C" fn(*mut GtkTreeView, *mut GtkTreePath, *mut GtkTreeViewColumn)>,
+    pub test_expand_row: Option<unsafe extern "C" fn(*mut GtkTreeView, *mut GtkTreeIter, *mut GtkTreePath) -> gboolean>,
+    pub test_collapse_row: Option<unsafe extern "C" fn(*mut GtkTreeView, *mut GtkTreeIter, *mut GtkTreePath) -> gboolean>,
+    pub row_expanded: Option<unsafe extern "C" fn(*mut GtkTreeView, *mut GtkTreeIter, *mut GtkTreePath)>,
+    pub row_collapsed: Option<unsafe extern "C" fn(*mut GtkTreeView, *mut GtkTreeIter, *mut GtkTreePath)>,
+    pub columns_changed: Option<unsafe extern "C" fn(*mut GtkTreeView)>,
+    pub cursor_changed: Option<unsafe extern "C" fn(*mut GtkTreeView)>,
+    pub move_cursor: Option<unsafe extern "C" fn(*mut GtkTreeView, GtkMovementStep, c_int) -> gboolean>,
+    pub select_all: Option<unsafe extern "C" fn(*mut GtkTreeView) -> gboolean>,
+    pub unselect_all: Option<unsafe extern "C" fn(*mut GtkTreeView) -> gboolean>,
+    pub select_cursor_row: Option<unsafe extern "C" fn(*mut GtkTreeView, gboolean) -> gboolean>,
+    pub toggle_cursor_row: Option<unsafe extern "C" fn(*mut GtkTreeView) -> gboolean>,
+    pub expand_collapse_cursor_row: Option<unsafe extern "C" fn(*mut GtkTreeView, gboolean, gboolean, gboolean) -> gboolean>,
+    pub select_cursor_parent: Option<unsafe extern "C" fn(*mut GtkTreeView) -> gboolean>,
+    pub start_interactive_search: Option<unsafe extern "C" fn(*mut GtkTreeView) -> gboolean>,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved4: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved5: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved6: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved7: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved8: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkTreeViewClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkTreeViewClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("row_activated", &self.row_activated)
+         .field("test_expand_row", &self.test_expand_row)
+         .field("test_collapse_row", &self.test_collapse_row)
+         .field("row_expanded", &self.row_expanded)
+         .field("row_collapsed", &self.row_collapsed)
+         .field("columns_changed", &self.columns_changed)
+         .field("cursor_changed", &self.cursor_changed)
+         .field("move_cursor", &self.move_cursor)
+         .field("select_all", &self.select_all)
+         .field("unselect_all", &self.unselect_all)
+         .field("select_cursor_row", &self.select_cursor_row)
+         .field("toggle_cursor_row", &self.toggle_cursor_row)
+         .field("expand_collapse_cursor_row", &self.expand_collapse_cursor_row)
+         .field("select_cursor_parent", &self.select_cursor_parent)
+         .field("start_interactive_search", &self.start_interactive_search)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
+         .field("_gtk_reserved4", &self._gtk_reserved4)
+         .field("_gtk_reserved5", &self._gtk_reserved5)
+         .field("_gtk_reserved6", &self._gtk_reserved6)
+         .field("_gtk_reserved7", &self._gtk_reserved7)
+         .field("_gtk_reserved8", &self._gtk_reserved8)
          .finish()
     }
 }
@@ -8832,40 +10020,43 @@ impl ::std::fmt::Debug for GtkUIManagerPrivate {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkVBoxClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkBoxClass,
 }
 
 impl ::std::fmt::Debug for GtkVBoxClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkVBoxClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
          .finish()
     }
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkVButtonBoxClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkButtonBoxClass,
 }
 
 impl ::std::fmt::Debug for GtkVButtonBoxClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkVButtonBoxClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
          .finish()
     }
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkVPanedClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkPanedClass,
 }
 
 impl ::std::fmt::Debug for GtkVPanedClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkVPanedClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
          .finish()
     }
 }
@@ -8913,14 +10104,23 @@ impl ::std::fmt::Debug for GtkVSeparatorClass {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkViewportClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkBinClass,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved4: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkViewportClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkViewportClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
+         .field("_gtk_reserved4", &self._gtk_reserved4)
          .finish()
     }
 }
@@ -8936,14 +10136,23 @@ impl ::std::fmt::Debug for GtkViewportPrivate {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkVolumeButtonClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkScaleButtonClass,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved4: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkVolumeButtonClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkVolumeButtonClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
+         .field("_gtk_reserved4", &self._gtk_reserved4)
          .finish()
     }
 }
@@ -9214,14 +10423,31 @@ impl ::std::fmt::Debug for GtkWindowAccessiblePrivate {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkWindowClass {
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field parent_class has incomplete type
+    pub parent_class: GtkBinClass,
+    pub set_focus: Option<unsafe extern "C" fn(*mut GtkWindow, *mut GtkWidget)>,
+    pub activate_focus: Option<unsafe extern "C" fn(*mut GtkWindow)>,
+    pub activate_default: Option<unsafe extern "C" fn(*mut GtkWindow)>,
+    pub keys_changed: Option<unsafe extern "C" fn(*mut GtkWindow)>,
+    pub enable_debugging: Option<unsafe extern "C" fn(*mut GtkWindow, gboolean) -> gboolean>,
+    pub _gtk_reserved1: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved2: Option<unsafe extern "C" fn()>,
+    pub _gtk_reserved3: Option<unsafe extern "C" fn()>,
 }
 
 impl ::std::fmt::Debug for GtkWindowClass {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkWindowClass @ {:?}", self as *const _))
+         .field("parent_class", &self.parent_class)
+         .field("set_focus", &self.set_focus)
+         .field("activate_focus", &self.activate_focus)
+         .field("activate_default", &self.activate_default)
+         .field("keys_changed", &self.keys_changed)
+         .field("enable_debugging", &self.enable_debugging)
+         .field("_gtk_reserved1", &self._gtk_reserved1)
+         .field("_gtk_reserved2", &self._gtk_reserved2)
+         .field("_gtk_reserved3", &self._gtk_reserved3)
          .finish()
     }
 }
@@ -10256,6 +11482,36 @@ impl ::std::fmt::Debug for GtkEventController {
 }
 
 #[repr(C)]
+pub struct GtkEventControllerKey(c_void);
+
+impl ::std::fmt::Debug for GtkEventControllerKey {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+        f.debug_struct(&format!("GtkEventControllerKey @ {:?}", self as *const _))
+         .finish()
+    }
+}
+
+#[repr(C)]
+pub struct GtkEventControllerMotion(c_void);
+
+impl ::std::fmt::Debug for GtkEventControllerMotion {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+        f.debug_struct(&format!("GtkEventControllerMotion @ {:?}", self as *const _))
+         .finish()
+    }
+}
+
+#[repr(C)]
+pub struct GtkEventControllerScroll(c_void);
+
+impl ::std::fmt::Debug for GtkEventControllerScroll {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+        f.debug_struct(&format!("GtkEventControllerScroll @ {:?}", self as *const _))
+         .finish()
+    }
+}
+
+#[repr(C)]
 #[derive(Copy, Clone)]
 pub struct GtkExpander {
     pub bin: GtkBin,
@@ -10612,6 +11868,16 @@ pub struct GtkGestureSingle(c_void);
 impl ::std::fmt::Debug for GtkGestureSingle {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("GtkGestureSingle @ {:?}", self as *const _))
+         .finish()
+    }
+}
+
+#[repr(C)]
+pub struct GtkGestureStylus(c_void);
+
+impl ::std::fmt::Debug for GtkGestureStylus {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+        f.debug_struct(&format!("GtkGestureStylus @ {:?}", self as *const _))
          .finish()
     }
 }
@@ -11816,10 +13082,11 @@ impl ::std::fmt::Debug for GtkRangeAccessible {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct GtkRcStyle {
     pub parent_instance: gobject::GObject,
     pub name: *mut c_char,
-    pub bg_pixmap_name: [c_char; 5],
+    pub bg_pixmap_name: [*mut c_char; 5],
     pub font_desc: *mut pango::PangoFontDescription,
     pub color_flags: [GtkRcFlags; 5],
     pub fg: [gdk::GdkColor; 5],
@@ -11831,8 +13098,7 @@ pub struct GtkRcStyle {
     pub rc_properties: *mut glib::GArray,
     pub rc_style_lists: *mut glib::GSList,
     pub icon_factories: *mut glib::GSList,
-    _truncated_record_marker: c_void,
-    // /*Ignored*/field engine_specified has incomplete type
+    pub engine_specified: c_uint,
 }
 
 impl ::std::fmt::Debug for GtkRcStyle {
@@ -13491,12 +14757,12 @@ extern "C" {
     // GtkIconSize
     //=========================================================================
     pub fn gtk_icon_size_get_type() -> GType;
-    pub fn gtk_icon_size_from_name(name: *const c_char) -> c_int;
-    pub fn gtk_icon_size_get_name(size: c_int) -> *const c_char;
-    pub fn gtk_icon_size_lookup(size: c_int, width: *mut c_int, height: *mut c_int) -> gboolean;
-    pub fn gtk_icon_size_lookup_for_settings(settings: *mut GtkSettings, size: c_int, width: *mut c_int, height: *mut c_int) -> gboolean;
-    pub fn gtk_icon_size_register(name: *const c_char, width: c_int, height: c_int) -> c_int;
-    pub fn gtk_icon_size_register_alias(alias: *const c_char, target: c_int);
+    pub fn gtk_icon_size_from_name(name: *const c_char) -> GtkIconSize;
+    pub fn gtk_icon_size_get_name(size: GtkIconSize) -> *const c_char;
+    pub fn gtk_icon_size_lookup(size: GtkIconSize, width: *mut c_int, height: *mut c_int) -> gboolean;
+    pub fn gtk_icon_size_lookup_for_settings(settings: *mut GtkSettings, size: GtkIconSize, width: *mut c_int, height: *mut c_int) -> gboolean;
+    pub fn gtk_icon_size_register(name: *const c_char, width: c_int, height: c_int) -> GtkIconSize;
+    pub fn gtk_icon_size_register_alias(alias: *const c_char, target: GtkIconSize);
 
     //=========================================================================
     // GtkIconThemeError
@@ -13888,9 +15154,19 @@ extern "C" {
     pub fn gtk_dialog_flags_get_type() -> GType;
 
     //=========================================================================
+    // GtkEventControllerScrollFlags
+    //=========================================================================
+    pub fn gtk_event_controller_scroll_flags_get_type() -> GType;
+
+    //=========================================================================
     // GtkFileFilterFlags
     //=========================================================================
     pub fn gtk_file_filter_flags_get_type() -> GType;
+
+    //=========================================================================
+    // GtkFontChooserLevel
+    //=========================================================================
+    pub fn gtk_font_chooser_level_get_type() -> GType;
 
     //=========================================================================
     // GtkIconLookupFlags
@@ -14045,12 +15321,11 @@ extern "C" {
     pub fn gtk_icon_set_new_from_pixbuf(pixbuf: *mut gdk_pixbuf::GdkPixbuf) -> *mut GtkIconSet;
     pub fn gtk_icon_set_add_source(icon_set: *mut GtkIconSet, source: *const GtkIconSource);
     pub fn gtk_icon_set_copy(icon_set: *mut GtkIconSet) -> *mut GtkIconSet;
-    pub fn gtk_icon_set_get_sizes(icon_set: *mut GtkIconSet, sizes: *mut *mut c_int, n_sizes: *mut c_int);
+    pub fn gtk_icon_set_get_sizes(icon_set: *mut GtkIconSet, sizes: *mut *mut GtkIconSize, n_sizes: *mut c_int);
     pub fn gtk_icon_set_ref(icon_set: *mut GtkIconSet) -> *mut GtkIconSet;
-    pub fn gtk_icon_set_render_icon(icon_set: *mut GtkIconSet, style: *mut GtkStyle, direction: GtkTextDirection, state: GtkStateType, size: c_int, widget: *mut GtkWidget, detail: *const c_char) -> *mut gdk_pixbuf::GdkPixbuf;
-    pub fn gtk_icon_set_render_icon_pixbuf(icon_set: *mut GtkIconSet, context: *mut GtkStyleContext, size: c_int) -> *mut gdk_pixbuf::GdkPixbuf;
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
-    pub fn gtk_icon_set_render_icon_surface(icon_set: *mut GtkIconSet, context: *mut GtkStyleContext, size: c_int, scale: c_int, for_window: *mut gdk::GdkWindow) -> *mut cairo::cairo_surface_t;
+    pub fn gtk_icon_set_render_icon(icon_set: *mut GtkIconSet, style: *mut GtkStyle, direction: GtkTextDirection, state: GtkStateType, size: GtkIconSize, widget: *mut GtkWidget, detail: *const c_char) -> *mut gdk_pixbuf::GdkPixbuf;
+    pub fn gtk_icon_set_render_icon_pixbuf(icon_set: *mut GtkIconSet, context: *mut GtkStyleContext, size: GtkIconSize) -> *mut gdk_pixbuf::GdkPixbuf;
+    pub fn gtk_icon_set_render_icon_surface(icon_set: *mut GtkIconSet, context: *mut GtkStyleContext, size: GtkIconSize, scale: c_int, for_window: *mut gdk::GdkWindow) -> *mut cairo::cairo_surface_t;
     pub fn gtk_icon_set_unref(icon_set: *mut GtkIconSet);
 
     //=========================================================================
@@ -14065,7 +15340,7 @@ extern "C" {
     pub fn gtk_icon_source_get_filename(source: *const GtkIconSource) -> *const c_char;
     pub fn gtk_icon_source_get_icon_name(source: *const GtkIconSource) -> *const c_char;
     pub fn gtk_icon_source_get_pixbuf(source: *const GtkIconSource) -> *mut gdk_pixbuf::GdkPixbuf;
-    pub fn gtk_icon_source_get_size(source: *const GtkIconSource) -> c_int;
+    pub fn gtk_icon_source_get_size(source: *const GtkIconSource) -> GtkIconSize;
     pub fn gtk_icon_source_get_size_wildcarded(source: *const GtkIconSource) -> gboolean;
     pub fn gtk_icon_source_get_state(source: *const GtkIconSource) -> GtkStateType;
     pub fn gtk_icon_source_get_state_wildcarded(source: *const GtkIconSource) -> gboolean;
@@ -14074,7 +15349,7 @@ extern "C" {
     pub fn gtk_icon_source_set_filename(source: *mut GtkIconSource, filename: *const c_char);
     pub fn gtk_icon_source_set_icon_name(source: *mut GtkIconSource, icon_name: *const c_char);
     pub fn gtk_icon_source_set_pixbuf(source: *mut GtkIconSource, pixbuf: *mut gdk_pixbuf::GdkPixbuf);
-    pub fn gtk_icon_source_set_size(source: *mut GtkIconSource, size: c_int);
+    pub fn gtk_icon_source_set_size(source: *mut GtkIconSource, size: GtkIconSize);
     pub fn gtk_icon_source_set_size_wildcarded(source: *mut GtkIconSource, setting: gboolean);
     pub fn gtk_icon_source_set_state(source: *mut GtkIconSource, state: GtkStateType);
     pub fn gtk_icon_source_set_state_wildcarded(source: *mut GtkIconSource, setting: gboolean);
@@ -14165,9 +15440,9 @@ extern "C" {
     pub fn gtk_selection_data_get_type() -> GType;
     pub fn gtk_selection_data_copy(data: *const GtkSelectionData) -> *mut GtkSelectionData;
     pub fn gtk_selection_data_free(data: *mut GtkSelectionData);
-    pub fn gtk_selection_data_get_data(selection_data: *const GtkSelectionData) -> *mut u8;
+    pub fn gtk_selection_data_get_data(selection_data: *const GtkSelectionData) -> *const u8;
     pub fn gtk_selection_data_get_data_type(selection_data: *const GtkSelectionData) -> gdk::GdkAtom;
-    pub fn gtk_selection_data_get_data_with_length(selection_data: *const GtkSelectionData, length: *mut c_int) -> *mut u8;
+    pub fn gtk_selection_data_get_data_with_length(selection_data: *const GtkSelectionData, length: *mut c_int) -> *const u8;
     pub fn gtk_selection_data_get_display(selection_data: *const GtkSelectionData) -> *mut gdk::GdkDisplay;
     pub fn gtk_selection_data_get_format(selection_data: *const GtkSelectionData) -> c_int;
     pub fn gtk_selection_data_get_length(selection_data: *const GtkSelectionData) -> c_int;
@@ -14177,7 +15452,7 @@ extern "C" {
     pub fn gtk_selection_data_get_targets(selection_data: *const GtkSelectionData, targets: *mut *mut gdk::GdkAtom, n_atoms: *mut c_int) -> gboolean;
     pub fn gtk_selection_data_get_text(selection_data: *const GtkSelectionData) -> *mut c_char;
     pub fn gtk_selection_data_get_uris(selection_data: *const GtkSelectionData) -> *mut *mut c_char;
-    pub fn gtk_selection_data_set(selection_data: *mut GtkSelectionData, type_: gdk::GdkAtom, format: c_int, data: *mut u8, length: c_int);
+    pub fn gtk_selection_data_set(selection_data: *mut GtkSelectionData, type_: gdk::GdkAtom, format: c_int, data: *const u8, length: c_int);
     pub fn gtk_selection_data_set_pixbuf(selection_data: *mut GtkSelectionData, pixbuf: *mut gdk_pixbuf::GdkPixbuf) -> gboolean;
     pub fn gtk_selection_data_set_text(selection_data: *mut GtkSelectionData, str: *const c_char, len: c_int) -> gboolean;
     pub fn gtk_selection_data_set_uris(selection_data: *mut GtkSelectionData, uris: *mut *mut c_char) -> gboolean;
@@ -14219,11 +15494,11 @@ extern "C" {
     // GtkTargetList
     //=========================================================================
     pub fn gtk_target_list_get_type() -> GType;
-    pub fn gtk_target_list_new(targets: *mut GtkTargetEntry, ntargets: c_uint) -> *mut GtkTargetList;
+    pub fn gtk_target_list_new(targets: *const GtkTargetEntry, ntargets: c_uint) -> *mut GtkTargetList;
     pub fn gtk_target_list_add(list: *mut GtkTargetList, target: gdk::GdkAtom, flags: c_uint, info: c_uint);
     pub fn gtk_target_list_add_image_targets(list: *mut GtkTargetList, info: c_uint, writable: gboolean);
     pub fn gtk_target_list_add_rich_text_targets(list: *mut GtkTargetList, info: c_uint, deserializable: gboolean, buffer: *mut GtkTextBuffer);
-    pub fn gtk_target_list_add_table(list: *mut GtkTargetList, targets: *mut GtkTargetEntry, ntargets: c_uint);
+    pub fn gtk_target_list_add_table(list: *mut GtkTargetList, targets: *const GtkTargetEntry, ntargets: c_uint);
     pub fn gtk_target_list_add_text_targets(list: *mut GtkTargetList, info: c_uint);
     pub fn gtk_target_list_add_uri_targets(list: *mut GtkTargetList, info: c_uint);
     pub fn gtk_target_list_find(list: *mut GtkTargetList, target: gdk::GdkAtom, info: *mut c_uint) -> gboolean;
@@ -14353,7 +15628,6 @@ extern "C" {
     pub fn gtk_tree_path_new() -> *mut GtkTreePath;
     pub fn gtk_tree_path_new_first() -> *mut GtkTreePath;
     pub fn gtk_tree_path_new_from_indices(first_index: c_int, ...) -> *mut GtkTreePath;
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
     pub fn gtk_tree_path_new_from_indicesv(indices: *mut c_int, length: size_t) -> *mut GtkTreePath;
     pub fn gtk_tree_path_new_from_string(path: *const c_char) -> *mut GtkTreePath;
     pub fn gtk_tree_path_append_index(path: *mut GtkTreePath, index_: c_int);
@@ -14390,9 +15664,7 @@ extern "C" {
     //=========================================================================
     // GtkWidgetClass
     //=========================================================================
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_widget_class_bind_template_callback_full(widget_class: *mut GtkWidgetClass, callback_name: *const c_char, callback_symbol: gobject::GCallback);
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_widget_class_bind_template_child_full(widget_class: *mut GtkWidgetClass, name: *const c_char, internal_child: gboolean, struct_offset: ssize_t);
     pub fn gtk_widget_class_find_style_property(klass: *mut GtkWidgetClass, property_name: *const c_char) -> *mut gobject::GParamSpec;
     #[cfg(any(feature = "v3_20", feature = "dox"))]
@@ -14402,13 +15674,10 @@ extern "C" {
     pub fn gtk_widget_class_list_style_properties(klass: *mut GtkWidgetClass, n_properties: *mut c_uint) -> *mut *mut gobject::GParamSpec;
     pub fn gtk_widget_class_set_accessible_role(widget_class: *mut GtkWidgetClass, role: atk::AtkRole);
     pub fn gtk_widget_class_set_accessible_type(widget_class: *mut GtkWidgetClass, type_: GType);
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_widget_class_set_connect_func(widget_class: *mut GtkWidgetClass, connect_func: GtkBuilderConnectFunc, connect_data: gpointer, connect_data_destroy: glib::GDestroyNotify);
     #[cfg(any(feature = "v3_20", feature = "dox"))]
     pub fn gtk_widget_class_set_css_name(widget_class: *mut GtkWidgetClass, name: *const c_char);
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_widget_class_set_template(widget_class: *mut GtkWidgetClass, template_bytes: *mut glib::GBytes);
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_widget_class_set_template_from_resource(widget_class: *mut GtkWidgetClass, resource_name: *const c_char);
 
     //=========================================================================
@@ -14434,7 +15703,6 @@ extern "C" {
     pub fn gtk_widget_path_iter_get_object_type(path: *const GtkWidgetPath, pos: c_int) -> GType;
     pub fn gtk_widget_path_iter_get_sibling_index(path: *const GtkWidgetPath, pos: c_int) -> c_uint;
     pub fn gtk_widget_path_iter_get_siblings(path: *const GtkWidgetPath, pos: c_int) -> *const GtkWidgetPath;
-    #[cfg(any(feature = "v3_14", feature = "dox"))]
     pub fn gtk_widget_path_iter_get_state(path: *const GtkWidgetPath, pos: c_int) -> GtkStateFlags;
     pub fn gtk_widget_path_iter_has_class(path: *const GtkWidgetPath, pos: c_int, name: *const c_char) -> gboolean;
     pub fn gtk_widget_path_iter_has_name(path: *const GtkWidgetPath, pos: c_int, name: *const c_char) -> gboolean;
@@ -14450,7 +15718,6 @@ extern "C" {
     #[cfg(any(feature = "v3_20", feature = "dox"))]
     pub fn gtk_widget_path_iter_set_object_name(path: *mut GtkWidgetPath, pos: c_int, name: *const c_char);
     pub fn gtk_widget_path_iter_set_object_type(path: *mut GtkWidgetPath, pos: c_int, type_: GType);
-    #[cfg(any(feature = "v3_14", feature = "dox"))]
     pub fn gtk_widget_path_iter_set_state(path: *mut GtkWidgetPath, pos: c_int, state: GtkStateFlags);
     pub fn gtk_widget_path_length(path: *const GtkWidgetPath) -> c_int;
     pub fn gtk_widget_path_prepend_type(path: *mut GtkWidgetPath, type_: GType);
@@ -14463,12 +15730,12 @@ extern "C" {
     //=========================================================================
     pub fn gtk_about_dialog_get_type() -> GType;
     pub fn gtk_about_dialog_new() -> *mut GtkWidget;
-    pub fn gtk_about_dialog_add_credit_section(about: *mut GtkAboutDialog, section_name: *const c_char, people: *mut *mut c_char);
-    pub fn gtk_about_dialog_get_artists(about: *mut GtkAboutDialog) -> *mut *mut c_char;
-    pub fn gtk_about_dialog_get_authors(about: *mut GtkAboutDialog) -> *mut *mut c_char;
+    pub fn gtk_about_dialog_add_credit_section(about: *mut GtkAboutDialog, section_name: *const c_char, people: *mut *const c_char);
+    pub fn gtk_about_dialog_get_artists(about: *mut GtkAboutDialog) -> *const *const c_char;
+    pub fn gtk_about_dialog_get_authors(about: *mut GtkAboutDialog) -> *const *const c_char;
     pub fn gtk_about_dialog_get_comments(about: *mut GtkAboutDialog) -> *const c_char;
     pub fn gtk_about_dialog_get_copyright(about: *mut GtkAboutDialog) -> *const c_char;
-    pub fn gtk_about_dialog_get_documenters(about: *mut GtkAboutDialog) -> *mut *mut c_char;
+    pub fn gtk_about_dialog_get_documenters(about: *mut GtkAboutDialog) -> *const *const c_char;
     pub fn gtk_about_dialog_get_license(about: *mut GtkAboutDialog) -> *const c_char;
     pub fn gtk_about_dialog_get_license_type(about: *mut GtkAboutDialog) -> GtkLicense;
     pub fn gtk_about_dialog_get_logo(about: *mut GtkAboutDialog) -> *mut gdk_pixbuf::GdkPixbuf;
@@ -14479,11 +15746,11 @@ extern "C" {
     pub fn gtk_about_dialog_get_website(about: *mut GtkAboutDialog) -> *const c_char;
     pub fn gtk_about_dialog_get_website_label(about: *mut GtkAboutDialog) -> *const c_char;
     pub fn gtk_about_dialog_get_wrap_license(about: *mut GtkAboutDialog) -> gboolean;
-    pub fn gtk_about_dialog_set_artists(about: *mut GtkAboutDialog, artists: *mut *mut c_char);
-    pub fn gtk_about_dialog_set_authors(about: *mut GtkAboutDialog, authors: *mut *mut c_char);
+    pub fn gtk_about_dialog_set_artists(about: *mut GtkAboutDialog, artists: *mut *const c_char);
+    pub fn gtk_about_dialog_set_authors(about: *mut GtkAboutDialog, authors: *mut *const c_char);
     pub fn gtk_about_dialog_set_comments(about: *mut GtkAboutDialog, comments: *const c_char);
     pub fn gtk_about_dialog_set_copyright(about: *mut GtkAboutDialog, copyright: *const c_char);
-    pub fn gtk_about_dialog_set_documenters(about: *mut GtkAboutDialog, documenters: *mut *mut c_char);
+    pub fn gtk_about_dialog_set_documenters(about: *mut GtkAboutDialog, documenters: *mut *const c_char);
     pub fn gtk_about_dialog_set_license(about: *mut GtkAboutDialog, license: *const c_char);
     pub fn gtk_about_dialog_set_license_type(about: *mut GtkAboutDialog, license_type: GtkLicense);
     pub fn gtk_about_dialog_set_logo(about: *mut GtkAboutDialog, logo: *mut gdk_pixbuf::GdkPixbuf);
@@ -14518,12 +15785,10 @@ extern "C" {
     //=========================================================================
     pub fn gtk_accel_label_get_type() -> GType;
     pub fn gtk_accel_label_new(string: *const c_char) -> *mut GtkWidget;
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
     pub fn gtk_accel_label_get_accel(accel_label: *mut GtkAccelLabel, accelerator_key: *mut c_uint, accelerator_mods: *mut gdk::GdkModifierType);
     pub fn gtk_accel_label_get_accel_widget(accel_label: *mut GtkAccelLabel) -> *mut GtkWidget;
     pub fn gtk_accel_label_get_accel_width(accel_label: *mut GtkAccelLabel) -> c_uint;
     pub fn gtk_accel_label_refetch(accel_label: *mut GtkAccelLabel) -> gboolean;
-    #[cfg(any(feature = "v3_6", feature = "dox"))]
     pub fn gtk_accel_label_set_accel(accel_label: *mut GtkAccelLabel, accelerator_key: c_uint, accelerator_mods: gdk::GdkModifierType);
     pub fn gtk_accel_label_set_accel_closure(accel_label: *mut GtkAccelLabel, accel_closure: *mut gobject::GClosure);
     pub fn gtk_accel_label_set_accel_widget(accel_label: *mut GtkAccelLabel, accel_widget: *mut GtkWidget);
@@ -14563,7 +15828,7 @@ extern "C" {
     pub fn gtk_action_activate(action: *mut GtkAction);
     pub fn gtk_action_block_activate(action: *mut GtkAction);
     pub fn gtk_action_connect_accelerator(action: *mut GtkAction);
-    pub fn gtk_action_create_icon(action: *mut GtkAction, icon_size: c_int) -> *mut GtkWidget;
+    pub fn gtk_action_create_icon(action: *mut GtkAction, icon_size: GtkIconSize) -> *mut GtkWidget;
     pub fn gtk_action_create_menu(action: *mut GtkAction) -> *mut GtkWidget;
     pub fn gtk_action_create_menu_item(action: *mut GtkAction) -> *mut GtkWidget;
     pub fn gtk_action_create_tool_item(action: *mut GtkAction) -> *mut GtkWidget;
@@ -14606,15 +15871,10 @@ extern "C" {
     // GtkActionBar
     //=========================================================================
     pub fn gtk_action_bar_get_type() -> GType;
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
     pub fn gtk_action_bar_new() -> *mut GtkWidget;
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
     pub fn gtk_action_bar_get_center_widget(action_bar: *mut GtkActionBar) -> *mut GtkWidget;
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
     pub fn gtk_action_bar_pack_end(action_bar: *mut GtkActionBar, child: *mut GtkWidget);
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
     pub fn gtk_action_bar_pack_start(action_bar: *mut GtkActionBar, child: *mut GtkWidget);
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
     pub fn gtk_action_bar_set_center_widget(action_bar: *mut GtkActionBar, center_widget: *mut GtkWidget);
 
     //=========================================================================
@@ -14624,13 +15884,12 @@ extern "C" {
     pub fn gtk_action_group_new(name: *const c_char) -> *mut GtkActionGroup;
     pub fn gtk_action_group_add_action(action_group: *mut GtkActionGroup, action: *mut GtkAction);
     pub fn gtk_action_group_add_action_with_accel(action_group: *mut GtkActionGroup, action: *mut GtkAction, accelerator: *const c_char);
-    pub fn gtk_action_group_add_actions(action_group: *mut GtkActionGroup, entries: *mut GtkActionEntry, n_entries: c_uint, user_data: gpointer);
-    pub fn gtk_action_group_add_actions_full(action_group: *mut GtkActionGroup, entries: *mut GtkActionEntry, n_entries: c_uint, user_data: gpointer, destroy: glib::GDestroyNotify);
-    pub fn gtk_action_group_add_radio_actions(action_group: *mut GtkActionGroup, entries: *mut GtkRadioActionEntry, n_entries: c_uint, value: c_int, on_change: gobject::GCallback, user_data: gpointer);
-    pub fn gtk_action_group_add_radio_actions_full(action_group: *mut GtkActionGroup, entries: *mut GtkRadioActionEntry, n_entries: c_uint, value: c_int, on_change: gobject::GCallback, user_data: gpointer, destroy: glib::GDestroyNotify);
-    pub fn gtk_action_group_add_toggle_actions(action_group: *mut GtkActionGroup, entries: *mut GtkToggleActionEntry, n_entries: c_uint, user_data: gpointer);
-    pub fn gtk_action_group_add_toggle_actions_full(action_group: *mut GtkActionGroup, entries: *mut GtkToggleActionEntry, n_entries: c_uint, user_data: gpointer, destroy: glib::GDestroyNotify);
-    #[cfg(any(feature = "v3_6", feature = "dox"))]
+    pub fn gtk_action_group_add_actions(action_group: *mut GtkActionGroup, entries: *const GtkActionEntry, n_entries: c_uint, user_data: gpointer);
+    pub fn gtk_action_group_add_actions_full(action_group: *mut GtkActionGroup, entries: *const GtkActionEntry, n_entries: c_uint, user_data: gpointer, destroy: glib::GDestroyNotify);
+    pub fn gtk_action_group_add_radio_actions(action_group: *mut GtkActionGroup, entries: *const GtkRadioActionEntry, n_entries: c_uint, value: c_int, on_change: gobject::GCallback, user_data: gpointer);
+    pub fn gtk_action_group_add_radio_actions_full(action_group: *mut GtkActionGroup, entries: *const GtkRadioActionEntry, n_entries: c_uint, value: c_int, on_change: gobject::GCallback, user_data: gpointer, destroy: glib::GDestroyNotify);
+    pub fn gtk_action_group_add_toggle_actions(action_group: *mut GtkActionGroup, entries: *const GtkToggleActionEntry, n_entries: c_uint, user_data: gpointer);
+    pub fn gtk_action_group_add_toggle_actions_full(action_group: *mut GtkActionGroup, entries: *const GtkToggleActionEntry, n_entries: c_uint, user_data: gpointer, destroy: glib::GDestroyNotify);
     pub fn gtk_action_group_get_accel_group(action_group: *mut GtkActionGroup) -> *mut GtkAccelGroup;
     pub fn gtk_action_group_get_action(action_group: *mut GtkActionGroup, action_name: *const c_char) -> *mut GtkAction;
     pub fn gtk_action_group_get_name(action_group: *mut GtkActionGroup) -> *const c_char;
@@ -14638,7 +15897,6 @@ extern "C" {
     pub fn gtk_action_group_get_visible(action_group: *mut GtkActionGroup) -> gboolean;
     pub fn gtk_action_group_list_actions(action_group: *mut GtkActionGroup) -> *mut glib::GList;
     pub fn gtk_action_group_remove_action(action_group: *mut GtkActionGroup, action: *mut GtkAction);
-    #[cfg(any(feature = "v3_6", feature = "dox"))]
     pub fn gtk_action_group_set_accel_group(action_group: *mut GtkActionGroup, accel_group: *mut GtkAccelGroup);
     pub fn gtk_action_group_set_sensitive(action_group: *mut GtkActionGroup, sensitive: gboolean);
     pub fn gtk_action_group_set_translate_func(action_group: *mut GtkActionGroup, func: GtkTranslateFunc, data: gpointer, notify: glib::GDestroyNotify);
@@ -14728,29 +15986,21 @@ extern "C" {
     pub fn gtk_application_new(application_id: *const c_char, flags: gio::GApplicationFlags) -> *mut GtkApplication;
     pub fn gtk_application_add_accelerator(application: *mut GtkApplication, accelerator: *const c_char, action_name: *const c_char, parameter: *mut glib::GVariant);
     pub fn gtk_application_add_window(application: *mut GtkApplication, window: *mut GtkWindow);
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
     pub fn gtk_application_get_accels_for_action(application: *mut GtkApplication, detailed_action_name: *const c_char) -> *mut *mut c_char;
-    #[cfg(any(feature = "v3_14", feature = "dox"))]
     pub fn gtk_application_get_actions_for_accel(application: *mut GtkApplication, accel: *const c_char) -> *mut *mut c_char;
-    #[cfg(any(feature = "v3_6", feature = "dox"))]
     pub fn gtk_application_get_active_window(application: *mut GtkApplication) -> *mut GtkWindow;
     pub fn gtk_application_get_app_menu(application: *mut GtkApplication) -> *mut gio::GMenuModel;
-    #[cfg(any(feature = "v3_14", feature = "dox"))]
     pub fn gtk_application_get_menu_by_id(application: *mut GtkApplication, id: *const c_char) -> *mut gio::GMenu;
     pub fn gtk_application_get_menubar(application: *mut GtkApplication) -> *mut gio::GMenuModel;
-    #[cfg(any(feature = "v3_6", feature = "dox"))]
     pub fn gtk_application_get_window_by_id(application: *mut GtkApplication, id: c_uint) -> *mut GtkWindow;
     pub fn gtk_application_get_windows(application: *mut GtkApplication) -> *mut glib::GList;
     pub fn gtk_application_inhibit(application: *mut GtkApplication, window: *mut GtkWindow, flags: GtkApplicationInhibitFlags, reason: *const c_char) -> c_uint;
     pub fn gtk_application_is_inhibited(application: *mut GtkApplication, flags: GtkApplicationInhibitFlags) -> gboolean;
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
     pub fn gtk_application_list_action_descriptions(application: *mut GtkApplication) -> *mut *mut c_char;
-    #[cfg(any(feature = "v3_14", feature = "dox"))]
     pub fn gtk_application_prefers_app_menu(application: *mut GtkApplication) -> gboolean;
     pub fn gtk_application_remove_accelerator(application: *mut GtkApplication, action_name: *const c_char, parameter: *mut glib::GVariant);
     pub fn gtk_application_remove_window(application: *mut GtkApplication, window: *mut GtkWindow);
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
-    pub fn gtk_application_set_accels_for_action(application: *mut GtkApplication, detailed_action_name: *const c_char, accels: *mut *mut c_char);
+    pub fn gtk_application_set_accels_for_action(application: *mut GtkApplication, detailed_action_name: *const c_char, accels: *const *const c_char);
     pub fn gtk_application_set_app_menu(application: *mut GtkApplication, app_menu: *mut gio::GMenuModel);
     pub fn gtk_application_set_menubar(application: *mut GtkApplication, menubar: *mut gio::GMenuModel);
     pub fn gtk_application_uninhibit(application: *mut GtkApplication, cookie: c_uint);
@@ -14762,7 +16012,6 @@ extern "C" {
     pub fn gtk_application_window_new(application: *mut GtkApplication) -> *mut GtkWidget;
     #[cfg(any(feature = "v3_20", feature = "dox"))]
     pub fn gtk_application_window_get_help_overlay(window: *mut GtkApplicationWindow) -> *mut GtkShortcutsWindow;
-    #[cfg(any(feature = "v3_6", feature = "dox"))]
     pub fn gtk_application_window_get_id(window: *mut GtkApplicationWindow) -> c_uint;
     pub fn gtk_application_window_get_show_menubar(window: *mut GtkApplicationWindow) -> gboolean;
     #[cfg(any(feature = "v3_20", feature = "dox"))]
@@ -14839,9 +16088,7 @@ extern "C" {
     //=========================================================================
     pub fn gtk_box_get_type() -> GType;
     pub fn gtk_box_new(orientation: GtkOrientation, spacing: c_int) -> *mut GtkWidget;
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_box_get_baseline_position(box_: *mut GtkBox) -> GtkBaselinePosition;
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
     pub fn gtk_box_get_center_widget(box_: *mut GtkBox) -> *mut GtkWidget;
     pub fn gtk_box_get_homogeneous(box_: *mut GtkBox) -> gboolean;
     pub fn gtk_box_get_spacing(box_: *mut GtkBox) -> c_int;
@@ -14849,9 +16096,7 @@ extern "C" {
     pub fn gtk_box_pack_start(box_: *mut GtkBox, child: *mut GtkWidget, expand: gboolean, fill: gboolean, padding: c_uint);
     pub fn gtk_box_query_child_packing(box_: *mut GtkBox, child: *mut GtkWidget, expand: *mut gboolean, fill: *mut gboolean, padding: *mut c_uint, pack_type: *mut GtkPackType);
     pub fn gtk_box_reorder_child(box_: *mut GtkBox, child: *mut GtkWidget, position: c_int);
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_box_set_baseline_position(box_: *mut GtkBox, position: GtkBaselinePosition);
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
     pub fn gtk_box_set_center_widget(box_: *mut GtkBox, widget: *mut GtkWidget);
     pub fn gtk_box_set_child_packing(box_: *mut GtkBox, child: *mut GtkWidget, expand: gboolean, fill: gboolean, padding: c_uint, pack_type: GtkPackType);
     pub fn gtk_box_set_homogeneous(box_: *mut GtkBox, homogeneous: gboolean);
@@ -14862,15 +16107,10 @@ extern "C" {
     //=========================================================================
     pub fn gtk_builder_get_type() -> GType;
     pub fn gtk_builder_new() -> *mut GtkBuilder;
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_builder_new_from_file(filename: *const c_char) -> *mut GtkBuilder;
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_builder_new_from_resource(resource_path: *const c_char) -> *mut GtkBuilder;
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_builder_new_from_string(string: *const c_char, length: ssize_t) -> *mut GtkBuilder;
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_builder_add_callback_symbol(builder: *mut GtkBuilder, callback_name: *const c_char, callback_symbol: gobject::GCallback);
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_builder_add_callback_symbols(builder: *mut GtkBuilder, first_callback_name: *const c_char, first_callback_symbol: gobject::GCallback, ...);
     pub fn gtk_builder_add_from_file(builder: *mut GtkBuilder, filename: *const c_char, error: *mut *mut glib::GError) -> c_uint;
     pub fn gtk_builder_add_from_resource(builder: *mut GtkBuilder, resource_path: *const c_char, error: *mut *mut glib::GError) -> c_uint;
@@ -14880,18 +16120,14 @@ extern "C" {
     pub fn gtk_builder_add_objects_from_string(builder: *mut GtkBuilder, buffer: *const c_char, length: size_t, object_ids: *mut *mut c_char, error: *mut *mut glib::GError) -> c_uint;
     pub fn gtk_builder_connect_signals(builder: *mut GtkBuilder, user_data: gpointer);
     pub fn gtk_builder_connect_signals_full(builder: *mut GtkBuilder, func: GtkBuilderConnectFunc, user_data: gpointer);
-    #[cfg(any(feature = "v3_8", feature = "dox"))]
     pub fn gtk_builder_expose_object(builder: *mut GtkBuilder, name: *const c_char, object: *mut gobject::GObject);
     pub fn gtk_builder_extend_with_template(builder: *mut GtkBuilder, widget: *mut GtkWidget, template_type: GType, buffer: *const c_char, length: size_t, error: *mut *mut glib::GError) -> c_uint;
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_builder_get_application(builder: *mut GtkBuilder) -> *mut GtkApplication;
     pub fn gtk_builder_get_object(builder: *mut GtkBuilder, name: *const c_char) -> *mut gobject::GObject;
     pub fn gtk_builder_get_objects(builder: *mut GtkBuilder) -> *mut glib::GSList;
     pub fn gtk_builder_get_translation_domain(builder: *mut GtkBuilder) -> *const c_char;
     pub fn gtk_builder_get_type_from_name(builder: *mut GtkBuilder, type_name: *const c_char) -> GType;
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_builder_lookup_callback_symbol(builder: *mut GtkBuilder, callback_name: *const c_char) -> gobject::GCallback;
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_builder_set_application(builder: *mut GtkBuilder, application: *mut GtkApplication);
     pub fn gtk_builder_set_translation_domain(builder: *mut GtkBuilder, domain: *const c_char);
     pub fn gtk_builder_value_from_string(builder: *mut GtkBuilder, pspec: *mut gobject::GParamSpec, string: *const c_char, value: *mut gobject::GValue, error: *mut *mut glib::GError) -> gboolean;
@@ -14902,15 +16138,13 @@ extern "C" {
     //=========================================================================
     pub fn gtk_button_get_type() -> GType;
     pub fn gtk_button_new() -> *mut GtkWidget;
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
-    pub fn gtk_button_new_from_icon_name(icon_name: *const c_char, size: c_int) -> *mut GtkWidget;
+    pub fn gtk_button_new_from_icon_name(icon_name: *const c_char, size: GtkIconSize) -> *mut GtkWidget;
     pub fn gtk_button_new_from_stock(stock_id: *const c_char) -> *mut GtkWidget;
     pub fn gtk_button_new_with_label(label: *const c_char) -> *mut GtkWidget;
     pub fn gtk_button_new_with_mnemonic(label: *const c_char) -> *mut GtkWidget;
     pub fn gtk_button_clicked(button: *mut GtkButton);
     pub fn gtk_button_enter(button: *mut GtkButton);
     pub fn gtk_button_get_alignment(button: *mut GtkButton, xalign: *mut c_float, yalign: *mut c_float);
-    #[cfg(any(feature = "v3_6", feature = "dox"))]
     pub fn gtk_button_get_always_show_image(button: *mut GtkButton) -> gboolean;
     pub fn gtk_button_get_event_window(button: *mut GtkButton) -> *mut gdk::GdkWindow;
     pub fn gtk_button_get_focus_on_click(button: *mut GtkButton) -> gboolean;
@@ -14924,7 +16158,6 @@ extern "C" {
     pub fn gtk_button_pressed(button: *mut GtkButton);
     pub fn gtk_button_released(button: *mut GtkButton);
     pub fn gtk_button_set_alignment(button: *mut GtkButton, xalign: c_float, yalign: c_float);
-    #[cfg(any(feature = "v3_6", feature = "dox"))]
     pub fn gtk_button_set_always_show_image(button: *mut GtkButton, always_show: gboolean);
     pub fn gtk_button_set_focus_on_click(button: *mut GtkButton, focus_on_click: gboolean);
     pub fn gtk_button_set_image(button: *mut GtkButton, image: *mut GtkWidget);
@@ -14988,7 +16221,6 @@ extern "C" {
     pub fn gtk_cell_area_apply_attributes(area: *mut GtkCellArea, tree_model: *mut GtkTreeModel, iter: *mut GtkTreeIter, is_expander: gboolean, is_expanded: gboolean);
     pub fn gtk_cell_area_attribute_connect(area: *mut GtkCellArea, renderer: *mut GtkCellRenderer, attribute: *const c_char, column: c_int);
     pub fn gtk_cell_area_attribute_disconnect(area: *mut GtkCellArea, renderer: *mut GtkCellRenderer, attribute: *const c_char);
-    #[cfg(any(feature = "v3_14", feature = "dox"))]
     pub fn gtk_cell_area_attribute_get_column(area: *mut GtkCellArea, renderer: *mut GtkCellRenderer, attribute: *const c_char) -> c_int;
     pub fn gtk_cell_area_cell_get(area: *mut GtkCellArea, renderer: *mut GtkCellRenderer, first_prop_name: *const c_char, ...);
     pub fn gtk_cell_area_cell_get_property(area: *mut GtkCellArea, renderer: *mut GtkCellRenderer, property_name: *const c_char, value: *mut gobject::GValue);
@@ -15203,11 +16435,11 @@ extern "C" {
     pub fn gtk_clipboard_request_targets(clipboard: *mut GtkClipboard, callback: GtkClipboardTargetsReceivedFunc, user_data: gpointer);
     pub fn gtk_clipboard_request_text(clipboard: *mut GtkClipboard, callback: GtkClipboardTextReceivedFunc, user_data: gpointer);
     pub fn gtk_clipboard_request_uris(clipboard: *mut GtkClipboard, callback: GtkClipboardURIReceivedFunc, user_data: gpointer);
-    pub fn gtk_clipboard_set_can_store(clipboard: *mut GtkClipboard, targets: *mut GtkTargetEntry, n_targets: c_int);
+    pub fn gtk_clipboard_set_can_store(clipboard: *mut GtkClipboard, targets: *const GtkTargetEntry, n_targets: c_int);
     pub fn gtk_clipboard_set_image(clipboard: *mut GtkClipboard, pixbuf: *mut gdk_pixbuf::GdkPixbuf);
     pub fn gtk_clipboard_set_text(clipboard: *mut GtkClipboard, text: *const c_char, len: c_int);
-    pub fn gtk_clipboard_set_with_data(clipboard: *mut GtkClipboard, targets: *mut GtkTargetEntry, n_targets: c_uint, get_func: GtkClipboardGetFunc, clear_func: GtkClipboardClearFunc, user_data: gpointer) -> gboolean;
-    pub fn gtk_clipboard_set_with_owner(clipboard: *mut GtkClipboard, targets: *mut GtkTargetEntry, n_targets: c_uint, get_func: GtkClipboardGetFunc, clear_func: GtkClipboardClearFunc, owner: *mut gobject::GObject) -> gboolean;
+    pub fn gtk_clipboard_set_with_data(clipboard: *mut GtkClipboard, targets: *const GtkTargetEntry, n_targets: c_uint, get_func: GtkClipboardGetFunc, clear_func: GtkClipboardClearFunc, user_data: gpointer) -> gboolean;
+    pub fn gtk_clipboard_set_with_owner(clipboard: *mut GtkClipboard, targets: *const GtkTargetEntry, n_targets: c_uint, get_func: GtkClipboardGetFunc, clear_func: GtkClipboardClearFunc, owner: *mut gobject::GObject) -> gboolean;
     pub fn gtk_clipboard_store(clipboard: *mut GtkClipboard);
     pub fn gtk_clipboard_wait_for_contents(clipboard: *mut GtkClipboard, target: gdk::GdkAtom) -> *mut GtkSelectionData;
     pub fn gtk_clipboard_wait_for_image(clipboard: *mut GtkClipboard) -> *mut gdk_pixbuf::GdkPixbuf;
@@ -15257,7 +16489,7 @@ extern "C" {
     pub fn gtk_color_selection_get_type() -> GType;
     pub fn gtk_color_selection_new() -> *mut GtkWidget;
     pub fn gtk_color_selection_palette_from_string(str: *const c_char, colors: *mut *mut gdk::GdkColor, n_colors: *mut c_int) -> gboolean;
-    pub fn gtk_color_selection_palette_to_string(colors: *mut gdk::GdkColor, n_colors: c_int) -> *mut c_char;
+    pub fn gtk_color_selection_palette_to_string(colors: *const gdk::GdkColor, n_colors: c_int) -> *mut c_char;
     pub fn gtk_color_selection_set_change_palette_with_screen_hook(func: GtkColorSelectionChangePaletteWithScreenFunc) -> GtkColorSelectionChangePaletteWithScreenFunc;
     pub fn gtk_color_selection_get_current_alpha(colorsel: *mut GtkColorSelection) -> u16;
     pub fn gtk_color_selection_get_current_color(colorsel: *mut GtkColorSelection, color: *mut gdk::GdkColor);
@@ -15411,7 +16643,7 @@ extern "C" {
     pub fn gtk_css_provider_new() -> *mut GtkCssProvider;
     pub fn gtk_css_provider_get_default() -> *mut GtkCssProvider;
     pub fn gtk_css_provider_get_named(name: *const c_char, variant: *const c_char) -> *mut GtkCssProvider;
-    pub fn gtk_css_provider_load_from_data(css_provider: *mut GtkCssProvider, data: *mut u8, length: ssize_t, error: *mut *mut glib::GError) -> gboolean;
+    pub fn gtk_css_provider_load_from_data(css_provider: *mut GtkCssProvider, data: *const u8, length: ssize_t, error: *mut *mut glib::GError) -> gboolean;
     pub fn gtk_css_provider_load_from_file(css_provider: *mut GtkCssProvider, file: *mut gio::GFile, error: *mut *mut glib::GError) -> gboolean;
     pub fn gtk_css_provider_load_from_path(css_provider: *mut GtkCssProvider, path: *const c_char, error: *mut *mut glib::GError) -> gboolean;
     #[cfg(any(feature = "v3_16", feature = "dox"))]
@@ -15424,21 +16656,20 @@ extern "C" {
     pub fn gtk_dialog_get_type() -> GType;
     pub fn gtk_dialog_new() -> *mut GtkWidget;
     pub fn gtk_dialog_new_with_buttons(title: *const c_char, parent: *mut GtkWindow, flags: GtkDialogFlags, first_button_text: *const c_char, ...) -> *mut GtkWidget;
-    pub fn gtk_dialog_add_action_widget(dialog: *mut GtkDialog, child: *mut GtkWidget, response_id: c_int);
-    pub fn gtk_dialog_add_button(dialog: *mut GtkDialog, button_text: *const c_char, response_id: c_int) -> *mut GtkWidget;
+    pub fn gtk_dialog_add_action_widget(dialog: *mut GtkDialog, child: *mut GtkWidget, response_id: GtkResponseType);
+    pub fn gtk_dialog_add_button(dialog: *mut GtkDialog, button_text: *const c_char, response_id: GtkResponseType) -> *mut GtkWidget;
     pub fn gtk_dialog_add_buttons(dialog: *mut GtkDialog, first_button_text: *const c_char, ...);
     pub fn gtk_dialog_get_action_area(dialog: *mut GtkDialog) -> *mut GtkWidget;
     pub fn gtk_dialog_get_content_area(dialog: *mut GtkDialog) -> *mut GtkBox;
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
     pub fn gtk_dialog_get_header_bar(dialog: *mut GtkDialog) -> *mut GtkWidget;
     pub fn gtk_dialog_get_response_for_widget(dialog: *mut GtkDialog, widget: *mut GtkWidget) -> c_int;
-    pub fn gtk_dialog_get_widget_for_response(dialog: *mut GtkDialog, response_id: c_int) -> *mut GtkWidget;
-    pub fn gtk_dialog_response(dialog: *mut GtkDialog, response_id: c_int);
+    pub fn gtk_dialog_get_widget_for_response(dialog: *mut GtkDialog, response_id: GtkResponseType) -> *mut GtkWidget;
+    pub fn gtk_dialog_response(dialog: *mut GtkDialog, response_id: GtkResponseType);
     pub fn gtk_dialog_run(dialog: *mut GtkDialog) -> c_int;
     pub fn gtk_dialog_set_alternative_button_order(dialog: *mut GtkDialog, first_response_id: c_int, ...);
     pub fn gtk_dialog_set_alternative_button_order_from_array(dialog: *mut GtkDialog, n_params: c_int, new_order: *mut c_int);
-    pub fn gtk_dialog_set_default_response(dialog: *mut GtkDialog, response_id: c_int);
-    pub fn gtk_dialog_set_response_sensitive(dialog: *mut GtkDialog, response_id: c_int, setting: gboolean);
+    pub fn gtk_dialog_set_default_response(dialog: *mut GtkDialog, response_id: GtkResponseType);
+    pub fn gtk_dialog_set_response_sensitive(dialog: *mut GtkDialog, response_id: GtkResponseType, setting: gboolean);
 
     //=========================================================================
     // GtkDrawingArea
@@ -15454,7 +16685,6 @@ extern "C" {
     pub fn gtk_entry_new_with_buffer(buffer: *mut GtkEntryBuffer) -> *mut GtkWidget;
     pub fn gtk_entry_get_activates_default(entry: *mut GtkEntry) -> gboolean;
     pub fn gtk_entry_get_alignment(entry: *mut GtkEntry) -> c_float;
-    #[cfg(any(feature = "v3_6", feature = "dox"))]
     pub fn gtk_entry_get_attributes(entry: *mut GtkEntry) -> *mut pango::PangoAttrList;
     pub fn gtk_entry_get_buffer(entry: *mut GtkEntry) -> *mut GtkEntryBuffer;
     pub fn gtk_entry_get_completion(entry: *mut GtkEntry) -> *mut GtkEntryCompletion;
@@ -15473,21 +16703,17 @@ extern "C" {
     pub fn gtk_entry_get_icon_tooltip_markup(entry: *mut GtkEntry, icon_pos: GtkEntryIconPosition) -> *mut c_char;
     pub fn gtk_entry_get_icon_tooltip_text(entry: *mut GtkEntry, icon_pos: GtkEntryIconPosition) -> *mut c_char;
     pub fn gtk_entry_get_inner_border(entry: *mut GtkEntry) -> *const GtkBorder;
-    #[cfg(any(feature = "v3_6", feature = "dox"))]
     pub fn gtk_entry_get_input_hints(entry: *mut GtkEntry) -> GtkInputHints;
-    #[cfg(any(feature = "v3_6", feature = "dox"))]
     pub fn gtk_entry_get_input_purpose(entry: *mut GtkEntry) -> GtkInputPurpose;
     pub fn gtk_entry_get_invisible_char(entry: *mut GtkEntry) -> u32;
     pub fn gtk_entry_get_layout(entry: *mut GtkEntry) -> *mut pango::PangoLayout;
     pub fn gtk_entry_get_layout_offsets(entry: *mut GtkEntry, x: *mut c_int, y: *mut c_int);
     pub fn gtk_entry_get_max_length(entry: *mut GtkEntry) -> c_int;
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
     pub fn gtk_entry_get_max_width_chars(entry: *mut GtkEntry) -> c_int;
     pub fn gtk_entry_get_overwrite_mode(entry: *mut GtkEntry) -> gboolean;
     pub fn gtk_entry_get_placeholder_text(entry: *mut GtkEntry) -> *const c_char;
     pub fn gtk_entry_get_progress_fraction(entry: *mut GtkEntry) -> c_double;
     pub fn gtk_entry_get_progress_pulse_step(entry: *mut GtkEntry) -> c_double;
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_entry_get_tabs(entry: *mut GtkEntry) -> *mut pango::PangoTabArray;
     pub fn gtk_entry_get_text(entry: *mut GtkEntry) -> *const c_char;
     pub fn gtk_entry_get_text_area(entry: *mut GtkEntry, text_area: *mut gdk::GdkRectangle);
@@ -15502,7 +16728,6 @@ extern "C" {
     pub fn gtk_entry_reset_im_context(entry: *mut GtkEntry);
     pub fn gtk_entry_set_activates_default(entry: *mut GtkEntry, setting: gboolean);
     pub fn gtk_entry_set_alignment(entry: *mut GtkEntry, xalign: c_float);
-    #[cfg(any(feature = "v3_6", feature = "dox"))]
     pub fn gtk_entry_set_attributes(entry: *mut GtkEntry, attrs: *mut pango::PangoAttrList);
     pub fn gtk_entry_set_buffer(entry: *mut GtkEntry, buffer: *mut GtkEntryBuffer);
     pub fn gtk_entry_set_completion(entry: *mut GtkEntry, completion: *mut GtkEntryCompletion);
@@ -15518,19 +16743,15 @@ extern "C" {
     pub fn gtk_entry_set_icon_tooltip_markup(entry: *mut GtkEntry, icon_pos: GtkEntryIconPosition, tooltip: *const c_char);
     pub fn gtk_entry_set_icon_tooltip_text(entry: *mut GtkEntry, icon_pos: GtkEntryIconPosition, tooltip: *const c_char);
     pub fn gtk_entry_set_inner_border(entry: *mut GtkEntry, border: *const GtkBorder);
-    #[cfg(any(feature = "v3_6", feature = "dox"))]
     pub fn gtk_entry_set_input_hints(entry: *mut GtkEntry, hints: GtkInputHints);
-    #[cfg(any(feature = "v3_6", feature = "dox"))]
     pub fn gtk_entry_set_input_purpose(entry: *mut GtkEntry, purpose: GtkInputPurpose);
     pub fn gtk_entry_set_invisible_char(entry: *mut GtkEntry, ch: u32);
     pub fn gtk_entry_set_max_length(entry: *mut GtkEntry, max: c_int);
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
     pub fn gtk_entry_set_max_width_chars(entry: *mut GtkEntry, n_chars: c_int);
     pub fn gtk_entry_set_overwrite_mode(entry: *mut GtkEntry, overwrite: gboolean);
     pub fn gtk_entry_set_placeholder_text(entry: *mut GtkEntry, text: *const c_char);
     pub fn gtk_entry_set_progress_fraction(entry: *mut GtkEntry, fraction: c_double);
     pub fn gtk_entry_set_progress_pulse_step(entry: *mut GtkEntry, fraction: c_double);
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_entry_set_tabs(entry: *mut GtkEntry, tabs: *mut pango::PangoTabArray);
     pub fn gtk_entry_set_text(entry: *mut GtkEntry, text: *const c_char);
     pub fn gtk_entry_set_visibility(entry: *mut GtkEntry, visible: gboolean);
@@ -15610,16 +16831,40 @@ extern "C" {
     // GtkEventController
     //=========================================================================
     pub fn gtk_event_controller_get_type() -> GType;
-    #[cfg(any(feature = "v3_14", feature = "dox"))]
     pub fn gtk_event_controller_get_propagation_phase(controller: *mut GtkEventController) -> GtkPropagationPhase;
-    #[cfg(any(feature = "v3_14", feature = "dox"))]
     pub fn gtk_event_controller_get_widget(controller: *mut GtkEventController) -> *mut GtkWidget;
-    #[cfg(any(feature = "v3_14", feature = "dox"))]
     pub fn gtk_event_controller_handle_event(controller: *mut GtkEventController, event: *const gdk::GdkEvent) -> gboolean;
-    #[cfg(any(feature = "v3_14", feature = "dox"))]
     pub fn gtk_event_controller_reset(controller: *mut GtkEventController);
-    #[cfg(any(feature = "v3_14", feature = "dox"))]
     pub fn gtk_event_controller_set_propagation_phase(controller: *mut GtkEventController, phase: GtkPropagationPhase);
+
+    //=========================================================================
+    // GtkEventControllerKey
+    //=========================================================================
+    pub fn gtk_event_controller_key_get_type() -> GType;
+    pub fn gtk_event_controller_key_new(widget: *mut GtkWidget) -> *mut GtkEventController;
+    pub fn gtk_event_controller_key_forward(controller: *mut GtkEventControllerKey, widget: *mut GtkWidget) -> gboolean;
+    pub fn gtk_event_controller_key_get_group(controller: *mut GtkEventControllerKey) -> c_uint;
+    #[cfg(any(feature = "v3_24", feature = "dox"))]
+    pub fn gtk_event_controller_key_get_im_context(controller: *mut GtkEventControllerKey) -> *mut GtkIMContext;
+    pub fn gtk_event_controller_key_set_im_context(controller: *mut GtkEventControllerKey, im_context: *mut GtkIMContext);
+
+    //=========================================================================
+    // GtkEventControllerMotion
+    //=========================================================================
+    pub fn gtk_event_controller_motion_get_type() -> GType;
+    #[cfg(any(feature = "v3_24", feature = "dox"))]
+    pub fn gtk_event_controller_motion_new(widget: *mut GtkWidget) -> *mut GtkEventController;
+
+    //=========================================================================
+    // GtkEventControllerScroll
+    //=========================================================================
+    pub fn gtk_event_controller_scroll_get_type() -> GType;
+    #[cfg(any(feature = "v3_24", feature = "dox"))]
+    pub fn gtk_event_controller_scroll_new(widget: *mut GtkWidget, flags: GtkEventControllerScrollFlags) -> *mut GtkEventController;
+    #[cfg(any(feature = "v3_24", feature = "dox"))]
+    pub fn gtk_event_controller_scroll_get_flags(controller: *mut GtkEventControllerScroll) -> GtkEventControllerScrollFlags;
+    #[cfg(any(feature = "v3_24", feature = "dox"))]
+    pub fn gtk_event_controller_scroll_set_flags(controller: *mut GtkEventControllerScroll, flags: GtkEventControllerScrollFlags);
 
     //=========================================================================
     // GtkExpander
@@ -15719,67 +16964,38 @@ extern "C" {
     // GtkFlowBox
     //=========================================================================
     pub fn gtk_flow_box_get_type() -> GType;
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
     pub fn gtk_flow_box_new() -> *mut GtkWidget;
     #[cfg(any(feature = "v3_18", feature = "dox"))]
     pub fn gtk_flow_box_bind_model(box_: *mut GtkFlowBox, model: *mut gio::GListModel, create_widget_func: GtkFlowBoxCreateWidgetFunc, user_data: gpointer, user_data_free_func: glib::GDestroyNotify);
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
     pub fn gtk_flow_box_get_activate_on_single_click(box_: *mut GtkFlowBox) -> gboolean;
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
     pub fn gtk_flow_box_get_child_at_index(box_: *mut GtkFlowBox, idx: c_int) -> *mut GtkFlowBoxChild;
     #[cfg(any(feature = "v3_22_6", feature = "dox"))]
     pub fn gtk_flow_box_get_child_at_pos(box_: *mut GtkFlowBox, x: c_int, y: c_int) -> *mut GtkFlowBoxChild;
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
     pub fn gtk_flow_box_get_column_spacing(box_: *mut GtkFlowBox) -> c_uint;
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
     pub fn gtk_flow_box_get_homogeneous(box_: *mut GtkFlowBox) -> gboolean;
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
     pub fn gtk_flow_box_get_max_children_per_line(box_: *mut GtkFlowBox) -> c_uint;
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
     pub fn gtk_flow_box_get_min_children_per_line(box_: *mut GtkFlowBox) -> c_uint;
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
     pub fn gtk_flow_box_get_row_spacing(box_: *mut GtkFlowBox) -> c_uint;
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
     pub fn gtk_flow_box_get_selected_children(box_: *mut GtkFlowBox) -> *mut glib::GList;
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
     pub fn gtk_flow_box_get_selection_mode(box_: *mut GtkFlowBox) -> GtkSelectionMode;
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
     pub fn gtk_flow_box_insert(box_: *mut GtkFlowBox, widget: *mut GtkWidget, position: c_int);
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
     pub fn gtk_flow_box_invalidate_filter(box_: *mut GtkFlowBox);
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
     pub fn gtk_flow_box_invalidate_sort(box_: *mut GtkFlowBox);
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
     pub fn gtk_flow_box_select_all(box_: *mut GtkFlowBox);
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
     pub fn gtk_flow_box_select_child(box_: *mut GtkFlowBox, child: *mut GtkFlowBoxChild);
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
     pub fn gtk_flow_box_selected_foreach(box_: *mut GtkFlowBox, func: GtkFlowBoxForeachFunc, data: gpointer);
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
     pub fn gtk_flow_box_set_activate_on_single_click(box_: *mut GtkFlowBox, single: gboolean);
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
     pub fn gtk_flow_box_set_column_spacing(box_: *mut GtkFlowBox, spacing: c_uint);
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
     pub fn gtk_flow_box_set_filter_func(box_: *mut GtkFlowBox, filter_func: GtkFlowBoxFilterFunc, user_data: gpointer, destroy: glib::GDestroyNotify);
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
     pub fn gtk_flow_box_set_hadjustment(box_: *mut GtkFlowBox, adjustment: *mut GtkAdjustment);
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
     pub fn gtk_flow_box_set_homogeneous(box_: *mut GtkFlowBox, homogeneous: gboolean);
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
     pub fn gtk_flow_box_set_max_children_per_line(box_: *mut GtkFlowBox, n_children: c_uint);
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
     pub fn gtk_flow_box_set_min_children_per_line(box_: *mut GtkFlowBox, n_children: c_uint);
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
     pub fn gtk_flow_box_set_row_spacing(box_: *mut GtkFlowBox, spacing: c_uint);
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
     pub fn gtk_flow_box_set_selection_mode(box_: *mut GtkFlowBox, mode: GtkSelectionMode);
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
     pub fn gtk_flow_box_set_sort_func(box_: *mut GtkFlowBox, sort_func: GtkFlowBoxSortFunc, user_data: gpointer, destroy: glib::GDestroyNotify);
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
     pub fn gtk_flow_box_set_vadjustment(box_: *mut GtkFlowBox, adjustment: *mut GtkAdjustment);
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
     pub fn gtk_flow_box_unselect_all(box_: *mut GtkFlowBox);
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
     pub fn gtk_flow_box_unselect_child(box_: *mut GtkFlowBox, child: *mut GtkFlowBoxChild);
 
     //=========================================================================
@@ -15791,13 +17007,9 @@ extern "C" {
     // GtkFlowBoxChild
     //=========================================================================
     pub fn gtk_flow_box_child_get_type() -> GType;
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
     pub fn gtk_flow_box_child_new() -> *mut GtkWidget;
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
     pub fn gtk_flow_box_child_changed(child: *mut GtkFlowBoxChild);
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
     pub fn gtk_flow_box_child_get_index(child: *mut GtkFlowBoxChild) -> c_int;
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
     pub fn gtk_flow_box_child_is_selected(child: *mut GtkFlowBoxChild) -> gboolean;
 
     //=========================================================================
@@ -15933,130 +17145,101 @@ extern "C" {
     // GtkGesture
     //=========================================================================
     pub fn gtk_gesture_get_type() -> GType;
-    #[cfg(any(feature = "v3_14", feature = "dox"))]
     pub fn gtk_gesture_get_bounding_box(gesture: *mut GtkGesture, rect: *mut gdk::GdkRectangle) -> gboolean;
-    #[cfg(any(feature = "v3_14", feature = "dox"))]
     pub fn gtk_gesture_get_bounding_box_center(gesture: *mut GtkGesture, x: *mut c_double, y: *mut c_double) -> gboolean;
-    #[cfg(any(feature = "v3_14", feature = "dox"))]
     pub fn gtk_gesture_get_device(gesture: *mut GtkGesture) -> *mut gdk::GdkDevice;
-    #[cfg(any(feature = "v3_14", feature = "dox"))]
     pub fn gtk_gesture_get_group(gesture: *mut GtkGesture) -> *mut glib::GList;
     pub fn gtk_gesture_get_last_event(gesture: *mut GtkGesture, sequence: *mut gdk::GdkEventSequence) -> *const gdk::GdkEvent;
-    #[cfg(any(feature = "v3_14", feature = "dox"))]
     pub fn gtk_gesture_get_last_updated_sequence(gesture: *mut GtkGesture) -> *mut gdk::GdkEventSequence;
-    #[cfg(any(feature = "v3_14", feature = "dox"))]
     pub fn gtk_gesture_get_point(gesture: *mut GtkGesture, sequence: *mut gdk::GdkEventSequence, x: *mut c_double, y: *mut c_double) -> gboolean;
-    #[cfg(any(feature = "v3_14", feature = "dox"))]
     pub fn gtk_gesture_get_sequence_state(gesture: *mut GtkGesture, sequence: *mut gdk::GdkEventSequence) -> GtkEventSequenceState;
-    #[cfg(any(feature = "v3_14", feature = "dox"))]
     pub fn gtk_gesture_get_sequences(gesture: *mut GtkGesture) -> *mut glib::GList;
-    #[cfg(any(feature = "v3_14", feature = "dox"))]
     pub fn gtk_gesture_get_window(gesture: *mut GtkGesture) -> *mut gdk::GdkWindow;
-    #[cfg(any(feature = "v3_14", feature = "dox"))]
     pub fn gtk_gesture_group(group_gesture: *mut GtkGesture, gesture: *mut GtkGesture);
-    #[cfg(any(feature = "v3_14", feature = "dox"))]
     pub fn gtk_gesture_handles_sequence(gesture: *mut GtkGesture, sequence: *mut gdk::GdkEventSequence) -> gboolean;
-    #[cfg(any(feature = "v3_14", feature = "dox"))]
     pub fn gtk_gesture_is_active(gesture: *mut GtkGesture) -> gboolean;
-    #[cfg(any(feature = "v3_14", feature = "dox"))]
     pub fn gtk_gesture_is_grouped_with(gesture: *mut GtkGesture, other: *mut GtkGesture) -> gboolean;
-    #[cfg(any(feature = "v3_14", feature = "dox"))]
     pub fn gtk_gesture_is_recognized(gesture: *mut GtkGesture) -> gboolean;
-    #[cfg(any(feature = "v3_14", feature = "dox"))]
     pub fn gtk_gesture_set_sequence_state(gesture: *mut GtkGesture, sequence: *mut gdk::GdkEventSequence, state: GtkEventSequenceState) -> gboolean;
-    #[cfg(any(feature = "v3_14", feature = "dox"))]
     pub fn gtk_gesture_set_state(gesture: *mut GtkGesture, state: GtkEventSequenceState) -> gboolean;
-    #[cfg(any(feature = "v3_14", feature = "dox"))]
     pub fn gtk_gesture_set_window(gesture: *mut GtkGesture, window: *mut gdk::GdkWindow);
-    #[cfg(any(feature = "v3_14", feature = "dox"))]
     pub fn gtk_gesture_ungroup(gesture: *mut GtkGesture);
 
     //=========================================================================
     // GtkGestureDrag
     //=========================================================================
     pub fn gtk_gesture_drag_get_type() -> GType;
-    #[cfg(any(feature = "v3_14", feature = "dox"))]
     pub fn gtk_gesture_drag_new(widget: *mut GtkWidget) -> *mut GtkGesture;
-    #[cfg(any(feature = "v3_14", feature = "dox"))]
     pub fn gtk_gesture_drag_get_offset(gesture: *mut GtkGestureDrag, x: *mut c_double, y: *mut c_double) -> gboolean;
-    #[cfg(any(feature = "v3_14", feature = "dox"))]
     pub fn gtk_gesture_drag_get_start_point(gesture: *mut GtkGestureDrag, x: *mut c_double, y: *mut c_double) -> gboolean;
 
     //=========================================================================
     // GtkGestureLongPress
     //=========================================================================
     pub fn gtk_gesture_long_press_get_type() -> GType;
-    #[cfg(any(feature = "v3_14", feature = "dox"))]
     pub fn gtk_gesture_long_press_new(widget: *mut GtkWidget) -> *mut GtkGesture;
 
     //=========================================================================
     // GtkGestureMultiPress
     //=========================================================================
     pub fn gtk_gesture_multi_press_get_type() -> GType;
-    #[cfg(any(feature = "v3_14", feature = "dox"))]
     pub fn gtk_gesture_multi_press_new(widget: *mut GtkWidget) -> *mut GtkGesture;
-    #[cfg(any(feature = "v3_14", feature = "dox"))]
     pub fn gtk_gesture_multi_press_get_area(gesture: *mut GtkGestureMultiPress, rect: *mut gdk::GdkRectangle) -> gboolean;
-    #[cfg(any(feature = "v3_14", feature = "dox"))]
     pub fn gtk_gesture_multi_press_set_area(gesture: *mut GtkGestureMultiPress, rect: *const gdk::GdkRectangle);
 
     //=========================================================================
     // GtkGesturePan
     //=========================================================================
     pub fn gtk_gesture_pan_get_type() -> GType;
-    #[cfg(any(feature = "v3_14", feature = "dox"))]
     pub fn gtk_gesture_pan_new(widget: *mut GtkWidget, orientation: GtkOrientation) -> *mut GtkGesture;
-    #[cfg(any(feature = "v3_14", feature = "dox"))]
     pub fn gtk_gesture_pan_get_orientation(gesture: *mut GtkGesturePan) -> GtkOrientation;
-    #[cfg(any(feature = "v3_14", feature = "dox"))]
     pub fn gtk_gesture_pan_set_orientation(gesture: *mut GtkGesturePan, orientation: GtkOrientation);
 
     //=========================================================================
     // GtkGestureRotate
     //=========================================================================
     pub fn gtk_gesture_rotate_get_type() -> GType;
-    #[cfg(any(feature = "v3_14", feature = "dox"))]
     pub fn gtk_gesture_rotate_new(widget: *mut GtkWidget) -> *mut GtkGesture;
-    #[cfg(any(feature = "v3_14", feature = "dox"))]
     pub fn gtk_gesture_rotate_get_angle_delta(gesture: *mut GtkGestureRotate) -> c_double;
 
     //=========================================================================
     // GtkGestureSingle
     //=========================================================================
     pub fn gtk_gesture_single_get_type() -> GType;
-    #[cfg(any(feature = "v3_14", feature = "dox"))]
     pub fn gtk_gesture_single_get_button(gesture: *mut GtkGestureSingle) -> c_uint;
-    #[cfg(any(feature = "v3_14", feature = "dox"))]
     pub fn gtk_gesture_single_get_current_button(gesture: *mut GtkGestureSingle) -> c_uint;
-    #[cfg(any(feature = "v3_14", feature = "dox"))]
     pub fn gtk_gesture_single_get_current_sequence(gesture: *mut GtkGestureSingle) -> *mut gdk::GdkEventSequence;
-    #[cfg(any(feature = "v3_14", feature = "dox"))]
     pub fn gtk_gesture_single_get_exclusive(gesture: *mut GtkGestureSingle) -> gboolean;
-    #[cfg(any(feature = "v3_14", feature = "dox"))]
     pub fn gtk_gesture_single_get_touch_only(gesture: *mut GtkGestureSingle) -> gboolean;
-    #[cfg(any(feature = "v3_14", feature = "dox"))]
     pub fn gtk_gesture_single_set_button(gesture: *mut GtkGestureSingle, button: c_uint);
-    #[cfg(any(feature = "v3_14", feature = "dox"))]
     pub fn gtk_gesture_single_set_exclusive(gesture: *mut GtkGestureSingle, exclusive: gboolean);
-    #[cfg(any(feature = "v3_14", feature = "dox"))]
     pub fn gtk_gesture_single_set_touch_only(gesture: *mut GtkGestureSingle, touch_only: gboolean);
+
+    //=========================================================================
+    // GtkGestureStylus
+    //=========================================================================
+    pub fn gtk_gesture_stylus_get_type() -> GType;
+    #[cfg(any(feature = "v3_24", feature = "dox"))]
+    pub fn gtk_gesture_stylus_new(widget: *mut GtkWidget) -> *mut GtkGesture;
+    #[cfg(any(feature = "v3_24", feature = "dox"))]
+    pub fn gtk_gesture_stylus_get_axes(gesture: *mut GtkGestureStylus, axes: *mut gdk::GdkAxisUse, values: *mut *mut c_double) -> gboolean;
+    #[cfg(any(feature = "v3_24", feature = "dox"))]
+    pub fn gtk_gesture_stylus_get_axis(gesture: *mut GtkGestureStylus, axis: gdk::GdkAxisUse, value: *mut c_double) -> gboolean;
+    #[cfg(any(feature = "v3_24", feature = "dox"))]
+    pub fn gtk_gesture_stylus_get_device_tool(gesture: *mut GtkGestureStylus) -> *mut gdk::GdkDeviceTool;
 
     //=========================================================================
     // GtkGestureSwipe
     //=========================================================================
     pub fn gtk_gesture_swipe_get_type() -> GType;
-    #[cfg(any(feature = "v3_14", feature = "dox"))]
     pub fn gtk_gesture_swipe_new(widget: *mut GtkWidget) -> *mut GtkGesture;
-    #[cfg(any(feature = "v3_14", feature = "dox"))]
     pub fn gtk_gesture_swipe_get_velocity(gesture: *mut GtkGestureSwipe, velocity_x: *mut c_double, velocity_y: *mut c_double) -> gboolean;
 
     //=========================================================================
     // GtkGestureZoom
     //=========================================================================
     pub fn gtk_gesture_zoom_get_type() -> GType;
-    #[cfg(any(feature = "v3_14", feature = "dox"))]
     pub fn gtk_gesture_zoom_new(widget: *mut GtkWidget) -> *mut GtkGesture;
-    #[cfg(any(feature = "v3_14", feature = "dox"))]
     pub fn gtk_gesture_zoom_get_scale_delta(gesture: *mut GtkGestureZoom) -> c_double;
 
     //=========================================================================
@@ -16066,27 +17249,21 @@ extern "C" {
     pub fn gtk_grid_new() -> *mut GtkWidget;
     pub fn gtk_grid_attach(grid: *mut GtkGrid, child: *mut GtkWidget, left: c_int, top: c_int, width: c_int, height: c_int);
     pub fn gtk_grid_attach_next_to(grid: *mut GtkGrid, child: *mut GtkWidget, sibling: *mut GtkWidget, side: GtkPositionType, width: c_int, height: c_int);
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_grid_get_baseline_row(grid: *mut GtkGrid) -> c_int;
     pub fn gtk_grid_get_child_at(grid: *mut GtkGrid, left: c_int, top: c_int) -> *mut GtkWidget;
     pub fn gtk_grid_get_column_homogeneous(grid: *mut GtkGrid) -> gboolean;
     pub fn gtk_grid_get_column_spacing(grid: *mut GtkGrid) -> c_uint;
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_grid_get_row_baseline_position(grid: *mut GtkGrid, row: c_int) -> GtkBaselinePosition;
     pub fn gtk_grid_get_row_homogeneous(grid: *mut GtkGrid) -> gboolean;
     pub fn gtk_grid_get_row_spacing(grid: *mut GtkGrid) -> c_uint;
     pub fn gtk_grid_insert_column(grid: *mut GtkGrid, position: c_int);
     pub fn gtk_grid_insert_next_to(grid: *mut GtkGrid, sibling: *mut GtkWidget, side: GtkPositionType);
     pub fn gtk_grid_insert_row(grid: *mut GtkGrid, position: c_int);
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_grid_remove_column(grid: *mut GtkGrid, position: c_int);
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_grid_remove_row(grid: *mut GtkGrid, position: c_int);
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_grid_set_baseline_row(grid: *mut GtkGrid, row: c_int);
     pub fn gtk_grid_set_column_homogeneous(grid: *mut GtkGrid, homogeneous: gboolean);
     pub fn gtk_grid_set_column_spacing(grid: *mut GtkGrid, spacing: c_uint);
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_grid_set_row_baseline_position(grid: *mut GtkGrid, row: c_int, pos: GtkBaselinePosition);
     pub fn gtk_grid_set_row_homogeneous(grid: *mut GtkGrid, homogeneous: gboolean);
     pub fn gtk_grid_set_row_spacing(grid: *mut GtkGrid, spacing: c_uint);
@@ -16157,35 +17334,20 @@ extern "C" {
     // GtkHeaderBar
     //=========================================================================
     pub fn gtk_header_bar_get_type() -> GType;
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_header_bar_new() -> *mut GtkWidget;
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_header_bar_get_custom_title(bar: *mut GtkHeaderBar) -> *mut GtkWidget;
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
     pub fn gtk_header_bar_get_decoration_layout(bar: *mut GtkHeaderBar) -> *const c_char;
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
     pub fn gtk_header_bar_get_has_subtitle(bar: *mut GtkHeaderBar) -> gboolean;
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_header_bar_get_show_close_button(bar: *mut GtkHeaderBar) -> gboolean;
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_header_bar_get_subtitle(bar: *mut GtkHeaderBar) -> *const c_char;
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_header_bar_get_title(bar: *mut GtkHeaderBar) -> *const c_char;
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_header_bar_pack_end(bar: *mut GtkHeaderBar, child: *mut GtkWidget);
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_header_bar_pack_start(bar: *mut GtkHeaderBar, child: *mut GtkWidget);
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_header_bar_set_custom_title(bar: *mut GtkHeaderBar, title_widget: *mut GtkWidget);
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
     pub fn gtk_header_bar_set_decoration_layout(bar: *mut GtkHeaderBar, layout: *const c_char);
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
     pub fn gtk_header_bar_set_has_subtitle(bar: *mut GtkHeaderBar, setting: gboolean);
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_header_bar_set_show_close_button(bar: *mut GtkHeaderBar, setting: gboolean);
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_header_bar_set_subtitle(bar: *mut GtkHeaderBar, subtitle: *const c_char);
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_header_bar_set_title(bar: *mut GtkHeaderBar, title: *const c_char);
 
     //=========================================================================
@@ -16240,31 +17402,22 @@ extern "C" {
     pub fn gtk_icon_info_copy(icon_info: *mut GtkIconInfo) -> *mut GtkIconInfo;
     pub fn gtk_icon_info_free(icon_info: *mut GtkIconInfo);
     pub fn gtk_icon_info_get_attach_points(icon_info: *mut GtkIconInfo, points: *mut *mut gdk::GdkPoint, n_points: *mut c_int) -> gboolean;
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_icon_info_get_base_scale(icon_info: *mut GtkIconInfo) -> c_int;
     pub fn gtk_icon_info_get_base_size(icon_info: *mut GtkIconInfo) -> c_int;
     pub fn gtk_icon_info_get_builtin_pixbuf(icon_info: *mut GtkIconInfo) -> *mut gdk_pixbuf::GdkPixbuf;
     pub fn gtk_icon_info_get_display_name(icon_info: *mut GtkIconInfo) -> *const c_char;
     pub fn gtk_icon_info_get_embedded_rect(icon_info: *mut GtkIconInfo, rectangle: *mut gdk::GdkRectangle) -> gboolean;
     pub fn gtk_icon_info_get_filename(icon_info: *mut GtkIconInfo) -> *const c_char;
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
     pub fn gtk_icon_info_is_symbolic(icon_info: *mut GtkIconInfo) -> gboolean;
     pub fn gtk_icon_info_load_icon(icon_info: *mut GtkIconInfo, error: *mut *mut glib::GError) -> *mut gdk_pixbuf::GdkPixbuf;
-    #[cfg(any(feature = "v3_8", feature = "dox"))]
     pub fn gtk_icon_info_load_icon_async(icon_info: *mut GtkIconInfo, cancellable: *mut gio::GCancellable, callback: gio::GAsyncReadyCallback, user_data: gpointer);
-    #[cfg(any(feature = "v3_8", feature = "dox"))]
     pub fn gtk_icon_info_load_icon_finish(icon_info: *mut GtkIconInfo, res: *mut gio::GAsyncResult, error: *mut *mut glib::GError) -> *mut gdk_pixbuf::GdkPixbuf;
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_icon_info_load_surface(icon_info: *mut GtkIconInfo, for_window: *mut gdk::GdkWindow, error: *mut *mut glib::GError) -> *mut cairo::cairo_surface_t;
     pub fn gtk_icon_info_load_symbolic(icon_info: *mut GtkIconInfo, fg: *const gdk::GdkRGBA, success_color: *const gdk::GdkRGBA, warning_color: *const gdk::GdkRGBA, error_color: *const gdk::GdkRGBA, was_symbolic: *mut gboolean, error: *mut *mut glib::GError) -> *mut gdk_pixbuf::GdkPixbuf;
-    #[cfg(any(feature = "v3_8", feature = "dox"))]
     pub fn gtk_icon_info_load_symbolic_async(icon_info: *mut GtkIconInfo, fg: *const gdk::GdkRGBA, success_color: *const gdk::GdkRGBA, warning_color: *const gdk::GdkRGBA, error_color: *const gdk::GdkRGBA, cancellable: *mut gio::GCancellable, callback: gio::GAsyncReadyCallback, user_data: gpointer);
-    #[cfg(any(feature = "v3_8", feature = "dox"))]
     pub fn gtk_icon_info_load_symbolic_finish(icon_info: *mut GtkIconInfo, res: *mut gio::GAsyncResult, was_symbolic: *mut gboolean, error: *mut *mut glib::GError) -> *mut gdk_pixbuf::GdkPixbuf;
     pub fn gtk_icon_info_load_symbolic_for_context(icon_info: *mut GtkIconInfo, context: *mut GtkStyleContext, was_symbolic: *mut gboolean, error: *mut *mut glib::GError) -> *mut gdk_pixbuf::GdkPixbuf;
-    #[cfg(any(feature = "v3_8", feature = "dox"))]
     pub fn gtk_icon_info_load_symbolic_for_context_async(icon_info: *mut GtkIconInfo, context: *mut GtkStyleContext, cancellable: *mut gio::GCancellable, callback: gio::GAsyncReadyCallback, user_data: gpointer);
-    #[cfg(any(feature = "v3_8", feature = "dox"))]
     pub fn gtk_icon_info_load_symbolic_for_context_finish(icon_info: *mut GtkIconInfo, res: *mut gio::GAsyncResult, was_symbolic: *mut gboolean, error: *mut *mut glib::GError) -> *mut gdk_pixbuf::GdkPixbuf;
     pub fn gtk_icon_info_load_symbolic_for_style(icon_info: *mut GtkIconInfo, style: *mut GtkStyle, state: GtkStateType, was_symbolic: *mut gboolean, error: *mut *mut glib::GError) -> *mut gdk_pixbuf::GdkPixbuf;
     pub fn gtk_icon_info_set_raw_coordinates(icon_info: *mut GtkIconInfo, raw_coordinates: gboolean);
@@ -16277,11 +17430,9 @@ extern "C" {
     pub fn gtk_icon_theme_add_builtin_icon(icon_name: *const c_char, size: c_int, pixbuf: *mut gdk_pixbuf::GdkPixbuf);
     pub fn gtk_icon_theme_get_default() -> *mut GtkIconTheme;
     pub fn gtk_icon_theme_get_for_screen(screen: *mut gdk::GdkScreen) -> *mut GtkIconTheme;
-    #[cfg(any(feature = "v3_14", feature = "dox"))]
     pub fn gtk_icon_theme_add_resource_path(icon_theme: *mut GtkIconTheme, path: *const c_char);
     pub fn gtk_icon_theme_append_search_path(icon_theme: *mut GtkIconTheme, path: *const c_char);
     pub fn gtk_icon_theme_choose_icon(icon_theme: *mut GtkIconTheme, icon_names: *mut *const c_char, size: c_int, flags: GtkIconLookupFlags) -> *mut GtkIconInfo;
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_icon_theme_choose_icon_for_scale(icon_theme: *mut GtkIconTheme, icon_names: *mut *const c_char, size: c_int, scale: c_int, flags: GtkIconLookupFlags) -> *mut GtkIconInfo;
     pub fn gtk_icon_theme_get_example_icon_name(icon_theme: *mut GtkIconTheme) -> *mut c_char;
     pub fn gtk_icon_theme_get_icon_sizes(icon_theme: *mut GtkIconTheme, icon_name: *const c_char) -> *mut c_int;
@@ -16290,15 +17441,11 @@ extern "C" {
     pub fn gtk_icon_theme_list_contexts(icon_theme: *mut GtkIconTheme) -> *mut glib::GList;
     pub fn gtk_icon_theme_list_icons(icon_theme: *mut GtkIconTheme, context: *const c_char) -> *mut glib::GList;
     pub fn gtk_icon_theme_load_icon(icon_theme: *mut GtkIconTheme, icon_name: *const c_char, size: c_int, flags: GtkIconLookupFlags, error: *mut *mut glib::GError) -> *mut gdk_pixbuf::GdkPixbuf;
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_icon_theme_load_icon_for_scale(icon_theme: *mut GtkIconTheme, icon_name: *const c_char, size: c_int, scale: c_int, flags: GtkIconLookupFlags, error: *mut *mut glib::GError) -> *mut gdk_pixbuf::GdkPixbuf;
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_icon_theme_load_surface(icon_theme: *mut GtkIconTheme, icon_name: *const c_char, size: c_int, scale: c_int, for_window: *mut gdk::GdkWindow, flags: GtkIconLookupFlags, error: *mut *mut glib::GError) -> *mut cairo::cairo_surface_t;
     pub fn gtk_icon_theme_lookup_by_gicon(icon_theme: *mut GtkIconTheme, icon: *mut gio::GIcon, size: c_int, flags: GtkIconLookupFlags) -> *mut GtkIconInfo;
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_icon_theme_lookup_by_gicon_for_scale(icon_theme: *mut GtkIconTheme, icon: *mut gio::GIcon, size: c_int, scale: c_int, flags: GtkIconLookupFlags) -> *mut GtkIconInfo;
     pub fn gtk_icon_theme_lookup_icon(icon_theme: *mut GtkIconTheme, icon_name: *const c_char, size: c_int, flags: GtkIconLookupFlags) -> *mut GtkIconInfo;
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_icon_theme_lookup_icon_for_scale(icon_theme: *mut GtkIconTheme, icon_name: *const c_char, size: c_int, scale: c_int, flags: GtkIconLookupFlags) -> *mut GtkIconInfo;
     pub fn gtk_icon_theme_prepend_search_path(icon_theme: *mut GtkIconTheme, path: *const c_char);
     pub fn gtk_icon_theme_rescan_if_needed(icon_theme: *mut GtkIconTheme) -> gboolean;
@@ -16315,11 +17462,9 @@ extern "C" {
     pub fn gtk_icon_view_new_with_model(model: *mut GtkTreeModel) -> *mut GtkWidget;
     pub fn gtk_icon_view_convert_widget_to_bin_window_coords(icon_view: *mut GtkIconView, wx: c_int, wy: c_int, bx: *mut c_int, by: *mut c_int);
     pub fn gtk_icon_view_create_drag_icon(icon_view: *mut GtkIconView, path: *mut GtkTreePath) -> *mut cairo::cairo_surface_t;
-    pub fn gtk_icon_view_enable_model_drag_dest(icon_view: *mut GtkIconView, targets: *mut GtkTargetEntry, n_targets: c_int, actions: gdk::GdkDragAction);
-    pub fn gtk_icon_view_enable_model_drag_source(icon_view: *mut GtkIconView, start_button_mask: gdk::GdkModifierType, targets: *mut GtkTargetEntry, n_targets: c_int, actions: gdk::GdkDragAction);
-    #[cfg(any(feature = "v3_8", feature = "dox"))]
+    pub fn gtk_icon_view_enable_model_drag_dest(icon_view: *mut GtkIconView, targets: *const GtkTargetEntry, n_targets: c_int, actions: gdk::GdkDragAction);
+    pub fn gtk_icon_view_enable_model_drag_source(icon_view: *mut GtkIconView, start_button_mask: gdk::GdkModifierType, targets: *const GtkTargetEntry, n_targets: c_int, actions: gdk::GdkDragAction);
     pub fn gtk_icon_view_get_activate_on_single_click(icon_view: *mut GtkIconView) -> gboolean;
-    #[cfg(any(feature = "v3_6", feature = "dox"))]
     pub fn gtk_icon_view_get_cell_rect(icon_view: *mut GtkIconView, path: *mut GtkTreePath, cell: *mut GtkCellRenderer, rect: *mut gdk::GdkRectangle) -> gboolean;
     pub fn gtk_icon_view_get_column_spacing(icon_view: *mut GtkIconView) -> c_int;
     pub fn gtk_icon_view_get_columns(icon_view: *mut GtkIconView) -> c_int;
@@ -16352,7 +17497,6 @@ extern "C" {
     pub fn gtk_icon_view_select_all(icon_view: *mut GtkIconView);
     pub fn gtk_icon_view_select_path(icon_view: *mut GtkIconView, path: *mut GtkTreePath);
     pub fn gtk_icon_view_selected_foreach(icon_view: *mut GtkIconView, func: GtkIconViewForeachFunc, data: gpointer);
-    #[cfg(any(feature = "v3_8", feature = "dox"))]
     pub fn gtk_icon_view_set_activate_on_single_click(icon_view: *mut GtkIconView, single: gboolean);
     pub fn gtk_icon_view_set_column_spacing(icon_view: *mut GtkIconView, column_spacing: c_int);
     pub fn gtk_icon_view_set_columns(icon_view: *mut GtkIconView, columns: c_int);
@@ -16390,32 +17534,30 @@ extern "C" {
     pub fn gtk_image_new() -> *mut GtkWidget;
     pub fn gtk_image_new_from_animation(animation: *mut gdk_pixbuf::GdkPixbufAnimation) -> *mut GtkWidget;
     pub fn gtk_image_new_from_file(filename: *const c_char) -> *mut GtkWidget;
-    pub fn gtk_image_new_from_gicon(icon: *mut gio::GIcon, size: c_int) -> *mut GtkWidget;
-    pub fn gtk_image_new_from_icon_name(icon_name: *const c_char, size: c_int) -> *mut GtkWidget;
-    pub fn gtk_image_new_from_icon_set(icon_set: *mut GtkIconSet, size: c_int) -> *mut GtkWidget;
+    pub fn gtk_image_new_from_gicon(icon: *mut gio::GIcon, size: GtkIconSize) -> *mut GtkWidget;
+    pub fn gtk_image_new_from_icon_name(icon_name: *const c_char, size: GtkIconSize) -> *mut GtkWidget;
+    pub fn gtk_image_new_from_icon_set(icon_set: *mut GtkIconSet, size: GtkIconSize) -> *mut GtkWidget;
     pub fn gtk_image_new_from_pixbuf(pixbuf: *mut gdk_pixbuf::GdkPixbuf) -> *mut GtkWidget;
     pub fn gtk_image_new_from_resource(resource_path: *const c_char) -> *mut GtkWidget;
-    pub fn gtk_image_new_from_stock(stock_id: *const c_char, size: c_int) -> *mut GtkWidget;
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
+    pub fn gtk_image_new_from_stock(stock_id: *const c_char, size: GtkIconSize) -> *mut GtkWidget;
     pub fn gtk_image_new_from_surface(surface: *mut cairo::cairo_surface_t) -> *mut GtkWidget;
     pub fn gtk_image_clear(image: *mut GtkImage);
     pub fn gtk_image_get_animation(image: *mut GtkImage) -> *mut gdk_pixbuf::GdkPixbufAnimation;
-    pub fn gtk_image_get_gicon(image: *mut GtkImage, gicon: *mut *mut gio::GIcon, size: *mut c_int);
-    pub fn gtk_image_get_icon_name(image: *mut GtkImage, icon_name: *mut *const c_char, size: *mut c_int);
-    pub fn gtk_image_get_icon_set(image: *mut GtkImage, icon_set: *mut *mut GtkIconSet, size: *mut c_int);
+    pub fn gtk_image_get_gicon(image: *mut GtkImage, gicon: *mut *mut gio::GIcon, size: *mut GtkIconSize);
+    pub fn gtk_image_get_icon_name(image: *mut GtkImage, icon_name: *mut *const c_char, size: *mut GtkIconSize);
+    pub fn gtk_image_get_icon_set(image: *mut GtkImage, icon_set: *mut *mut GtkIconSet, size: *mut GtkIconSize);
     pub fn gtk_image_get_pixbuf(image: *mut GtkImage) -> *mut gdk_pixbuf::GdkPixbuf;
     pub fn gtk_image_get_pixel_size(image: *mut GtkImage) -> c_int;
-    pub fn gtk_image_get_stock(image: *mut GtkImage, stock_id: *mut *mut c_char, size: *mut c_int);
+    pub fn gtk_image_get_stock(image: *mut GtkImage, stock_id: *mut *mut c_char, size: *mut GtkIconSize);
     pub fn gtk_image_get_storage_type(image: *mut GtkImage) -> GtkImageType;
     pub fn gtk_image_set_from_animation(image: *mut GtkImage, animation: *mut gdk_pixbuf::GdkPixbufAnimation);
     pub fn gtk_image_set_from_file(image: *mut GtkImage, filename: *const c_char);
-    pub fn gtk_image_set_from_gicon(image: *mut GtkImage, icon: *mut gio::GIcon, size: c_int);
-    pub fn gtk_image_set_from_icon_name(image: *mut GtkImage, icon_name: *const c_char, size: c_int);
-    pub fn gtk_image_set_from_icon_set(image: *mut GtkImage, icon_set: *mut GtkIconSet, size: c_int);
+    pub fn gtk_image_set_from_gicon(image: *mut GtkImage, icon: *mut gio::GIcon, size: GtkIconSize);
+    pub fn gtk_image_set_from_icon_name(image: *mut GtkImage, icon_name: *const c_char, size: GtkIconSize);
+    pub fn gtk_image_set_from_icon_set(image: *mut GtkImage, icon_set: *mut GtkIconSet, size: GtkIconSize);
     pub fn gtk_image_set_from_pixbuf(image: *mut GtkImage, pixbuf: *mut gdk_pixbuf::GdkPixbuf);
     pub fn gtk_image_set_from_resource(image: *mut GtkImage, resource_path: *const c_char);
-    pub fn gtk_image_set_from_stock(image: *mut GtkImage, stock_id: *const c_char, size: c_int);
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
+    pub fn gtk_image_set_from_stock(image: *mut GtkImage, stock_id: *const c_char, size: GtkIconSize);
     pub fn gtk_image_set_from_surface(image: *mut GtkImage, surface: *mut cairo::cairo_surface_t);
     pub fn gtk_image_set_pixel_size(image: *mut GtkImage, pixel_size: c_int);
 
@@ -16451,23 +17593,21 @@ extern "C" {
     pub fn gtk_info_bar_get_type() -> GType;
     pub fn gtk_info_bar_new() -> *mut GtkWidget;
     pub fn gtk_info_bar_new_with_buttons(first_button_text: *const c_char, ...) -> *mut GtkWidget;
-    pub fn gtk_info_bar_add_action_widget(info_bar: *mut GtkInfoBar, child: *mut GtkWidget, response_id: c_int);
-    pub fn gtk_info_bar_add_button(info_bar: *mut GtkInfoBar, button_text: *const c_char, response_id: c_int) -> *mut GtkButton;
+    pub fn gtk_info_bar_add_action_widget(info_bar: *mut GtkInfoBar, child: *mut GtkWidget, response_id: GtkResponseType);
+    pub fn gtk_info_bar_add_button(info_bar: *mut GtkInfoBar, button_text: *const c_char, response_id: GtkResponseType) -> *mut GtkButton;
     pub fn gtk_info_bar_add_buttons(info_bar: *mut GtkInfoBar, first_button_text: *const c_char, ...);
     pub fn gtk_info_bar_get_action_area(info_bar: *mut GtkInfoBar) -> *mut GtkWidget;
     pub fn gtk_info_bar_get_content_area(info_bar: *mut GtkInfoBar) -> *mut GtkWidget;
     pub fn gtk_info_bar_get_message_type(info_bar: *mut GtkInfoBar) -> GtkMessageType;
     #[cfg(any(feature = "v3_22_29", feature = "dox"))]
     pub fn gtk_info_bar_get_revealed(info_bar: *mut GtkInfoBar) -> gboolean;
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_info_bar_get_show_close_button(info_bar: *mut GtkInfoBar) -> gboolean;
-    pub fn gtk_info_bar_response(info_bar: *mut GtkInfoBar, response_id: c_int);
-    pub fn gtk_info_bar_set_default_response(info_bar: *mut GtkInfoBar, response_id: c_int);
+    pub fn gtk_info_bar_response(info_bar: *mut GtkInfoBar, response_id: GtkResponseType);
+    pub fn gtk_info_bar_set_default_response(info_bar: *mut GtkInfoBar, response_id: GtkResponseType);
     pub fn gtk_info_bar_set_message_type(info_bar: *mut GtkInfoBar, message_type: GtkMessageType);
-    pub fn gtk_info_bar_set_response_sensitive(info_bar: *mut GtkInfoBar, response_id: c_int, setting: gboolean);
+    pub fn gtk_info_bar_set_response_sensitive(info_bar: *mut GtkInfoBar, response_id: GtkResponseType, setting: gboolean);
     #[cfg(any(feature = "v3_22_29", feature = "dox"))]
     pub fn gtk_info_bar_set_revealed(info_bar: *mut GtkInfoBar, revealed: gboolean);
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_info_bar_set_show_close_button(info_bar: *mut GtkInfoBar, setting: gboolean);
 
     //=========================================================================
@@ -16495,7 +17635,6 @@ extern "C" {
     pub fn gtk_label_get_layout_offsets(label: *mut GtkLabel, x: *mut c_int, y: *mut c_int);
     pub fn gtk_label_get_line_wrap(label: *mut GtkLabel) -> gboolean;
     pub fn gtk_label_get_line_wrap_mode(label: *mut GtkLabel) -> pango::PangoWrapMode;
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_label_get_lines(label: *mut GtkLabel) -> c_int;
     pub fn gtk_label_get_max_width_chars(label: *mut GtkLabel) -> c_int;
     pub fn gtk_label_get_mnemonic_keyval(label: *mut GtkLabel) -> c_uint;
@@ -16520,7 +17659,6 @@ extern "C" {
     pub fn gtk_label_set_label(label: *mut GtkLabel, str: *const c_char);
     pub fn gtk_label_set_line_wrap(label: *mut GtkLabel, wrap: gboolean);
     pub fn gtk_label_set_line_wrap_mode(label: *mut GtkLabel, wrap_mode: pango::PangoWrapMode);
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_label_set_lines(label: *mut GtkLabel, lines: c_int);
     pub fn gtk_label_set_markup(label: *mut GtkLabel, str: *const c_char);
     pub fn gtk_label_set_markup_with_mnemonic(label: *mut GtkLabel, str: *const c_char);
@@ -16564,35 +17702,20 @@ extern "C" {
     // GtkLevelBar
     //=========================================================================
     pub fn gtk_level_bar_get_type() -> GType;
-    #[cfg(any(feature = "v3_6", feature = "dox"))]
     pub fn gtk_level_bar_new() -> *mut GtkWidget;
-    #[cfg(any(feature = "v3_6", feature = "dox"))]
     pub fn gtk_level_bar_new_for_interval(min_value: c_double, max_value: c_double) -> *mut GtkWidget;
-    #[cfg(any(feature = "v3_6", feature = "dox"))]
     pub fn gtk_level_bar_add_offset_value(self_: *mut GtkLevelBar, name: *const c_char, value: c_double);
-    #[cfg(any(feature = "v3_8", feature = "dox"))]
     pub fn gtk_level_bar_get_inverted(self_: *mut GtkLevelBar) -> gboolean;
-    #[cfg(any(feature = "v3_6", feature = "dox"))]
     pub fn gtk_level_bar_get_max_value(self_: *mut GtkLevelBar) -> c_double;
-    #[cfg(any(feature = "v3_6", feature = "dox"))]
     pub fn gtk_level_bar_get_min_value(self_: *mut GtkLevelBar) -> c_double;
-    #[cfg(any(feature = "v3_6", feature = "dox"))]
     pub fn gtk_level_bar_get_mode(self_: *mut GtkLevelBar) -> GtkLevelBarMode;
-    #[cfg(any(feature = "v3_6", feature = "dox"))]
     pub fn gtk_level_bar_get_offset_value(self_: *mut GtkLevelBar, name: *const c_char, value: *mut c_double) -> gboolean;
-    #[cfg(any(feature = "v3_6", feature = "dox"))]
     pub fn gtk_level_bar_get_value(self_: *mut GtkLevelBar) -> c_double;
-    #[cfg(any(feature = "v3_6", feature = "dox"))]
     pub fn gtk_level_bar_remove_offset_value(self_: *mut GtkLevelBar, name: *const c_char);
-    #[cfg(any(feature = "v3_8", feature = "dox"))]
     pub fn gtk_level_bar_set_inverted(self_: *mut GtkLevelBar, inverted: gboolean);
-    #[cfg(any(feature = "v3_6", feature = "dox"))]
     pub fn gtk_level_bar_set_max_value(self_: *mut GtkLevelBar, value: c_double);
-    #[cfg(any(feature = "v3_6", feature = "dox"))]
     pub fn gtk_level_bar_set_min_value(self_: *mut GtkLevelBar, value: c_double);
-    #[cfg(any(feature = "v3_6", feature = "dox"))]
     pub fn gtk_level_bar_set_mode(self_: *mut GtkLevelBar, mode: GtkLevelBarMode);
-    #[cfg(any(feature = "v3_6", feature = "dox"))]
     pub fn gtk_level_bar_set_value(self_: *mut GtkLevelBar, value: c_double);
 
     //=========================================================================
@@ -16620,61 +17743,34 @@ extern "C" {
     // GtkListBox
     //=========================================================================
     pub fn gtk_list_box_get_type() -> GType;
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_list_box_new() -> *mut GtkWidget;
     #[cfg(any(feature = "v3_16", feature = "dox"))]
     pub fn gtk_list_box_bind_model(box_: *mut GtkListBox, model: *mut gio::GListModel, create_widget_func: GtkListBoxCreateWidgetFunc, user_data: gpointer, user_data_free_func: glib::GDestroyNotify);
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_list_box_drag_highlight_row(box_: *mut GtkListBox, row: *mut GtkListBoxRow);
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_list_box_drag_unhighlight_row(box_: *mut GtkListBox);
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_list_box_get_activate_on_single_click(box_: *mut GtkListBox) -> gboolean;
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_list_box_get_adjustment(box_: *mut GtkListBox) -> *mut GtkAdjustment;
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_list_box_get_row_at_index(box_: *mut GtkListBox, index_: c_int) -> *mut GtkListBoxRow;
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_list_box_get_row_at_y(box_: *mut GtkListBox, y: c_int) -> *mut GtkListBoxRow;
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_list_box_get_selected_row(box_: *mut GtkListBox) -> *mut GtkListBoxRow;
-    #[cfg(any(feature = "v3_14", feature = "dox"))]
     pub fn gtk_list_box_get_selected_rows(box_: *mut GtkListBox) -> *mut glib::GList;
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_list_box_get_selection_mode(box_: *mut GtkListBox) -> GtkSelectionMode;
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_list_box_insert(box_: *mut GtkListBox, child: *mut GtkWidget, position: c_int);
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_list_box_invalidate_filter(box_: *mut GtkListBox);
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_list_box_invalidate_headers(box_: *mut GtkListBox);
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_list_box_invalidate_sort(box_: *mut GtkListBox);
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_list_box_prepend(box_: *mut GtkListBox, child: *mut GtkWidget);
-    #[cfg(any(feature = "v3_14", feature = "dox"))]
     pub fn gtk_list_box_select_all(box_: *mut GtkListBox);
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_list_box_select_row(box_: *mut GtkListBox, row: *mut GtkListBoxRow);
-    #[cfg(any(feature = "v3_14", feature = "dox"))]
     pub fn gtk_list_box_selected_foreach(box_: *mut GtkListBox, func: GtkListBoxForeachFunc, data: gpointer);
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_list_box_set_activate_on_single_click(box_: *mut GtkListBox, single: gboolean);
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_list_box_set_adjustment(box_: *mut GtkListBox, adjustment: *mut GtkAdjustment);
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_list_box_set_filter_func(box_: *mut GtkListBox, filter_func: GtkListBoxFilterFunc, user_data: gpointer, destroy: glib::GDestroyNotify);
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_list_box_set_header_func(box_: *mut GtkListBox, update_header: GtkListBoxUpdateHeaderFunc, user_data: gpointer, destroy: glib::GDestroyNotify);
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_list_box_set_placeholder(box_: *mut GtkListBox, placeholder: *mut GtkWidget);
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_list_box_set_selection_mode(box_: *mut GtkListBox, mode: GtkSelectionMode);
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_list_box_set_sort_func(box_: *mut GtkListBox, sort_func: GtkListBoxSortFunc, user_data: gpointer, destroy: glib::GDestroyNotify);
-    #[cfg(any(feature = "v3_14", feature = "dox"))]
     pub fn gtk_list_box_unselect_all(box_: *mut GtkListBox);
-    #[cfg(any(feature = "v3_14", feature = "dox"))]
     pub fn gtk_list_box_unselect_row(box_: *mut GtkListBox, row: *mut GtkListBoxRow);
 
     //=========================================================================
@@ -16686,25 +17782,15 @@ extern "C" {
     // GtkListBoxRow
     //=========================================================================
     pub fn gtk_list_box_row_get_type() -> GType;
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_list_box_row_new() -> *mut GtkWidget;
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_list_box_row_changed(row: *mut GtkListBoxRow);
-    #[cfg(any(feature = "v3_14", feature = "dox"))]
     pub fn gtk_list_box_row_get_activatable(row: *mut GtkListBoxRow) -> gboolean;
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_list_box_row_get_header(row: *mut GtkListBoxRow) -> *mut GtkWidget;
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_list_box_row_get_index(row: *mut GtkListBoxRow) -> c_int;
-    #[cfg(any(feature = "v3_14", feature = "dox"))]
     pub fn gtk_list_box_row_get_selectable(row: *mut GtkListBoxRow) -> gboolean;
-    #[cfg(any(feature = "v3_14", feature = "dox"))]
     pub fn gtk_list_box_row_is_selected(row: *mut GtkListBoxRow) -> gboolean;
-    #[cfg(any(feature = "v3_14", feature = "dox"))]
     pub fn gtk_list_box_row_set_activatable(row: *mut GtkListBoxRow, activatable: gboolean);
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_list_box_row_set_header(row: *mut GtkListBoxRow, header: *mut GtkWidget);
-    #[cfg(any(feature = "v3_14", feature = "dox"))]
     pub fn gtk_list_box_row_set_selectable(row: *mut GtkListBoxRow, selectable: gboolean);
 
     //=========================================================================
@@ -16811,31 +17897,18 @@ extern "C" {
     // GtkMenuButton
     //=========================================================================
     pub fn gtk_menu_button_get_type() -> GType;
-    #[cfg(any(feature = "v3_6", feature = "dox"))]
     pub fn gtk_menu_button_new() -> *mut GtkWidget;
-    #[cfg(any(feature = "v3_6", feature = "dox"))]
     pub fn gtk_menu_button_get_align_widget(menu_button: *mut GtkMenuButton) -> *mut GtkWidget;
-    #[cfg(any(feature = "v3_6", feature = "dox"))]
     pub fn gtk_menu_button_get_direction(menu_button: *mut GtkMenuButton) -> GtkArrowType;
-    #[cfg(any(feature = "v3_6", feature = "dox"))]
     pub fn gtk_menu_button_get_menu_model(menu_button: *mut GtkMenuButton) -> *mut gio::GMenuModel;
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
     pub fn gtk_menu_button_get_popover(menu_button: *mut GtkMenuButton) -> *mut GtkPopover;
-    #[cfg(any(feature = "v3_6", feature = "dox"))]
     pub fn gtk_menu_button_get_popup(menu_button: *mut GtkMenuButton) -> *mut GtkMenu;
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
     pub fn gtk_menu_button_get_use_popover(menu_button: *mut GtkMenuButton) -> gboolean;
-    #[cfg(any(feature = "v3_6", feature = "dox"))]
     pub fn gtk_menu_button_set_align_widget(menu_button: *mut GtkMenuButton, align_widget: *mut GtkWidget);
-    #[cfg(any(feature = "v3_6", feature = "dox"))]
     pub fn gtk_menu_button_set_direction(menu_button: *mut GtkMenuButton, direction: GtkArrowType);
-    #[cfg(any(feature = "v3_6", feature = "dox"))]
     pub fn gtk_menu_button_set_menu_model(menu_button: *mut GtkMenuButton, menu_model: *mut gio::GMenuModel);
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
     pub fn gtk_menu_button_set_popover(menu_button: *mut GtkMenuButton, popover: *mut GtkWidget);
-    #[cfg(any(feature = "v3_6", feature = "dox"))]
     pub fn gtk_menu_button_set_popup(menu_button: *mut GtkMenuButton, menu: *mut GtkWidget);
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
     pub fn gtk_menu_button_set_use_popover(menu_button: *mut GtkMenuButton, use_popover: gboolean);
 
     //=========================================================================
@@ -16879,7 +17952,6 @@ extern "C" {
     pub fn gtk_menu_shell_get_type() -> GType;
     pub fn gtk_menu_shell_activate_item(menu_shell: *mut GtkMenuShell, menu_item: *mut GtkWidget, force_deactivate: gboolean);
     pub fn gtk_menu_shell_append(menu_shell: *mut GtkMenuShell, child: *mut GtkMenuItem);
-    #[cfg(any(feature = "v3_6", feature = "dox"))]
     pub fn gtk_menu_shell_bind_model(menu_shell: *mut GtkMenuShell, model: *mut gio::GMenuModel, action_namespace: *const c_char, with_separators: gboolean);
     pub fn gtk_menu_shell_cancel(menu_shell: *mut GtkMenuShell);
     pub fn gtk_menu_shell_deactivate(menu_shell: *mut GtkMenuShell);
@@ -17086,7 +18158,7 @@ extern "C" {
     #[cfg(any(feature = "v3_22", feature = "dox"))]
     pub fn gtk_pad_controller_set_action(controller: *mut GtkPadController, type_: GtkPadActionType, index: c_int, mode: c_int, label: *const c_char, action_name: *const c_char);
     #[cfg(any(feature = "v3_22", feature = "dox"))]
-    pub fn gtk_pad_controller_set_action_entries(controller: *mut GtkPadController, entries: *mut GtkPadActionEntry, n_entries: c_int);
+    pub fn gtk_pad_controller_set_action_entries(controller: *mut GtkPadController, entries: *const GtkPadActionEntry, n_entries: c_int);
 
     //=========================================================================
     // GtkPageSetup
@@ -17150,22 +18222,14 @@ extern "C" {
     // GtkPlacesSidebar
     //=========================================================================
     pub fn gtk_places_sidebar_get_type() -> GType;
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_places_sidebar_new() -> *mut GtkWidget;
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_places_sidebar_add_shortcut(sidebar: *mut GtkPlacesSidebar, location: *mut gio::GFile);
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
     pub fn gtk_places_sidebar_get_local_only(sidebar: *mut GtkPlacesSidebar) -> gboolean;
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_places_sidebar_get_location(sidebar: *mut GtkPlacesSidebar) -> *mut gio::GFile;
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_places_sidebar_get_nth_bookmark(sidebar: *mut GtkPlacesSidebar, n: c_int) -> *mut gio::GFile;
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_places_sidebar_get_open_flags(sidebar: *mut GtkPlacesSidebar) -> GtkPlacesOpenFlags;
     pub fn gtk_places_sidebar_get_show_connect_to_server(sidebar: *mut GtkPlacesSidebar) -> gboolean;
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_places_sidebar_get_show_desktop(sidebar: *mut GtkPlacesSidebar) -> gboolean;
-    #[cfg(any(feature = "v3_14", feature = "dox"))]
     pub fn gtk_places_sidebar_get_show_enter_location(sidebar: *mut GtkPlacesSidebar) -> gboolean;
     #[cfg(any(feature = "v3_18", feature = "dox"))]
     pub fn gtk_places_sidebar_get_show_other_locations(sidebar: *mut GtkPlacesSidebar) -> gboolean;
@@ -17175,23 +18239,15 @@ extern "C" {
     pub fn gtk_places_sidebar_get_show_starred_location(sidebar: *mut GtkPlacesSidebar) -> gboolean;
     #[cfg(any(feature = "v3_18", feature = "dox"))]
     pub fn gtk_places_sidebar_get_show_trash(sidebar: *mut GtkPlacesSidebar) -> gboolean;
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_places_sidebar_list_shortcuts(sidebar: *mut GtkPlacesSidebar) -> *mut glib::GSList;
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_places_sidebar_remove_shortcut(sidebar: *mut GtkPlacesSidebar, location: *mut gio::GFile);
     #[cfg(any(feature = "v3_18", feature = "dox"))]
     pub fn gtk_places_sidebar_set_drop_targets_visible(sidebar: *mut GtkPlacesSidebar, visible: gboolean, context: *mut gdk::GdkDragContext);
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
     pub fn gtk_places_sidebar_set_local_only(sidebar: *mut GtkPlacesSidebar, local_only: gboolean);
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_places_sidebar_set_location(sidebar: *mut GtkPlacesSidebar, location: *mut gio::GFile);
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_places_sidebar_set_open_flags(sidebar: *mut GtkPlacesSidebar, flags: GtkPlacesOpenFlags);
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_places_sidebar_set_show_connect_to_server(sidebar: *mut GtkPlacesSidebar, show_connect_to_server: gboolean);
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_places_sidebar_set_show_desktop(sidebar: *mut GtkPlacesSidebar, show_desktop: gboolean);
-    #[cfg(any(feature = "v3_14", feature = "dox"))]
     pub fn gtk_places_sidebar_set_show_enter_location(sidebar: *mut GtkPlacesSidebar, show_enter_location: gboolean);
     #[cfg(any(feature = "v3_18", feature = "dox"))]
     pub fn gtk_places_sidebar_set_show_other_locations(sidebar: *mut GtkPlacesSidebar, show_other_locations: gboolean);
@@ -17218,21 +18274,16 @@ extern "C" {
     // GtkPopover
     //=========================================================================
     pub fn gtk_popover_get_type() -> GType;
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
     pub fn gtk_popover_new(relative_to: *mut GtkWidget) -> *mut GtkWidget;
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
     pub fn gtk_popover_new_from_model(relative_to: *mut GtkWidget, model: *mut gio::GMenuModel) -> *mut GtkWidget;
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
     pub fn gtk_popover_bind_model(popover: *mut GtkPopover, model: *mut gio::GMenuModel, action_namespace: *const c_char);
     #[cfg(any(feature = "v3_20", feature = "dox"))]
     pub fn gtk_popover_get_constrain_to(popover: *mut GtkPopover) -> GtkPopoverConstraint;
     #[cfg(any(feature = "v3_18", feature = "dox"))]
     pub fn gtk_popover_get_default_widget(popover: *mut GtkPopover) -> *mut GtkWidget;
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
     pub fn gtk_popover_get_modal(popover: *mut GtkPopover) -> gboolean;
     pub fn gtk_popover_get_pointing_to(popover: *mut GtkPopover, rect: *mut gdk::GdkRectangle) -> gboolean;
     pub fn gtk_popover_get_position(popover: *mut GtkPopover) -> GtkPositionType;
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
     pub fn gtk_popover_get_relative_to(popover: *mut GtkPopover) -> *mut GtkWidget;
     #[cfg(any(feature = "v3_16", feature = "dox"))]
     pub fn gtk_popover_get_transitions_enabled(popover: *mut GtkPopover) -> gboolean;
@@ -17244,13 +18295,9 @@ extern "C" {
     pub fn gtk_popover_set_constrain_to(popover: *mut GtkPopover, constraint: GtkPopoverConstraint);
     #[cfg(any(feature = "v3_18", feature = "dox"))]
     pub fn gtk_popover_set_default_widget(popover: *mut GtkPopover, widget: *mut GtkWidget);
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
     pub fn gtk_popover_set_modal(popover: *mut GtkPopover, modal: gboolean);
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
     pub fn gtk_popover_set_pointing_to(popover: *mut GtkPopover, rect: *const gdk::GdkRectangle);
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
     pub fn gtk_popover_set_position(popover: *mut GtkPopover, position: GtkPositionType);
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
     pub fn gtk_popover_set_relative_to(popover: *mut GtkPopover, relative_to: *mut GtkWidget);
     #[cfg(any(feature = "v3_16", feature = "dox"))]
     pub fn gtk_popover_set_transitions_enabled(popover: *mut GtkPopover, transitions_enabled: gboolean);
@@ -17607,21 +18654,13 @@ extern "C" {
     // GtkRevealer
     //=========================================================================
     pub fn gtk_revealer_get_type() -> GType;
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_revealer_new() -> *mut GtkWidget;
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_revealer_get_child_revealed(revealer: *mut GtkRevealer) -> gboolean;
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_revealer_get_reveal_child(revealer: *mut GtkRevealer) -> gboolean;
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_revealer_get_transition_duration(revealer: *mut GtkRevealer) -> c_uint;
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_revealer_get_transition_type(revealer: *mut GtkRevealer) -> GtkRevealerTransitionType;
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_revealer_set_reveal_child(revealer: *mut GtkRevealer, reveal_child: gboolean);
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_revealer_set_transition_duration(revealer: *mut GtkRevealer, duration: c_uint);
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_revealer_set_transition_type(revealer: *mut GtkRevealer, transition: GtkRevealerTransitionType);
 
     //=========================================================================
@@ -17652,14 +18691,14 @@ extern "C" {
     // GtkScaleButton
     //=========================================================================
     pub fn gtk_scale_button_get_type() -> GType;
-    pub fn gtk_scale_button_new(size: c_int, min: c_double, max: c_double, step: c_double, icons: *mut *mut c_char) -> *mut GtkWidget;
+    pub fn gtk_scale_button_new(size: GtkIconSize, min: c_double, max: c_double, step: c_double, icons: *mut *const c_char) -> *mut GtkWidget;
     pub fn gtk_scale_button_get_adjustment(button: *mut GtkScaleButton) -> *mut GtkAdjustment;
     pub fn gtk_scale_button_get_minus_button(button: *mut GtkScaleButton) -> *mut GtkButton;
     pub fn gtk_scale_button_get_plus_button(button: *mut GtkScaleButton) -> *mut GtkButton;
     pub fn gtk_scale_button_get_popup(button: *mut GtkScaleButton) -> *mut GtkWidget;
     pub fn gtk_scale_button_get_value(button: *mut GtkScaleButton) -> c_double;
     pub fn gtk_scale_button_set_adjustment(button: *mut GtkScaleButton, adjustment: *mut GtkAdjustment);
-    pub fn gtk_scale_button_set_icons(button: *mut GtkScaleButton, icons: *mut *mut c_char);
+    pub fn gtk_scale_button_set_icons(button: *mut GtkScaleButton, icons: *mut *const c_char);
     pub fn gtk_scale_button_set_value(button: *mut GtkScaleButton, value: c_double);
 
     //=========================================================================
@@ -17730,26 +18769,18 @@ extern "C" {
     // GtkSearchBar
     //=========================================================================
     pub fn gtk_search_bar_get_type() -> GType;
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_search_bar_new() -> *mut GtkWidget;
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_search_bar_connect_entry(bar: *mut GtkSearchBar, entry: *mut GtkEntry);
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_search_bar_get_search_mode(bar: *mut GtkSearchBar) -> gboolean;
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_search_bar_get_show_close_button(bar: *mut GtkSearchBar) -> gboolean;
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_search_bar_handle_event(bar: *mut GtkSearchBar, event: *mut gdk::GdkEvent) -> gboolean;
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_search_bar_set_search_mode(bar: *mut GtkSearchBar, search_mode: gboolean);
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_search_bar_set_show_close_button(bar: *mut GtkSearchBar, visible: gboolean);
 
     //=========================================================================
     // GtkSearchEntry
     //=========================================================================
     pub fn gtk_search_entry_get_type() -> GType;
-    #[cfg(any(feature = "v3_6", feature = "dox"))]
     pub fn gtk_search_entry_new() -> *mut GtkWidget;
     #[cfg(any(feature = "v3_16", feature = "dox"))]
     pub fn gtk_search_entry_handle_event(entry: *mut GtkSearchEntry, event: *mut gdk::GdkEvent) -> gboolean;
@@ -17897,49 +18928,33 @@ extern "C" {
     // GtkStack
     //=========================================================================
     pub fn gtk_stack_get_type() -> GType;
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_stack_new() -> *mut GtkWidget;
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_stack_add_named(stack: *mut GtkStack, child: *mut GtkWidget, name: *const c_char);
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_stack_add_titled(stack: *mut GtkStack, child: *mut GtkWidget, name: *const c_char, title: *const c_char);
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
     pub fn gtk_stack_get_child_by_name(stack: *mut GtkStack, name: *const c_char) -> *mut GtkWidget;
     #[cfg(any(feature = "v3_16", feature = "dox"))]
     pub fn gtk_stack_get_hhomogeneous(stack: *mut GtkStack) -> gboolean;
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_stack_get_homogeneous(stack: *mut GtkStack) -> gboolean;
     #[cfg(any(feature = "v3_18", feature = "dox"))]
     pub fn gtk_stack_get_interpolate_size(stack: *mut GtkStack) -> gboolean;
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_stack_get_transition_duration(stack: *mut GtkStack) -> c_uint;
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
     pub fn gtk_stack_get_transition_running(stack: *mut GtkStack) -> gboolean;
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_stack_get_transition_type(stack: *mut GtkStack) -> GtkStackTransitionType;
     #[cfg(any(feature = "v3_16", feature = "dox"))]
     pub fn gtk_stack_get_vhomogeneous(stack: *mut GtkStack) -> gboolean;
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_stack_get_visible_child(stack: *mut GtkStack) -> *mut GtkWidget;
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_stack_get_visible_child_name(stack: *mut GtkStack) -> *const c_char;
     #[cfg(any(feature = "v3_16", feature = "dox"))]
     pub fn gtk_stack_set_hhomogeneous(stack: *mut GtkStack, hhomogeneous: gboolean);
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_stack_set_homogeneous(stack: *mut GtkStack, homogeneous: gboolean);
     #[cfg(any(feature = "v3_18", feature = "dox"))]
     pub fn gtk_stack_set_interpolate_size(stack: *mut GtkStack, interpolate_size: gboolean);
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_stack_set_transition_duration(stack: *mut GtkStack, duration: c_uint);
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_stack_set_transition_type(stack: *mut GtkStack, transition: GtkStackTransitionType);
     #[cfg(any(feature = "v3_16", feature = "dox"))]
     pub fn gtk_stack_set_vhomogeneous(stack: *mut GtkStack, vhomogeneous: gboolean);
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_stack_set_visible_child(stack: *mut GtkStack, child: *mut GtkWidget);
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_stack_set_visible_child_full(stack: *mut GtkStack, name: *const c_char, transition: GtkStackTransitionType);
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_stack_set_visible_child_name(stack: *mut GtkStack, name: *const c_char);
 
     //=========================================================================
@@ -17962,11 +18977,8 @@ extern "C" {
     // GtkStackSwitcher
     //=========================================================================
     pub fn gtk_stack_switcher_get_type() -> GType;
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_stack_switcher_new() -> *mut GtkWidget;
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_stack_switcher_get_stack(switcher: *mut GtkStackSwitcher) -> *mut GtkStack;
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_stack_switcher_set_stack(switcher: *mut GtkStackSwitcher, stack: *mut GtkStack);
 
     //=========================================================================
@@ -18040,7 +19052,7 @@ extern "C" {
     pub fn gtk_style_has_context(style: *mut GtkStyle) -> gboolean;
     pub fn gtk_style_lookup_color(style: *mut GtkStyle, color_name: *const c_char, color: *mut gdk::GdkColor) -> gboolean;
     pub fn gtk_style_lookup_icon_set(style: *mut GtkStyle, stock_id: *const c_char) -> *mut GtkIconSet;
-    pub fn gtk_style_render_icon(style: *mut GtkStyle, source: *const GtkIconSource, direction: GtkTextDirection, state: GtkStateType, size: c_int, widget: *mut GtkWidget, detail: *const c_char) -> *mut gdk_pixbuf::GdkPixbuf;
+    pub fn gtk_style_render_icon(style: *mut GtkStyle, source: *const GtkIconSource, direction: GtkTextDirection, state: GtkStateType, size: GtkIconSize, widget: *mut GtkWidget, detail: *const c_char) -> *mut gdk_pixbuf::GdkPixbuf;
     pub fn gtk_style_set_background(style: *mut GtkStyle, window: *mut gdk::GdkWindow, state_type: GtkStateType);
 
     //=========================================================================
@@ -18062,7 +19074,6 @@ extern "C" {
     pub fn gtk_style_context_get_color(context: *mut GtkStyleContext, state: GtkStateFlags, color: *mut gdk::GdkRGBA);
     pub fn gtk_style_context_get_direction(context: *mut GtkStyleContext) -> GtkTextDirection;
     pub fn gtk_style_context_get_font(context: *mut GtkStyleContext, state: GtkStateFlags) -> *const pango::PangoFontDescription;
-    #[cfg(any(feature = "v3_8", feature = "dox"))]
     pub fn gtk_style_context_get_frame_clock(context: *mut GtkStyleContext) -> *mut gdk::GdkFrameClock;
     pub fn gtk_style_context_get_junction_sides(context: *mut GtkStyleContext) -> GtkJunctionSides;
     pub fn gtk_style_context_get_margin(context: *mut GtkStyleContext, state: GtkStateFlags, margin: *mut GtkBorder);
@@ -18070,7 +19081,6 @@ extern "C" {
     pub fn gtk_style_context_get_parent(context: *mut GtkStyleContext) -> *mut GtkStyleContext;
     pub fn gtk_style_context_get_path(context: *mut GtkStyleContext) -> *const GtkWidgetPath;
     pub fn gtk_style_context_get_property(context: *mut GtkStyleContext, property: *const c_char, state: GtkStateFlags, value: *mut gobject::GValue);
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_style_context_get_scale(context: *mut GtkStyleContext) -> c_int;
     pub fn gtk_style_context_get_screen(context: *mut GtkStyleContext) -> *mut gdk::GdkScreen;
     pub fn gtk_style_context_get_section(context: *mut GtkStyleContext, property: *const c_char) -> *mut GtkCssSection;
@@ -18097,12 +19107,10 @@ extern "C" {
     pub fn gtk_style_context_scroll_animations(context: *mut GtkStyleContext, window: *mut gdk::GdkWindow, dx: c_int, dy: c_int);
     pub fn gtk_style_context_set_background(context: *mut GtkStyleContext, window: *mut gdk::GdkWindow);
     pub fn gtk_style_context_set_direction(context: *mut GtkStyleContext, direction: GtkTextDirection);
-    #[cfg(any(feature = "v3_8", feature = "dox"))]
     pub fn gtk_style_context_set_frame_clock(context: *mut GtkStyleContext, frame_clock: *mut gdk::GdkFrameClock);
     pub fn gtk_style_context_set_junction_sides(context: *mut GtkStyleContext, sides: GtkJunctionSides);
     pub fn gtk_style_context_set_parent(context: *mut GtkStyleContext, parent: *mut GtkStyleContext);
     pub fn gtk_style_context_set_path(context: *mut GtkStyleContext, path: *mut GtkWidgetPath);
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_style_context_set_scale(context: *mut GtkStyleContext, scale: c_int);
     pub fn gtk_style_context_set_screen(context: *mut GtkStyleContext, screen: *mut gdk::GdkScreen);
     pub fn gtk_style_context_set_state(context: *mut GtkStyleContext, flags: GtkStateFlags);
@@ -18135,10 +19143,8 @@ extern "C" {
     pub fn gtk_switch_get_type() -> GType;
     pub fn gtk_switch_new() -> *mut GtkWidget;
     pub fn gtk_switch_get_active(sw: *mut GtkSwitch) -> gboolean;
-    #[cfg(any(feature = "v3_14", feature = "dox"))]
     pub fn gtk_switch_get_state(sw: *mut GtkSwitch) -> gboolean;
     pub fn gtk_switch_set_active(sw: *mut GtkSwitch, is_active: gboolean);
-    #[cfg(any(feature = "v3_14", feature = "dox"))]
     pub fn gtk_switch_set_state(sw: *mut GtkSwitch, state: gboolean);
 
     //=========================================================================
@@ -18193,7 +19199,7 @@ extern "C" {
     pub fn gtk_text_buffer_delete_mark(buffer: *mut GtkTextBuffer, mark: *mut GtkTextMark);
     pub fn gtk_text_buffer_delete_mark_by_name(buffer: *mut GtkTextBuffer, name: *const c_char);
     pub fn gtk_text_buffer_delete_selection(buffer: *mut GtkTextBuffer, interactive: gboolean, default_editable: gboolean) -> gboolean;
-    pub fn gtk_text_buffer_deserialize(register_buffer: *mut GtkTextBuffer, content_buffer: *mut GtkTextBuffer, format: gdk::GdkAtom, iter: *mut GtkTextIter, data: *mut u8, length: size_t, error: *mut *mut glib::GError) -> gboolean;
+    pub fn gtk_text_buffer_deserialize(register_buffer: *mut GtkTextBuffer, content_buffer: *mut GtkTextBuffer, format: gdk::GdkAtom, iter: *mut GtkTextIter, data: *const u8, length: size_t, error: *mut *mut glib::GError) -> gboolean;
     pub fn gtk_text_buffer_deserialize_get_can_create_tags(buffer: *mut GtkTextBuffer, format: gdk::GdkAtom) -> gboolean;
     pub fn gtk_text_buffer_deserialize_set_can_create_tags(buffer: *mut GtkTextBuffer, format: gdk::GdkAtom, can_create_tags: gboolean);
     pub fn gtk_text_buffer_end_user_action(buffer: *mut GtkTextBuffer);
@@ -18323,9 +19329,7 @@ extern "C" {
     pub fn gtk_text_view_get_editable(text_view: *mut GtkTextView) -> gboolean;
     pub fn gtk_text_view_get_hadjustment(text_view: *mut GtkTextView) -> *mut GtkAdjustment;
     pub fn gtk_text_view_get_indent(text_view: *mut GtkTextView) -> c_int;
-    #[cfg(any(feature = "v3_6", feature = "dox"))]
     pub fn gtk_text_view_get_input_hints(text_view: *mut GtkTextView) -> GtkInputHints;
-    #[cfg(any(feature = "v3_6", feature = "dox"))]
     pub fn gtk_text_view_get_input_purpose(text_view: *mut GtkTextView) -> GtkInputPurpose;
     pub fn gtk_text_view_get_iter_at_location(text_view: *mut GtkTextView, iter: *mut GtkTextIter, x: c_int, y: c_int) -> gboolean;
     pub fn gtk_text_view_get_iter_at_position(text_view: *mut GtkTextView, iter: *mut GtkTextIter, trailing: *mut c_int, x: c_int, y: c_int) -> gboolean;
@@ -18368,9 +19372,7 @@ extern "C" {
     pub fn gtk_text_view_set_cursor_visible(text_view: *mut GtkTextView, setting: gboolean);
     pub fn gtk_text_view_set_editable(text_view: *mut GtkTextView, setting: gboolean);
     pub fn gtk_text_view_set_indent(text_view: *mut GtkTextView, indent: c_int);
-    #[cfg(any(feature = "v3_6", feature = "dox"))]
     pub fn gtk_text_view_set_input_hints(text_view: *mut GtkTextView, hints: GtkInputHints);
-    #[cfg(any(feature = "v3_6", feature = "dox"))]
     pub fn gtk_text_view_set_input_purpose(text_view: *mut GtkTextView, purpose: GtkInputPurpose);
     pub fn gtk_text_view_set_justification(text_view: *mut GtkTextView, justification: GtkJustification);
     pub fn gtk_text_view_set_left_margin(text_view: *mut GtkTextView, left_margin: c_int);
@@ -18489,7 +19491,7 @@ extern "C" {
     pub fn gtk_tool_item_get_ellipsize_mode(tool_item: *mut GtkToolItem) -> pango::PangoEllipsizeMode;
     pub fn gtk_tool_item_get_expand(tool_item: *mut GtkToolItem) -> gboolean;
     pub fn gtk_tool_item_get_homogeneous(tool_item: *mut GtkToolItem) -> gboolean;
-    pub fn gtk_tool_item_get_icon_size(tool_item: *mut GtkToolItem) -> c_int;
+    pub fn gtk_tool_item_get_icon_size(tool_item: *mut GtkToolItem) -> GtkIconSize;
     pub fn gtk_tool_item_get_is_important(tool_item: *mut GtkToolItem) -> gboolean;
     pub fn gtk_tool_item_get_orientation(tool_item: *mut GtkToolItem) -> GtkOrientation;
     pub fn gtk_tool_item_get_proxy_menu_item(tool_item: *mut GtkToolItem, menu_item_id: *const c_char) -> *mut GtkWidget;
@@ -18551,14 +19553,14 @@ extern "C" {
     pub fn gtk_tool_palette_get_expand(palette: *mut GtkToolPalette, group: *mut GtkToolItemGroup) -> gboolean;
     pub fn gtk_tool_palette_get_group_position(palette: *mut GtkToolPalette, group: *mut GtkToolItemGroup) -> c_int;
     pub fn gtk_tool_palette_get_hadjustment(palette: *mut GtkToolPalette) -> *mut GtkAdjustment;
-    pub fn gtk_tool_palette_get_icon_size(palette: *mut GtkToolPalette) -> c_int;
+    pub fn gtk_tool_palette_get_icon_size(palette: *mut GtkToolPalette) -> GtkIconSize;
     pub fn gtk_tool_palette_get_style(palette: *mut GtkToolPalette) -> GtkToolbarStyle;
     pub fn gtk_tool_palette_get_vadjustment(palette: *mut GtkToolPalette) -> *mut GtkAdjustment;
     pub fn gtk_tool_palette_set_drag_source(palette: *mut GtkToolPalette, targets: GtkToolPaletteDragTargets);
     pub fn gtk_tool_palette_set_exclusive(palette: *mut GtkToolPalette, group: *mut GtkToolItemGroup, exclusive: gboolean);
     pub fn gtk_tool_palette_set_expand(palette: *mut GtkToolPalette, group: *mut GtkToolItemGroup, expand: gboolean);
     pub fn gtk_tool_palette_set_group_position(palette: *mut GtkToolPalette, group: *mut GtkToolItemGroup, position: c_int);
-    pub fn gtk_tool_palette_set_icon_size(palette: *mut GtkToolPalette, icon_size: c_int);
+    pub fn gtk_tool_palette_set_icon_size(palette: *mut GtkToolPalette, icon_size: GtkIconSize);
     pub fn gtk_tool_palette_set_style(palette: *mut GtkToolPalette, style: GtkToolbarStyle);
     pub fn gtk_tool_palette_unset_icon_size(palette: *mut GtkToolPalette);
     pub fn gtk_tool_palette_unset_style(palette: *mut GtkToolPalette);
@@ -18591,9 +19593,9 @@ extern "C" {
     pub fn gtk_tooltip_trigger_tooltip_query(display: *mut gdk::GdkDisplay);
     pub fn gtk_tooltip_set_custom(tooltip: *mut GtkTooltip, custom_widget: *mut GtkWidget);
     pub fn gtk_tooltip_set_icon(tooltip: *mut GtkTooltip, pixbuf: *mut gdk_pixbuf::GdkPixbuf);
-    pub fn gtk_tooltip_set_icon_from_gicon(tooltip: *mut GtkTooltip, gicon: *mut gio::GIcon, size: c_int);
-    pub fn gtk_tooltip_set_icon_from_icon_name(tooltip: *mut GtkTooltip, icon_name: *const c_char, size: c_int);
-    pub fn gtk_tooltip_set_icon_from_stock(tooltip: *mut GtkTooltip, stock_id: *const c_char, size: c_int);
+    pub fn gtk_tooltip_set_icon_from_gicon(tooltip: *mut GtkTooltip, gicon: *mut gio::GIcon, size: GtkIconSize);
+    pub fn gtk_tooltip_set_icon_from_icon_name(tooltip: *mut GtkTooltip, icon_name: *const c_char, size: GtkIconSize);
+    pub fn gtk_tooltip_set_icon_from_stock(tooltip: *mut GtkTooltip, stock_id: *const c_char, size: GtkIconSize);
     pub fn gtk_tooltip_set_markup(tooltip: *mut GtkTooltip, markup: *const c_char);
     pub fn gtk_tooltip_set_text(tooltip: *mut GtkTooltip, text: *const c_char);
     pub fn gtk_tooltip_set_tip_area(tooltip: *mut GtkTooltip, rect: *const gdk::GdkRectangle);
@@ -18702,12 +19704,11 @@ extern "C" {
     pub fn gtk_tree_view_convert_widget_to_bin_window_coords(tree_view: *mut GtkTreeView, wx: c_int, wy: c_int, bx: *mut c_int, by: *mut c_int);
     pub fn gtk_tree_view_convert_widget_to_tree_coords(tree_view: *mut GtkTreeView, wx: c_int, wy: c_int, tx: *mut c_int, ty: *mut c_int);
     pub fn gtk_tree_view_create_row_drag_icon(tree_view: *mut GtkTreeView, path: *mut GtkTreePath) -> *mut cairo::cairo_surface_t;
-    pub fn gtk_tree_view_enable_model_drag_dest(tree_view: *mut GtkTreeView, targets: *mut GtkTargetEntry, n_targets: c_int, actions: gdk::GdkDragAction);
-    pub fn gtk_tree_view_enable_model_drag_source(tree_view: *mut GtkTreeView, start_button_mask: gdk::GdkModifierType, targets: *mut GtkTargetEntry, n_targets: c_int, actions: gdk::GdkDragAction);
+    pub fn gtk_tree_view_enable_model_drag_dest(tree_view: *mut GtkTreeView, targets: *const GtkTargetEntry, n_targets: c_int, actions: gdk::GdkDragAction);
+    pub fn gtk_tree_view_enable_model_drag_source(tree_view: *mut GtkTreeView, start_button_mask: gdk::GdkModifierType, targets: *const GtkTargetEntry, n_targets: c_int, actions: gdk::GdkDragAction);
     pub fn gtk_tree_view_expand_all(tree_view: *mut GtkTreeView);
     pub fn gtk_tree_view_expand_row(tree_view: *mut GtkTreeView, path: *mut GtkTreePath, open_all: gboolean) -> gboolean;
     pub fn gtk_tree_view_expand_to_path(tree_view: *mut GtkTreeView, path: *mut GtkTreePath);
-    #[cfg(any(feature = "v3_8", feature = "dox"))]
     pub fn gtk_tree_view_get_activate_on_single_click(tree_view: *mut GtkTreeView) -> gboolean;
     pub fn gtk_tree_view_get_background_area(tree_view: *mut GtkTreeView, path: *mut GtkTreePath, column: *mut GtkTreeViewColumn, rect: *mut gdk::GdkRectangle);
     pub fn gtk_tree_view_get_bin_window(tree_view: *mut GtkTreeView) -> *mut gdk::GdkWindow;
@@ -18758,7 +19759,6 @@ extern "C" {
     pub fn gtk_tree_view_row_expanded(tree_view: *mut GtkTreeView, path: *mut GtkTreePath) -> gboolean;
     pub fn gtk_tree_view_scroll_to_cell(tree_view: *mut GtkTreeView, path: *mut GtkTreePath, column: *mut GtkTreeViewColumn, use_align: gboolean, row_align: c_float, col_align: c_float);
     pub fn gtk_tree_view_scroll_to_point(tree_view: *mut GtkTreeView, tree_x: c_int, tree_y: c_int);
-    #[cfg(any(feature = "v3_8", feature = "dox"))]
     pub fn gtk_tree_view_set_activate_on_single_click(tree_view: *mut GtkTreeView, single: gboolean);
     pub fn gtk_tree_view_set_column_drag_function(tree_view: *mut GtkTreeView, func: GtkTreeViewColumnDropFunc, user_data: gpointer, destroy: glib::GDestroyNotify);
     pub fn gtk_tree_view_set_cursor(tree_view: *mut GtkTreeView, path: *mut GtkTreePath, focus_column: *mut GtkTreeViewColumn, start_editing: gboolean);
@@ -18951,7 +19951,6 @@ extern "C" {
     pub fn gtk_widget_add_device_events(widget: *mut GtkWidget, device: *mut gdk::GdkDevice, events: gdk::GdkEventMask);
     pub fn gtk_widget_add_events(widget: *mut GtkWidget, events: c_int);
     pub fn gtk_widget_add_mnemonic_label(widget: *mut GtkWidget, label: *mut GtkWidget);
-    #[cfg(any(feature = "v3_8", feature = "dox"))]
     pub fn gtk_widget_add_tick_callback(widget: *mut GtkWidget, callback: GtkTickCallback, user_data: gpointer, notify: glib::GDestroyNotify) -> c_uint;
     pub fn gtk_widget_can_activate_accel(widget: *mut GtkWidget, signal_id: c_uint) -> gboolean;
     pub fn gtk_widget_child_focus(widget: *mut GtkWidget, direction: GtkDirectionType) -> gboolean;
@@ -18964,7 +19963,6 @@ extern "C" {
     pub fn gtk_widget_destroyed(widget: *mut GtkWidget, widget_pointer: *mut *mut GtkWidget);
     pub fn gtk_widget_device_is_shadowed(widget: *mut GtkWidget, device: *mut gdk::GdkDevice) -> gboolean;
     pub fn gtk_drag_begin(widget: *mut GtkWidget, targets: *mut GtkTargetList, actions: gdk::GdkDragAction, button: c_int, event: *mut gdk::GdkEvent) -> *mut gdk::GdkDragContext;
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_drag_begin_with_coordinates(widget: *mut GtkWidget, targets: *mut GtkTargetList, actions: gdk::GdkDragAction, button: c_int, event: *mut gdk::GdkEvent, x: c_int, y: c_int) -> *mut gdk::GdkDragContext;
     pub fn gtk_drag_check_threshold(widget: *mut GtkWidget, start_x: c_int, start_y: c_int, current_x: c_int, current_y: c_int) -> gboolean;
     pub fn gtk_drag_dest_add_image_targets(widget: *mut GtkWidget);
@@ -18973,7 +19971,7 @@ extern "C" {
     pub fn gtk_drag_dest_find_target(widget: *mut GtkWidget, context: *mut gdk::GdkDragContext, target_list: *mut GtkTargetList) -> gdk::GdkAtom;
     pub fn gtk_drag_dest_get_target_list(widget: *mut GtkWidget) -> *mut GtkTargetList;
     pub fn gtk_drag_dest_get_track_motion(widget: *mut GtkWidget) -> gboolean;
-    pub fn gtk_drag_dest_set(widget: *mut GtkWidget, flags: GtkDestDefaults, targets: *mut GtkTargetEntry, n_targets: c_int, actions: gdk::GdkDragAction);
+    pub fn gtk_drag_dest_set(widget: *mut GtkWidget, flags: GtkDestDefaults, targets: *const GtkTargetEntry, n_targets: c_int, actions: gdk::GdkDragAction);
     pub fn gtk_drag_dest_set_proxy(widget: *mut GtkWidget, proxy_window: *mut gdk::GdkWindow, protocol: gdk::GdkDragProtocol, use_coordinates: gboolean);
     pub fn gtk_drag_dest_set_target_list(widget: *mut GtkWidget, target_list: *mut GtkTargetList);
     pub fn gtk_drag_dest_set_track_motion(widget: *mut GtkWidget, track_motion: gboolean);
@@ -18984,7 +19982,7 @@ extern "C" {
     pub fn gtk_drag_source_add_text_targets(widget: *mut GtkWidget);
     pub fn gtk_drag_source_add_uri_targets(widget: *mut GtkWidget);
     pub fn gtk_drag_source_get_target_list(widget: *mut GtkWidget) -> *mut GtkTargetList;
-    pub fn gtk_drag_source_set(widget: *mut GtkWidget, start_button_mask: gdk::GdkModifierType, targets: *mut GtkTargetEntry, n_targets: c_int, actions: gdk::GdkDragAction);
+    pub fn gtk_drag_source_set(widget: *mut GtkWidget, start_button_mask: gdk::GdkModifierType, targets: *const GtkTargetEntry, n_targets: c_int, actions: gdk::GdkDragAction);
     pub fn gtk_drag_source_set_icon_gicon(widget: *mut GtkWidget, icon: *mut gio::GIcon);
     pub fn gtk_drag_source_set_icon_name(widget: *mut GtkWidget, icon_name: *const c_char);
     pub fn gtk_drag_source_set_icon_pixbuf(widget: *mut GtkWidget, pixbuf: *mut gdk_pixbuf::GdkPixbuf);
@@ -19000,7 +19998,6 @@ extern "C" {
     pub fn gtk_widget_get_accessible(widget: *mut GtkWidget) -> *mut atk::AtkObject;
     #[cfg(any(feature = "v3_16", feature = "dox"))]
     pub fn gtk_widget_get_action_group(widget: *mut GtkWidget, prefix: *const c_char) -> *mut gio::GActionGroup;
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_widget_get_allocated_baseline(widget: *mut GtkWidget) -> c_int;
     pub fn gtk_widget_get_allocated_height(widget: *mut GtkWidget) -> c_int;
     #[cfg(any(feature = "v3_20", feature = "dox"))]
@@ -19013,7 +20010,6 @@ extern "C" {
     pub fn gtk_widget_get_can_focus(widget: *mut GtkWidget) -> gboolean;
     pub fn gtk_widget_get_child_requisition(widget: *mut GtkWidget, requisition: *mut GtkRequisition);
     pub fn gtk_widget_get_child_visible(widget: *mut GtkWidget) -> gboolean;
-    #[cfg(any(feature = "v3_14", feature = "dox"))]
     pub fn gtk_widget_get_clip(widget: *mut GtkWidget, clip: *mut GtkAllocation);
     pub fn gtk_widget_get_clipboard(widget: *mut GtkWidget, selection: gdk::GdkAtom) -> *mut GtkClipboard;
     pub fn gtk_widget_get_composite_name(widget: *mut GtkWidget) -> *mut c_char;
@@ -19029,7 +20025,6 @@ extern "C" {
     pub fn gtk_widget_get_font_map(widget: *mut GtkWidget) -> *mut pango::PangoFontMap;
     #[cfg(any(feature = "v3_18", feature = "dox"))]
     pub fn gtk_widget_get_font_options(widget: *mut GtkWidget) -> *const cairo::cairo_font_options_t;
-    #[cfg(any(feature = "v3_8", feature = "dox"))]
     pub fn gtk_widget_get_frame_clock(widget: *mut GtkWidget) -> *mut gdk::GdkFrameClock;
     pub fn gtk_widget_get_halign(widget: *mut GtkWidget) -> GtkAlign;
     pub fn gtk_widget_get_has_tooltip(widget: *mut GtkWidget) -> gboolean;
@@ -19038,18 +20033,15 @@ extern "C" {
     pub fn gtk_widget_get_hexpand_set(widget: *mut GtkWidget) -> gboolean;
     pub fn gtk_widget_get_mapped(widget: *mut GtkWidget) -> gboolean;
     pub fn gtk_widget_get_margin_bottom(widget: *mut GtkWidget) -> c_int;
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
     pub fn gtk_widget_get_margin_end(widget: *mut GtkWidget) -> c_int;
     pub fn gtk_widget_get_margin_left(widget: *mut GtkWidget) -> c_int;
     pub fn gtk_widget_get_margin_right(widget: *mut GtkWidget) -> c_int;
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
     pub fn gtk_widget_get_margin_start(widget: *mut GtkWidget) -> c_int;
     pub fn gtk_widget_get_margin_top(widget: *mut GtkWidget) -> c_int;
     pub fn gtk_widget_get_modifier_mask(widget: *mut GtkWidget, intent: gdk::GdkModifierIntent) -> gdk::GdkModifierType;
     pub fn gtk_widget_get_modifier_style(widget: *mut GtkWidget) -> *mut GtkRcStyle;
     pub fn gtk_widget_get_name(widget: *mut GtkWidget) -> *const c_char;
     pub fn gtk_widget_get_no_show_all(widget: *mut GtkWidget) -> gboolean;
-    #[cfg(any(feature = "v3_8", feature = "dox"))]
     pub fn gtk_widget_get_opacity(widget: *mut GtkWidget) -> c_double;
     pub fn gtk_widget_get_pango_context(widget: *mut GtkWidget) -> *mut pango::PangoContext;
     pub fn gtk_widget_get_parent(widget: *mut GtkWidget) -> *mut GtkWidget;
@@ -19057,7 +20049,6 @@ extern "C" {
     pub fn gtk_widget_get_path(widget: *mut GtkWidget) -> *mut GtkWidgetPath;
     pub fn gtk_widget_get_pointer(widget: *mut GtkWidget, x: *mut c_int, y: *mut c_int);
     pub fn gtk_widget_get_preferred_height(widget: *mut GtkWidget, minimum_height: *mut c_int, natural_height: *mut c_int);
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_widget_get_preferred_height_and_baseline_for_width(widget: *mut GtkWidget, width: c_int, minimum_height: *mut c_int, natural_height: *mut c_int, minimum_baseline: *mut c_int, natural_baseline: *mut c_int);
     pub fn gtk_widget_get_preferred_height_for_width(widget: *mut GtkWidget, width: c_int, minimum_height: *mut c_int, natural_height: *mut c_int);
     pub fn gtk_widget_get_preferred_size(widget: *mut GtkWidget, minimum_size: *mut GtkRequisition, natural_size: *mut GtkRequisition);
@@ -19068,7 +20059,6 @@ extern "C" {
     pub fn gtk_widget_get_request_mode(widget: *mut GtkWidget) -> GtkSizeRequestMode;
     pub fn gtk_widget_get_requisition(widget: *mut GtkWidget, requisition: *mut GtkRequisition);
     pub fn gtk_widget_get_root_window(widget: *mut GtkWidget) -> *mut gdk::GdkWindow;
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_widget_get_scale_factor(widget: *mut GtkWidget) -> c_int;
     pub fn gtk_widget_get_screen(widget: *mut GtkWidget) -> *mut gdk::GdkScreen;
     pub fn gtk_widget_get_sensitive(widget: *mut GtkWidget) -> gboolean;
@@ -19085,7 +20075,6 @@ extern "C" {
     pub fn gtk_widget_get_tooltip_window(widget: *mut GtkWidget) -> *mut GtkWindow;
     pub fn gtk_widget_get_toplevel(widget: *mut GtkWidget) -> *mut GtkWidget;
     pub fn gtk_widget_get_valign(widget: *mut GtkWidget) -> GtkAlign;
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_widget_get_valign_with_baseline(widget: *mut GtkWidget) -> GtkAlign;
     pub fn gtk_widget_get_vexpand(widget: *mut GtkWidget) -> gboolean;
     pub fn gtk_widget_get_vexpand_set(widget: *mut GtkWidget) -> gboolean;
@@ -19105,10 +20094,8 @@ extern "C" {
     pub fn gtk_widget_hide(widget: *mut GtkWidget);
     pub fn gtk_widget_hide_on_delete(widget: *mut GtkWidget) -> gboolean;
     pub fn gtk_widget_in_destruction(widget: *mut GtkWidget) -> gboolean;
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_widget_init_template(widget: *mut GtkWidget);
     pub fn gtk_widget_input_shape_combine_region(widget: *mut GtkWidget, region: *mut cairo::cairo_region_t);
-    #[cfg(any(feature = "v3_6", feature = "dox"))]
     pub fn gtk_widget_insert_action_group(widget: *mut GtkWidget, name: *const c_char, group: *mut gio::GActionGroup);
     pub fn gtk_widget_intersect(widget: *mut GtkWidget, area: *const gdk::GdkRectangle, intersection: *mut gdk::GdkRectangle) -> gboolean;
     pub fn gtk_widget_is_ancestor(widget: *mut GtkWidget, ancestor: *mut GtkWidget) -> gboolean;
@@ -19117,7 +20104,6 @@ extern "C" {
     pub fn gtk_widget_is_focus(widget: *mut GtkWidget) -> gboolean;
     pub fn gtk_widget_is_sensitive(widget: *mut GtkWidget) -> gboolean;
     pub fn gtk_widget_is_toplevel(widget: *mut GtkWidget) -> gboolean;
-    #[cfg(any(feature = "v3_8", feature = "dox"))]
     pub fn gtk_widget_is_visible(widget: *mut GtkWidget) -> gboolean;
     pub fn gtk_widget_keynav_failed(widget: *mut GtkWidget, direction: GtkDirectionType) -> gboolean;
     pub fn gtk_widget_list_accel_closures(widget: *mut GtkWidget) -> *mut glib::GList;
@@ -19149,14 +20135,12 @@ extern "C" {
     pub fn gtk_widget_queue_resize_no_redraw(widget: *mut GtkWidget);
     pub fn gtk_widget_realize(widget: *mut GtkWidget);
     pub fn gtk_widget_region_intersect(widget: *mut GtkWidget, region: *const cairo::cairo_region_t) -> *mut cairo::cairo_region_t;
-    #[cfg(any(feature = "v3_8", feature = "dox"))]
     pub fn gtk_widget_register_window(widget: *mut GtkWidget, window: *mut gdk::GdkWindow);
     pub fn gtk_widget_remove_accelerator(widget: *mut GtkWidget, accel_group: *mut GtkAccelGroup, accel_key: c_uint, accel_mods: gdk::GdkModifierType) -> gboolean;
     pub fn gtk_widget_remove_mnemonic_label(widget: *mut GtkWidget, label: *mut GtkWidget);
-    #[cfg(any(feature = "v3_8", feature = "dox"))]
     pub fn gtk_widget_remove_tick_callback(widget: *mut GtkWidget, id: c_uint);
-    pub fn gtk_widget_render_icon(widget: *mut GtkWidget, stock_id: *const c_char, size: c_int, detail: *const c_char) -> *mut gdk_pixbuf::GdkPixbuf;
-    pub fn gtk_widget_render_icon_pixbuf(widget: *mut GtkWidget, stock_id: *const c_char, size: c_int) -> *mut gdk_pixbuf::GdkPixbuf;
+    pub fn gtk_widget_render_icon(widget: *mut GtkWidget, stock_id: *const c_char, size: GtkIconSize, detail: *const c_char) -> *mut gdk_pixbuf::GdkPixbuf;
+    pub fn gtk_widget_render_icon_pixbuf(widget: *mut GtkWidget, stock_id: *const c_char, size: GtkIconSize) -> *mut gdk_pixbuf::GdkPixbuf;
     pub fn gtk_widget_reparent(widget: *mut GtkWidget, new_parent: *mut GtkWidget);
     pub fn gtk_widget_reset_rc_styles(widget: *mut GtkWidget);
     pub fn gtk_widget_reset_style(widget: *mut GtkWidget);
@@ -19168,7 +20152,6 @@ extern "C" {
     pub fn gtk_widget_set_can_default(widget: *mut GtkWidget, can_default: gboolean);
     pub fn gtk_widget_set_can_focus(widget: *mut GtkWidget, can_focus: gboolean);
     pub fn gtk_widget_set_child_visible(widget: *mut GtkWidget, is_visible: gboolean);
-    #[cfg(any(feature = "v3_14", feature = "dox"))]
     pub fn gtk_widget_set_clip(widget: *mut GtkWidget, clip: *const GtkAllocation);
     pub fn gtk_widget_set_composite_name(widget: *mut GtkWidget, name: *const c_char);
     pub fn gtk_widget_set_device_enabled(widget: *mut GtkWidget, device: *mut gdk::GdkDevice, enabled: gboolean);
@@ -19189,16 +20172,13 @@ extern "C" {
     pub fn gtk_widget_set_hexpand_set(widget: *mut GtkWidget, set: gboolean);
     pub fn gtk_widget_set_mapped(widget: *mut GtkWidget, mapped: gboolean);
     pub fn gtk_widget_set_margin_bottom(widget: *mut GtkWidget, margin: c_int);
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
     pub fn gtk_widget_set_margin_end(widget: *mut GtkWidget, margin: c_int);
     pub fn gtk_widget_set_margin_left(widget: *mut GtkWidget, margin: c_int);
     pub fn gtk_widget_set_margin_right(widget: *mut GtkWidget, margin: c_int);
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
     pub fn gtk_widget_set_margin_start(widget: *mut GtkWidget, margin: c_int);
     pub fn gtk_widget_set_margin_top(widget: *mut GtkWidget, margin: c_int);
     pub fn gtk_widget_set_name(widget: *mut GtkWidget, name: *const c_char);
     pub fn gtk_widget_set_no_show_all(widget: *mut GtkWidget, no_show_all: gboolean);
-    #[cfg(any(feature = "v3_8", feature = "dox"))]
     pub fn gtk_widget_set_opacity(widget: *mut GtkWidget, opacity: c_double);
     pub fn gtk_widget_set_parent(widget: *mut GtkWidget, parent: *mut GtkWidget);
     pub fn gtk_widget_set_parent_window(widget: *mut GtkWidget, parent_window: *mut gdk::GdkWindow);
@@ -19225,7 +20205,6 @@ extern "C" {
     pub fn gtk_widget_show_all(widget: *mut GtkWidget);
     pub fn gtk_widget_show_now(widget: *mut GtkWidget);
     pub fn gtk_widget_size_allocate(widget: *mut GtkWidget, allocation: *mut GtkAllocation);
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_widget_size_allocate_with_baseline(widget: *mut GtkWidget, allocation: *mut GtkAllocation, baseline: c_int);
     pub fn gtk_widget_size_request(widget: *mut GtkWidget, requisition: *mut GtkRequisition);
     pub fn gtk_widget_style_attach(widget: *mut GtkWidget);
@@ -19238,7 +20217,6 @@ extern "C" {
     pub fn gtk_widget_unmap(widget: *mut GtkWidget);
     pub fn gtk_widget_unparent(widget: *mut GtkWidget);
     pub fn gtk_widget_unrealize(widget: *mut GtkWidget);
-    #[cfg(any(feature = "v3_8", feature = "dox"))]
     pub fn gtk_widget_unregister_window(widget: *mut GtkWidget, window: *mut gdk::GdkWindow);
     pub fn gtk_widget_unset_state_flags(widget: *mut GtkWidget, flags: GtkStateFlags);
 
@@ -19260,7 +20238,6 @@ extern "C" {
     pub fn gtk_window_set_default_icon_from_file(filename: *const c_char, error: *mut *mut glib::GError) -> gboolean;
     pub fn gtk_window_set_default_icon_list(list: *mut glib::GList);
     pub fn gtk_window_set_default_icon_name(name: *const c_char);
-    #[cfg(any(feature = "v3_14", feature = "dox"))]
     pub fn gtk_window_set_interactive_debugging(enable: gboolean);
     pub fn gtk_window_activate_default(window: *mut GtkWindow) -> gboolean;
     pub fn gtk_window_activate_focus(window: *mut GtkWindow) -> gboolean;
@@ -19269,7 +20246,6 @@ extern "C" {
     pub fn gtk_window_add_mnemonic(window: *mut GtkWindow, keyval: c_uint, target: *mut GtkWidget);
     pub fn gtk_window_begin_move_drag(window: *mut GtkWindow, button: c_int, root_x: c_int, root_y: c_int, timestamp: u32);
     pub fn gtk_window_begin_resize_drag(window: *mut GtkWindow, edge: gdk::GdkWindowEdge, button: c_int, root_x: c_int, root_y: c_int, timestamp: u32);
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_window_close(window: *mut GtkWindow);
     pub fn gtk_window_deiconify(window: *mut GtkWindow);
     pub fn gtk_window_fullscreen(window: *mut GtkWindow);
@@ -19316,7 +20292,6 @@ extern "C" {
     pub fn gtk_window_has_toplevel_focus(window: *mut GtkWindow) -> gboolean;
     pub fn gtk_window_iconify(window: *mut GtkWindow);
     pub fn gtk_window_is_active(window: *mut GtkWindow) -> gboolean;
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
     pub fn gtk_window_is_maximized(window: *mut GtkWindow) -> gboolean;
     pub fn gtk_window_maximize(window: *mut GtkWindow);
     pub fn gtk_window_mnemonic_activate(window: *mut GtkWindow, keyval: c_uint, modifier: gdk::GdkModifierType) -> gboolean;
@@ -19366,7 +20341,6 @@ extern "C" {
     pub fn gtk_window_set_skip_taskbar_hint(window: *mut GtkWindow, setting: gboolean);
     pub fn gtk_window_set_startup_id(window: *mut GtkWindow, startup_id: *const c_char);
     pub fn gtk_window_set_title(window: *mut GtkWindow, title: *const c_char);
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_window_set_titlebar(window: *mut GtkWindow, titlebar: *mut GtkWidget);
     pub fn gtk_window_set_transient_for(window: *mut GtkWindow, parent: *mut GtkWindow);
     pub fn gtk_window_set_type_hint(window: *mut GtkWindow, hint: gdk::GdkWindowTypeHint);
@@ -19508,7 +20482,7 @@ extern "C" {
     //=========================================================================
     pub fn gtk_file_chooser_get_type() -> GType;
     #[cfg(any(feature = "v3_22", feature = "dox"))]
-    pub fn gtk_file_chooser_add_choice(chooser: *mut GtkFileChooser, id: *const c_char, label: *const c_char, options: *mut *mut c_char, option_labels: *mut *mut c_char);
+    pub fn gtk_file_chooser_add_choice(chooser: *mut GtkFileChooser, id: *const c_char, label: *const c_char, options: *mut *const c_char, option_labels: *mut *const c_char);
     pub fn gtk_file_chooser_add_filter(chooser: *mut GtkFileChooser, filter: *mut GtkFileFilter);
     pub fn gtk_file_chooser_add_shortcut_folder(chooser: *mut GtkFileChooser, folder: *const c_char, error: *mut *mut glib::GError) -> gboolean;
     pub fn gtk_file_chooser_add_shortcut_folder_uri(chooser: *mut GtkFileChooser, uri: *const c_char, error: *mut *mut glib::GError) -> gboolean;
@@ -19519,7 +20493,6 @@ extern "C" {
     pub fn gtk_file_chooser_get_current_folder(chooser: *mut GtkFileChooser) -> *mut c_char;
     pub fn gtk_file_chooser_get_current_folder_file(chooser: *mut GtkFileChooser) -> *mut gio::GFile;
     pub fn gtk_file_chooser_get_current_folder_uri(chooser: *mut GtkFileChooser) -> *mut c_char;
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_file_chooser_get_current_name(chooser: *mut GtkFileChooser) -> *mut c_char;
     pub fn gtk_file_chooser_get_do_overwrite_confirmation(chooser: *mut GtkFileChooser) -> gboolean;
     pub fn gtk_file_chooser_get_extra_widget(chooser: *mut GtkFileChooser) -> *mut GtkWidget;
@@ -19584,9 +20557,15 @@ extern "C" {
     pub fn gtk_font_chooser_get_font_desc(fontchooser: *mut GtkFontChooser) -> *mut pango::PangoFontDescription;
     pub fn gtk_font_chooser_get_font_face(fontchooser: *mut GtkFontChooser) -> *mut pango::PangoFontFace;
     pub fn gtk_font_chooser_get_font_family(fontchooser: *mut GtkFontChooser) -> *mut pango::PangoFontFamily;
+    #[cfg(any(feature = "v3_24", feature = "dox"))]
+    pub fn gtk_font_chooser_get_font_features(fontchooser: *mut GtkFontChooser) -> *mut c_char;
     #[cfg(any(feature = "v3_18", feature = "dox"))]
     pub fn gtk_font_chooser_get_font_map(fontchooser: *mut GtkFontChooser) -> *mut pango::PangoFontMap;
     pub fn gtk_font_chooser_get_font_size(fontchooser: *mut GtkFontChooser) -> c_int;
+    #[cfg(any(feature = "v3_24", feature = "dox"))]
+    pub fn gtk_font_chooser_get_language(fontchooser: *mut GtkFontChooser) -> *mut c_char;
+    #[cfg(any(feature = "v3_24", feature = "dox"))]
+    pub fn gtk_font_chooser_get_level(fontchooser: *mut GtkFontChooser) -> GtkFontChooserLevel;
     pub fn gtk_font_chooser_get_preview_text(fontchooser: *mut GtkFontChooser) -> *mut c_char;
     pub fn gtk_font_chooser_get_show_preview_entry(fontchooser: *mut GtkFontChooser) -> gboolean;
     pub fn gtk_font_chooser_set_filter_func(fontchooser: *mut GtkFontChooser, filter: GtkFontFilterFunc, user_data: gpointer, destroy: glib::GDestroyNotify);
@@ -19594,6 +20573,10 @@ extern "C" {
     pub fn gtk_font_chooser_set_font_desc(fontchooser: *mut GtkFontChooser, font_desc: *const pango::PangoFontDescription);
     #[cfg(any(feature = "v3_18", feature = "dox"))]
     pub fn gtk_font_chooser_set_font_map(fontchooser: *mut GtkFontChooser, fontmap: *mut pango::PangoFontMap);
+    #[cfg(any(feature = "v3_24", feature = "dox"))]
+    pub fn gtk_font_chooser_set_language(fontchooser: *mut GtkFontChooser, language: *const c_char);
+    #[cfg(any(feature = "v3_24", feature = "dox"))]
+    pub fn gtk_font_chooser_set_level(fontchooser: *mut GtkFontChooser, level: GtkFontChooserLevel);
     pub fn gtk_font_chooser_set_preview_text(fontchooser: *mut GtkFontChooser, text: *const c_char);
     pub fn gtk_font_chooser_set_show_preview_entry(fontchooser: *mut GtkFontChooser, show_preview_entry: gboolean);
 
@@ -19676,7 +20659,7 @@ extern "C" {
     //=========================================================================
     pub fn gtk_tool_shell_get_type() -> GType;
     pub fn gtk_tool_shell_get_ellipsize_mode(shell: *mut GtkToolShell) -> pango::PangoEllipsizeMode;
-    pub fn gtk_tool_shell_get_icon_size(shell: *mut GtkToolShell) -> c_int;
+    pub fn gtk_tool_shell_get_icon_size(shell: *mut GtkToolShell) -> GtkIconSize;
     pub fn gtk_tool_shell_get_orientation(shell: *mut GtkToolShell) -> GtkOrientation;
     pub fn gtk_tool_shell_get_relief_style(shell: *mut GtkToolShell) -> GtkReliefStyle;
     pub fn gtk_tool_shell_get_style(shell: *mut GtkToolShell) -> GtkToolbarStyle;
@@ -19730,7 +20713,6 @@ extern "C" {
     pub fn gtk_tree_model_row_has_child_toggled(tree_model: *mut GtkTreeModel, path: *mut GtkTreePath, iter: *mut GtkTreeIter);
     pub fn gtk_tree_model_row_inserted(tree_model: *mut GtkTreeModel, path: *mut GtkTreePath, iter: *mut GtkTreeIter);
     pub fn gtk_tree_model_rows_reordered(tree_model: *mut GtkTreeModel, path: *mut GtkTreePath, iter: *mut GtkTreeIter, new_order: *mut c_int);
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_tree_model_rows_reordered_with_length(tree_model: *mut GtkTreeModel, path: *mut GtkTreePath, iter: *mut GtkTreeIter, new_order: *mut c_int, length: c_int);
     pub fn gtk_tree_model_sort_new_with_model(child_model: *mut GtkTreeModel) -> *mut GtkTreeModel;
     pub fn gtk_tree_model_unref_node(tree_model: *mut GtkTreeModel, iter: *mut GtkTreeIter);
@@ -19793,7 +20775,6 @@ extern "C" {
     pub fn gtk_get_default_language() -> *mut pango::PangoLanguage;
     pub fn gtk_get_event_widget(event: *mut gdk::GdkEvent) -> *mut GtkWidget;
     pub fn gtk_get_interface_age() -> c_uint;
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
     pub fn gtk_get_locale_direction() -> GtkTextDirection;
     pub fn gtk_get_major_version() -> c_uint;
     pub fn gtk_get_micro_version() -> c_uint;
@@ -19802,7 +20783,7 @@ extern "C" {
     pub fn gtk_grab_get_current() -> *mut GtkWidget;
     pub fn gtk_init(argc: *mut c_int, argv: *mut *mut *mut c_char);
     pub fn gtk_init_check(argc: *mut c_int, argv: *mut *mut *mut c_char) -> gboolean;
-    pub fn gtk_init_with_args(argc: *mut c_int, argv: *mut *mut *mut c_char, parameter_string: *const c_char, entries: *mut glib::GOptionEntry, translation_domain: *const c_char, error: *mut *mut glib::GError) -> gboolean;
+    pub fn gtk_init_with_args(argc: *mut c_int, argv: *mut *mut *mut c_char, parameter_string: *const c_char, entries: *const glib::GOptionEntry, translation_domain: *const c_char, error: *mut *mut glib::GError) -> gboolean;
     pub fn gtk_key_snooper_install(snooper: GtkKeySnoopFunc, func_data: gpointer) -> c_uint;
     pub fn gtk_key_snooper_remove(snooper_handler_id: c_uint);
     pub fn gtk_main();
@@ -19869,8 +20850,7 @@ extern "C" {
     pub fn gtk_render_frame_gap(context: *mut GtkStyleContext, cr: *mut cairo::cairo_t, x: c_double, y: c_double, width: c_double, height: c_double, gap_side: GtkPositionType, xy0_gap: c_double, xy1_gap: c_double);
     pub fn gtk_render_handle(context: *mut GtkStyleContext, cr: *mut cairo::cairo_t, x: c_double, y: c_double, width: c_double, height: c_double);
     pub fn gtk_render_icon(context: *mut GtkStyleContext, cr: *mut cairo::cairo_t, pixbuf: *mut gdk_pixbuf::GdkPixbuf, x: c_double, y: c_double);
-    pub fn gtk_render_icon_pixbuf(context: *mut GtkStyleContext, source: *const GtkIconSource, size: c_int) -> *mut gdk_pixbuf::GdkPixbuf;
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
+    pub fn gtk_render_icon_pixbuf(context: *mut GtkStyleContext, source: *const GtkIconSource, size: GtkIconSize) -> *mut gdk_pixbuf::GdkPixbuf;
     pub fn gtk_render_icon_surface(context: *mut GtkStyleContext, cr: *mut cairo::cairo_t, surface: *mut cairo::cairo_surface_t, x: c_double, y: c_double);
     pub fn gtk_render_insertion_cursor(context: *mut GtkStyleContext, cr: *mut cairo::cairo_t, x: c_double, y: c_double, layout: *mut pango::PangoLayout, index: c_int, direction: pango::PangoDirection);
     pub fn gtk_render_layout(context: *mut GtkStyleContext, cr: *mut cairo::cairo_t, x: c_double, y: c_double, layout: *mut pango::PangoLayout);
@@ -19879,7 +20859,7 @@ extern "C" {
     pub fn gtk_render_slider(context: *mut GtkStyleContext, cr: *mut cairo::cairo_t, x: c_double, y: c_double, width: c_double, height: c_double, orientation: GtkOrientation);
     pub fn gtk_rgb_to_hsv(r: c_double, g: c_double, b: c_double, h: *mut c_double, s: *mut c_double, v: *mut c_double);
     pub fn gtk_selection_add_target(widget: *mut GtkWidget, selection: gdk::GdkAtom, target: gdk::GdkAtom, info: c_uint);
-    pub fn gtk_selection_add_targets(widget: *mut GtkWidget, selection: gdk::GdkAtom, targets: *mut GtkTargetEntry, ntargets: c_uint);
+    pub fn gtk_selection_add_targets(widget: *mut GtkWidget, selection: gdk::GdkAtom, targets: *const GtkTargetEntry, ntargets: c_uint);
     pub fn gtk_selection_clear_targets(widget: *mut GtkWidget, selection: gdk::GdkAtom);
     pub fn gtk_selection_convert(widget: *mut GtkWidget, selection: gdk::GdkAtom, target: gdk::GdkAtom, time_: u32) -> gboolean;
     pub fn gtk_selection_owner_set(widget: *mut GtkWidget, selection: gdk::GdkAtom, time_: u32) -> gboolean;
@@ -19890,8 +20870,8 @@ extern "C" {
     pub fn gtk_show_uri(screen: *mut gdk::GdkScreen, uri: *const c_char, timestamp: u32, error: *mut *mut glib::GError) -> gboolean;
     #[cfg(any(feature = "v3_22", feature = "dox"))]
     pub fn gtk_show_uri_on_window(parent: *mut GtkWindow, uri: *const c_char, timestamp: u32, error: *mut *mut glib::GError) -> gboolean;
-    pub fn gtk_stock_add(items: *mut GtkStockItem, n_items: c_uint);
-    pub fn gtk_stock_add_static(items: *mut GtkStockItem, n_items: c_uint);
+    pub fn gtk_stock_add(items: *const GtkStockItem, n_items: c_uint);
+    pub fn gtk_stock_add_static(items: *const GtkStockItem, n_items: c_uint);
     pub fn gtk_stock_list_ids() -> *mut glib::GSList;
     pub fn gtk_stock_lookup(stock_id: *const c_char, item: *mut GtkStockItem) -> gboolean;
     pub fn gtk_stock_set_translate_func(domain: *const c_char, func: GtkTranslateFunc, data: gpointer, notify: glib::GDestroyNotify);
@@ -19908,7 +20888,7 @@ extern "C" {
     pub fn gtk_test_find_sibling(base_widget: *mut GtkWidget, widget_type: GType) -> *mut GtkWidget;
     pub fn gtk_test_find_widget(widget: *mut GtkWidget, label_pattern: *const c_char, widget_type: GType) -> *mut GtkWidget;
     pub fn gtk_test_init(argcp: *mut c_int, argvp: *mut *mut *mut c_char, ...);
-    pub fn gtk_test_list_all_types(n_types: *mut c_uint) -> *mut GType;
+    pub fn gtk_test_list_all_types(n_types: *mut c_uint) -> *const GType;
     pub fn gtk_test_register_all_types();
     pub fn gtk_test_slider_get_value(widget: *mut GtkWidget) -> c_double;
     pub fn gtk_test_slider_set_perc(widget: *mut GtkWidget, percentage: c_double);
@@ -19917,7 +20897,6 @@ extern "C" {
     pub fn gtk_test_text_set(widget: *mut GtkWidget, string: *const c_char);
     pub fn gtk_test_widget_click(widget: *mut GtkWidget, button: c_uint, modifiers: gdk::GdkModifierType) -> gboolean;
     pub fn gtk_test_widget_send_key(widget: *mut GtkWidget, keyval: c_uint, modifiers: gdk::GdkModifierType) -> gboolean;
-    #[cfg(any(feature = "v3_10", feature = "dox"))]
     pub fn gtk_test_widget_wait_for_draw(widget: *mut GtkWidget);
     pub fn gtk_tree_get_row_drag_data(selection_data: *mut GtkSelectionData, tree_model: *mut *mut GtkTreeModel, path: *mut *mut GtkTreePath) -> gboolean;
     pub fn gtk_tree_set_row_drag_data(selection_data: *mut GtkSelectionData, tree_model: *mut GtkTreeModel, path: *mut GtkTreePath) -> gboolean;

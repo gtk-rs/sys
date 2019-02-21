@@ -3,7 +3,7 @@
 // DO NOT EDIT
 
 #![allow(non_camel_case_types, non_upper_case_globals, non_snake_case)]
-#![cfg_attr(feature = "cargo-clippy", allow(approx_constant, type_complexity, unreadable_literal))]
+#![allow(clippy::approx_constant, clippy::type_complexity, clippy::unreadable_literal)]
 
 extern crate libc;
 extern crate glib_sys as glib;
@@ -196,7 +196,7 @@ pub type GBoxedFreeFunc = Option<unsafe extern "C" fn(gpointer)>;
 pub type GCallback = Option<unsafe extern "C" fn()>;
 pub type GClassFinalizeFunc = Option<unsafe extern "C" fn(gpointer, gpointer)>;
 pub type GClassInitFunc = Option<unsafe extern "C" fn(gpointer, gpointer)>;
-pub type GClosureMarshal = Option<unsafe extern "C" fn(*mut GClosure, *mut GValue, c_uint, *mut GValue, gpointer, gpointer)>;
+pub type GClosureMarshal = Option<unsafe extern "C" fn(*mut GClosure, *mut GValue, c_uint, *const GValue, gpointer, gpointer)>;
 pub type GClosureNotify = Option<unsafe extern "C" fn(gpointer, *mut GClosure)>;
 pub type GInstanceInitFunc = Option<unsafe extern "C" fn(*mut GTypeInstance, gpointer)>;
 pub type GInterfaceFinalizeFunc = Option<unsafe extern "C" fn(gpointer, gpointer)>;
@@ -205,7 +205,7 @@ pub type GObjectFinalizeFunc = Option<unsafe extern "C" fn(*mut GObject)>;
 pub type GObjectGetPropertyFunc = Option<unsafe extern "C" fn(*mut GObject, c_uint, *mut GValue, *mut GParamSpec)>;
 pub type GObjectSetPropertyFunc = Option<unsafe extern "C" fn(*mut GObject, c_uint, *const GValue, *mut GParamSpec)>;
 pub type GSignalAccumulator = Option<unsafe extern "C" fn(*mut GSignalInvocationHint, *mut GValue, *const GValue, gpointer) -> gboolean>;
-pub type GSignalEmissionHook = Option<unsafe extern "C" fn(*mut GSignalInvocationHint, c_uint, *mut GValue, gpointer) -> gboolean>;
+pub type GSignalEmissionHook = Option<unsafe extern "C" fn(*mut GSignalInvocationHint, c_uint, *const GValue, gpointer) -> gboolean>;
 pub type GToggleNotify = Option<unsafe extern "C" fn(gpointer, *mut GObject, gboolean)>;
 pub type GTypeClassCacheFunc = Option<unsafe extern "C" fn(gpointer, *mut GTypeClass) -> gboolean>;
 pub type GTypeInterfaceCheckFunc = Option<unsafe extern "C" fn(gpointer, gpointer)>;
@@ -233,8 +233,9 @@ impl ::std::fmt::Debug for GCClosure {
 
 #[repr(C)]
 pub struct GClosure {
+    pub ref_count: /*volatile*/c_uint,
     _truncated_record_marker: c_void,
-    // /*Ignored*/field ref_count has incomplete type
+    // field meta_marshal_nouse has incomplete type
 }
 
 impl ::std::fmt::Debug for GClosure {
@@ -544,7 +545,7 @@ pub struct GSignalQuery {
     pub signal_flags: GSignalFlags,
     pub return_type: GType,
     pub n_params: c_uint,
-    pub param_types: *mut GType,
+    pub param_types: *const GType,
 }
 
 impl ::std::fmt::Debug for GSignalQuery {
@@ -1127,8 +1128,9 @@ pub struct GParamSpecString {
     pub cset_first: *mut c_char,
     pub cset_nth: *mut c_char,
     pub substitutor: c_char,
+    pub null_fold_if_empty: c_uint,
     _truncated_record_marker: c_void,
-    // /*Ignored*/field null_fold_if_empty has incomplete type
+    // field ensure_non_null has incomplete type
 }
 
 impl ::std::fmt::Debug for GParamSpecString {
@@ -1139,6 +1141,7 @@ impl ::std::fmt::Debug for GParamSpecString {
          .field("cset_first", &self.cset_first)
          .field("cset_nth", &self.cset_nth)
          .field("substitutor", &self.substitutor)
+         .field("null_fold_if_empty", &self.null_fold_if_empty)
          .finish()
     }
 }
@@ -1380,7 +1383,7 @@ extern "C" {
     pub fn g_closure_add_invalidate_notifier(closure: *mut GClosure, notify_data: gpointer, notify_func: GClosureNotify);
     pub fn g_closure_add_marshal_guards(closure: *mut GClosure, pre_marshal_data: gpointer, pre_marshal_notify: GClosureNotify, post_marshal_data: gpointer, post_marshal_notify: GClosureNotify);
     pub fn g_closure_invalidate(closure: *mut GClosure);
-    pub fn g_closure_invoke(closure: *mut GClosure, return_value: *mut GValue, n_param_values: c_uint, param_values: *mut GValue, invocation_hint: gpointer);
+    pub fn g_closure_invoke(closure: *mut GClosure, return_value: *mut GValue, n_param_values: c_uint, param_values: *const GValue, invocation_hint: gpointer);
     pub fn g_closure_ref(closure: *mut GClosure) -> *mut GClosure;
     pub fn g_closure_remove_finalize_notifier(closure: *mut GClosure, notify_data: gpointer, notify_func: GClosureNotify);
     pub fn g_closure_remove_invalidate_notifier(closure: *mut GClosure, notify_data: gpointer, notify_func: GClosureNotify);
@@ -1412,7 +1415,6 @@ extern "C" {
     // GTypeClass
     //=========================================================================
     pub fn g_type_class_add_private(g_class: gpointer, private_size: size_t);
-    #[cfg(any(feature = "v2_38", feature = "dox"))]
     pub fn g_type_class_get_instance_private_offset(g_class: gpointer) -> c_int;
     pub fn g_type_class_get_private(klass: *mut GTypeClass, private_type: GType) -> gpointer;
     pub fn g_type_class_peek_parent(g_class: gpointer) -> gpointer;
@@ -1475,7 +1477,6 @@ extern "C" {
     pub fn g_value_get_ulong(value: *const GValue) -> c_ulong;
     pub fn g_value_get_variant(value: *const GValue) -> *mut glib::GVariant;
     pub fn g_value_init(value: *mut GValue, g_type: GType) -> *mut GValue;
-    #[cfg(any(feature = "v2_42", feature = "dox"))]
     pub fn g_value_init_from_instance(value: *mut GValue, instance: gpointer);
     pub fn g_value_peek_pointer(value: *const GValue) -> gpointer;
     pub fn g_value_reset(value: *mut GValue) -> *mut GValue;
@@ -1550,7 +1551,6 @@ extern "C" {
     pub fn g_binding_get_source_property(binding: *mut GBinding) -> *const c_char;
     pub fn g_binding_get_target(binding: *mut GBinding) -> *mut GObject;
     pub fn g_binding_get_target_property(binding: *mut GBinding) -> *const c_char;
-    #[cfg(any(feature = "v2_38", feature = "dox"))]
     pub fn g_binding_unbind(binding: *mut GBinding);
 
     //=========================================================================
@@ -1578,9 +1578,7 @@ extern "C" {
     pub fn g_object_bind_property_with_closures(source: *mut GObject, source_property: *const c_char, target: *mut GObject, target_property: *const c_char, flags: GBindingFlags, transform_to: *mut GClosure, transform_from: *mut GClosure) -> *mut GBinding;
     pub fn g_object_connect(object: *mut GObject, signal_spec: *const c_char, ...) -> *mut GObject;
     pub fn g_object_disconnect(object: *mut GObject, signal_spec: *const c_char, ...);
-    #[cfg(any(feature = "v2_34", feature = "dox"))]
     pub fn g_object_dup_data(object: *mut GObject, key: *const c_char, dup_func: glib::GDuplicateFunc, user_data: gpointer) -> gpointer;
-    #[cfg(any(feature = "v2_34", feature = "dox"))]
     pub fn g_object_dup_qdata(object: *mut GObject, quark: glib::GQuark, dup_func: glib::GDuplicateFunc, user_data: gpointer) -> gpointer;
     pub fn g_object_force_floating(object: *mut GObject);
     pub fn g_object_freeze_notify(object: *mut GObject);
@@ -1598,9 +1596,7 @@ extern "C" {
     pub fn g_object_ref_sink(object: *mut GObject) -> *mut GObject;
     pub fn g_object_remove_toggle_ref(object: *mut GObject, notify: GToggleNotify, data: gpointer);
     pub fn g_object_remove_weak_pointer(object: *mut GObject, weak_pointer_location: *mut gpointer);
-    #[cfg(any(feature = "v2_34", feature = "dox"))]
     pub fn g_object_replace_data(object: *mut GObject, key: *const c_char, oldval: gpointer, newval: gpointer, destroy: glib::GDestroyNotify, old_destroy: *mut glib::GDestroyNotify) -> gboolean;
-    #[cfg(any(feature = "v2_34", feature = "dox"))]
     pub fn g_object_replace_qdata(object: *mut GObject, quark: glib::GQuark, oldval: gpointer, newval: gpointer, destroy: glib::GDestroyNotify, old_destroy: *mut glib::GDestroyNotify) -> gboolean;
     pub fn g_object_run_dispose(object: *mut GObject);
     pub fn g_object_set(object: *mut GObject, first_property_name: *const c_char, ...);
@@ -1625,7 +1621,6 @@ extern "C" {
     //=========================================================================
     pub fn g_param_spec_internal(param_type: GType, name: *const c_char, nick: *const c_char, blurb: *const c_char, flags: GParamFlags) -> *mut GParamSpec;
     pub fn g_param_spec_get_blurb(pspec: *mut GParamSpec) -> *const c_char;
-    #[cfg(any(feature = "v2_38", feature = "dox"))]
     pub fn g_param_spec_get_default_value(pspec: *mut GParamSpec) -> *const GValue;
     pub fn g_param_spec_get_name(pspec: *mut GParamSpec) -> *const c_char;
     #[cfg(any(feature = "v2_46", feature = "dox"))]
@@ -1668,7 +1663,7 @@ extern "C" {
     pub fn g_boxed_copy(boxed_type: GType, src_boxed: gconstpointer) -> gpointer;
     pub fn g_boxed_free(boxed_type: GType, boxed: gpointer);
     pub fn g_boxed_type_register_static(name: *const c_char, boxed_copy: GBoxedCopyFunc, boxed_free: GBoxedFreeFunc) -> GType;
-    pub fn g_clear_object(object_ptr: *mut *mut /*volatile*/GObject);
+    pub fn g_clear_object(object_ptr: *mut *mut GObject);
     pub fn g_enum_complete_type_info(g_enum_type: GType, info: *mut GTypeInfo, const_values: *const GEnumValue);
     pub fn g_enum_get_value(enum_class: *mut GEnumClass, value: c_int) -> *mut GEnumValue;
     pub fn g_enum_get_value_by_name(enum_class: *mut GEnumClass, name: *const c_char) -> *mut GEnumValue;
@@ -1717,7 +1712,7 @@ extern "C" {
     pub fn g_signal_accumulator_first_wins(ihint: *mut GSignalInvocationHint, return_accu: *mut GValue, handler_return: *const GValue, dummy: gpointer) -> gboolean;
     pub fn g_signal_accumulator_true_handled(ihint: *mut GSignalInvocationHint, return_accu: *mut GValue, handler_return: *const GValue, dummy: gpointer) -> gboolean;
     pub fn g_signal_add_emission_hook(signal_id: c_uint, detail: glib::GQuark, hook_func: GSignalEmissionHook, hook_data: gpointer, data_destroy: glib::GDestroyNotify) -> c_ulong;
-    pub fn g_signal_chain_from_overridden(instance_and_params: *mut GValue, return_value: *mut GValue);
+    pub fn g_signal_chain_from_overridden(instance_and_params: *const GValue, return_value: *mut GValue);
     pub fn g_signal_chain_from_overridden_handler(instance: gpointer, ...);
     pub fn g_signal_connect_closure(instance: *mut GObject, detailed_signal: *const c_char, closure: *mut GClosure, after: gboolean) -> c_ulong;
     pub fn g_signal_connect_closure_by_id(instance: *mut GObject, signal_id: c_uint, detail: glib::GQuark, closure: *mut GClosure, after: gboolean) -> c_ulong;
@@ -1726,7 +1721,7 @@ extern "C" {
     pub fn g_signal_emit(instance: *mut GObject, signal_id: c_uint, detail: glib::GQuark, ...);
     pub fn g_signal_emit_by_name(instance: *mut GObject, detailed_signal: *const c_char, ...);
     //pub fn g_signal_emit_valist(instance: gpointer, signal_id: c_uint, detail: glib::GQuark, var_args: /*Unimplemented*/va_list);
-    pub fn g_signal_emitv(instance_and_params: *mut GValue, signal_id: c_uint, detail: glib::GQuark, return_value: *mut GValue);
+    pub fn g_signal_emitv(instance_and_params: *const GValue, signal_id: c_uint, detail: glib::GQuark, return_value: *mut GValue);
     pub fn g_signal_get_invocation_hint(instance: *mut GObject) -> *mut GSignalInvocationHint;
     pub fn g_signal_handler_block(instance: *mut GObject, handler_id: c_ulong);
     pub fn g_signal_handler_disconnect(instance: *mut GObject, handler_id: c_ulong);
@@ -1778,7 +1773,6 @@ extern "C" {
     pub fn g_type_default_interface_ref(g_type: GType) -> gpointer;
     pub fn g_type_default_interface_unref(g_iface: gpointer);
     pub fn g_type_depth(type_: GType) -> c_uint;
-    #[cfg(any(feature = "v2_34", feature = "dox"))]
     pub fn g_type_ensure(type_: GType);
     pub fn g_type_free_instance(instance: *mut GTypeInstance);
     pub fn g_type_from_name(name: *const c_char) -> GType;
@@ -1788,7 +1782,6 @@ extern "C" {
     pub fn g_type_get_instance_count(type_: GType) -> c_int;
     pub fn g_type_get_plugin(type_: GType) -> *mut GTypePlugin;
     pub fn g_type_get_qdata(type_: GType, quark: glib::GQuark) -> gpointer;
-    #[cfg(any(feature = "v2_36", feature = "dox"))]
     pub fn g_type_get_type_registration_serial() -> c_uint;
     pub fn g_type_init();
     pub fn g_type_init_with_debug_flags(debug_flags: GTypeDebugFlags);
