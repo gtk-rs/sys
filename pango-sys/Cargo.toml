@@ -2,8 +2,8 @@
 pkg-config = "0.3.7"
 
 [dependencies]
-glib-sys = "0.7.0"
-gobject-sys = "0.7.0"
+glib-sys = "0.8.0"
+gobject-sys = "0.8.0"
 libc = "0.2"
 
 [dev-dependencies]
@@ -29,4 +29,4 @@ license = "MIT"
 links = "pango"
 name = "pango-sys"
 repository = "https://github.com/gtk-rs/sys"
-version = "0.7.0"
+version = "0.8.0"
