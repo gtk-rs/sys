@@ -3,7 +3,7 @@
 // DO NOT EDIT
 
 #![allow(non_camel_case_types, non_upper_case_globals, non_snake_case)]
-#![cfg_attr(feature = "cargo-clippy", allow(approx_constant, type_complexity, unreadable_literal))]
+#![allow(clippy::approx_constant, clippy::type_complexity, clippy::unreadable_literal)]
 
 extern crate libc;
 extern crate glib_sys as glib;
@@ -20,17 +20,6 @@ use glib::{gboolean, gconstpointer, gpointer, GType};
 
 // Callbacks
 pub type PangoCairoShapeRendererFunc = Option<unsafe extern "C" fn(*mut cairo::cairo_t, *mut pango::PangoAttrShape, gboolean, gpointer)>;
-
-// Classes
-#[repr(C)]
-pub struct PangoCairoFcFontMap(c_void);
-
-impl ::std::fmt::Debug for PangoCairoFcFontMap {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.debug_struct(&format!("PangoCairoFcFontMap @ {:?}", self as *const _))
-         .finish()
-    }
-}
 
 // Interfaces
 #[repr(C)]
@@ -55,11 +44,6 @@ impl ::std::fmt::Debug for PangoCairoFontMap {
 extern "C" {
 
     //=========================================================================
-    // PangoCairoFcFontMap
-    //=========================================================================
-    pub fn pango_cairo_fc_font_map_get_type() -> GType;
-
-    //=========================================================================
     // PangoCairoFont
     //=========================================================================
     pub fn pango_cairo_font_get_type() -> GType;
@@ -71,9 +55,9 @@ extern "C" {
     pub fn pango_cairo_font_map_get_type() -> GType;
     pub fn pango_cairo_font_map_get_default() -> *mut pango::PangoFontMap;
     pub fn pango_cairo_font_map_new() -> *mut pango::PangoFontMap;
-    pub fn pango_cairo_font_map_new_for_font_type(fonttype: cairo::enums::FontType) -> *mut pango::PangoFontMap;
+    pub fn pango_cairo_font_map_new_for_font_type(fonttype: cairo::cairo_font_type_t) -> *mut pango::PangoFontMap;
     pub fn pango_cairo_font_map_create_context(fontmap: *mut PangoCairoFontMap) -> *mut pango::PangoContext;
-    pub fn pango_cairo_font_map_get_font_type(fontmap: *mut PangoCairoFontMap) -> cairo::enums::FontType;
+    pub fn pango_cairo_font_map_get_font_type(fontmap: *mut PangoCairoFontMap) -> cairo::cairo_font_type_t;
     pub fn pango_cairo_font_map_get_resolution(fontmap: *mut PangoCairoFontMap) -> c_double;
     pub fn pango_cairo_font_map_set_default(fontmap: *mut PangoCairoFontMap);
     pub fn pango_cairo_font_map_set_resolution(fontmap: *mut PangoCairoFontMap, dpi: c_double);
