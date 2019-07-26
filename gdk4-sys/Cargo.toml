@@ -28,6 +28,7 @@ tempdir = "0.3"
 
 [features]
 dox = []
+docs-rs = []
 
 [lib]
 name = "gdk4_sys"
@@ -43,3 +44,6 @@ links = "gdk4"
 name = "gdk4-sys"
 repository = "https://github.com/gtk-rs/sys"
 version = "0.1.0"
+
+["package.metadata.docs.rs"]
+features = ["docs-rs", "dox"]

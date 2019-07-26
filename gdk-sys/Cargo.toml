@@ -33,6 +33,7 @@ v3_20 = ["v3_18"]
 v3_22 = ["v3_20"]
 v3_24 = ["v3_22"]
 dox = []
+docs-rs = []
 
 [lib]
 name = "gdk_sys"
@@ -48,3 +49,6 @@ links = "gdk"
 name = "gdk-sys"
 repository = "https://github.com/gtk-rs/sys"
 version = "0.9.0"
+
+["package.metadata.docs.rs"]
+features = ["docs-rs", "dox", "v3_24"]

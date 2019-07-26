@@ -18,6 +18,7 @@ tempdir = "0.3"
 default = ["v1_10"]
 v1_10 = []
 dox = []
+docs-rs = []
 
 [lib]
 name = "graphene_sys"
@@ -33,3 +34,6 @@ links = "graphene"
 name = "graphene-sys"
 repository = "https://github.com/gtk-rs/sys"
 version = "0.1.0"
+
+["package.metadata.docs.rs"]
+features = ["docs-rs", "dox", "v1_10"]

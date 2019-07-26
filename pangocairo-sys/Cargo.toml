@@ -19,6 +19,7 @@ tempdir = "0.3"
 
 [features]
 dox = []
+docs-rs = []
 
 [lib]
 name = "pango_cairo_sys"
@@ -34,3 +35,6 @@ links = "pango_cairo"
 name = "pangocairo-sys"
 repository = "https://github.com/gtk-rs/sys"
 version = "0.10.0"
+
+["package.metadata.docs.rs"]
+features = ["docs-rs", "dox"]

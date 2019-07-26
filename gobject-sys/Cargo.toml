@@ -17,6 +17,7 @@ v2_46 = ["v2_44"]
 v2_54 = ["v2_46"]
 v2_58 = ["v2_54"]
 dox = []
+docs-rs = []
 
 [lib]
 name = "gobject_sys"
@@ -32,3 +33,6 @@ links = "gobject"
 name = "gobject-sys"
 repository = "https://github.com/gtk-rs/sys"
 version = "0.9.0"
+
+["package.metadata.docs.rs"]
+features = ["docs-rs", "dox", "v2_58"]

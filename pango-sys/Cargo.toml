@@ -19,6 +19,7 @@ v1_36_7 = []
 v1_38 = ["v1_36_7"]
 v1_42 = ["v1_38"]
 dox = []
+docs-rs = []
 
 [lib]
 name = "pango_sys"
@@ -34,3 +35,6 @@ links = "pango"
 name = "pango-sys"
 repository = "https://github.com/gtk-rs/sys"
 version = "0.9.0"
+
+["package.metadata.docs.rs"]
+features = ["docs-rs", "dox", "v1_42"]
