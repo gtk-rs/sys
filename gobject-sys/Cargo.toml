@@ -7,13 +7,14 @@ libc = "0.2"
 
 [dev-dependencies]
 shell-words = "0.1.0"
-tempdir = "0.3"
+tempfile = "3"
 
 [features]
 v2_44 = []
 v2_46 = ["v2_44"]
 v2_54 = ["v2_46"]
 v2_58 = ["v2_54"]
+v2_62 = ["v2_58"]
 dox = []
 
 [lib]
@@ -30,3 +31,5 @@ links = "gobject"
 name = "gobject-sys"
 repository = "https://github.com/gtk-rs/sys"
 version = "0.9.0"
+[package.metadata.docs.rs]
+features = ["dox"]

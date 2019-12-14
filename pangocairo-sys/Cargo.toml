@@ -9,7 +9,7 @@ libc = "0.2"
 
 [dev-dependencies]
 shell-words = "0.1.0"
-tempdir = "0.3"
+tempfile = "3"
 
 [features]
 dox = []
@@ -28,3 +28,5 @@ links = "pango_cairo"
 name = "pangocairo-sys"
 repository = "https://github.com/gtk-rs/sys"
 version = "0.10.0"
+[package.metadata.docs.rs]
+features = ["dox"]

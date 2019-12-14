@@ -2,14 +2,24 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
+#[cfg(not(feature = "dox"))]
 extern crate pkg_config;
 
+#[cfg(not(feature = "dox"))]
 use pkg_config::{Config, Error};
+#[cfg(not(feature = "dox"))]
 use std::env;
+#[cfg(not(feature = "dox"))]
 use std::io;
+#[cfg(not(feature = "dox"))]
 use std::io::prelude::*;
+#[cfg(not(feature = "dox"))]
 use std::process;
 
+#[cfg(feature = "dox")]
+fn main() {} // prevent linking libraries to avoid documentation failure
+
+#[cfg(not(feature = "dox"))]
 fn main() {
     if let Err(s) = find() {
         let _ = writeln!(io::stderr(), "{}", s);
@@ -17,10 +27,15 @@ fn main() {
     }
 }
 
+#[cfg(not(feature = "dox"))]
 fn find() -> Result<(), Error> {
     let package_name = "glib-2.0";
-    let shared_libs = ["glib-2.0", "gobject-2.0"];
-    let version = if cfg!(feature = "v2_58") {
+    let shared_libs = ["gobject-2.0", "glib-2.0"];
+    let version = if cfg!(feature = "v2_62") {
+        "2.62"
+    } else if cfg!(feature = "v2_60") {
+        "2.60"
+    } else if cfg!(feature = "v2_58") {
         "2.58"
     } else if cfg!(feature = "v2_56") {
         "2.56"

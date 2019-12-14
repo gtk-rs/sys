@@ -12,7 +12,7 @@ libc = "0.2"
 
 [dev-dependencies]
 shell-words = "0.1.0"
-tempdir = "0.3"
+tempfile = "3"
 
 [features]
 v3_16 = []
@@ -36,3 +36,5 @@ links = "gdk"
 name = "gdk-sys"
 repository = "https://github.com/gtk-rs/sys"
 version = "0.9.0"
+[package.metadata.docs.rs]
+features = ["dox"]
