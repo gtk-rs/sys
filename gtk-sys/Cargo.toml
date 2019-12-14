@@ -7,8 +7,6 @@ description = "FFI bindings to libgtk-3"
 homepage = "http://gtk-rs.org/"
 keywords = ["gtk", "ffi", "gtk-rs", "gnome"]
 license = "MIT"
-links = "gtk"
-name = "gtk-sys"
 repository = "https://github.com/gtk-rs/sys"
 
 [package.metadata.docs.rs]
