@@ -4,7 +4,7 @@
 
 extern crate gtk_sys;
 extern crate shell_words;
-extern crate tempdir;
+extern crate tempfile;
 use gtk_sys::*;
 use std::env;
 use std::error::Error;
@@ -12,6 +12,7 @@ use std::mem::{align_of, size_of};
 use std::path::Path;
 use std::process::Command;
 use std::str;
+use tempfile::Builder;
 
 static PACKAGES: &[&str] = &["gtk+-3.0"];
 
@@ -21,7 +22,7 @@ struct Compiler {
 }
 
 impl Compiler {
-    pub fn new() -> Result<Compiler, Box<Error>> {
+    pub fn new() -> Result<Compiler, Box<dyn Error>> {
         let mut args = get_var("CC", "cc")?;
         args.push("-Wno-deprecated-declarations".to_owned());
         // For %z support in printf when using MinGW.
@@ -40,7 +41,7 @@ impl Compiler {
         self.args.push(arg);
     }
 
-    pub fn compile(&self, src: &Path, out: &Path) -> Result<(), Box<Error>> {
+    pub fn compile(&self, src: &Path, out: &Path) -> Result<(), Box<dyn Error>> {
         let mut cmd = self.to_command();
         cmd.arg(src);
         cmd.arg("-o");
@@ -59,7 +60,7 @@ impl Compiler {
     }
 }
 
-fn get_var(name: &str, default: &str) -> Result<Vec<String>, Box<Error>> {
+fn get_var(name: &str, default: &str) -> Result<Vec<String>, Box<dyn Error>> {
     match env::var(name) {
         Ok(value) => Ok(shell_words::split(&value)?),
         Err(env::VarError::NotPresent) => Ok(shell_words::split(default)?),
@@ -67,7 +68,7 @@ fn get_var(name: &str, default: &str) -> Result<Vec<String>, Box<Error>> {
     }
 }
 
-fn pkg_config_cflags(packages: &[&str]) -> Result<Vec<String>, Box<Error>> {
+fn pkg_config_cflags(packages: &[&str]) -> Result<Vec<String>, Box<dyn Error>> {
     if packages.is_empty() {
         return Ok(Vec::new());
     }
@@ -126,7 +127,10 @@ impl Results {
 
 #[test]
 fn cross_validate_constants_with_c() {
-    let tmpdir = tempdir::TempDir::new("abi").expect("temporary directory");
+    let tmpdir = Builder::new()
+        .prefix("abi")
+        .tempdir()
+        .expect("temporary directory");
     let cc = Compiler::new().expect("configured compiler");
 
     assert_eq!(
@@ -163,7 +167,10 @@ fn cross_validate_constants_with_c() {
 
 #[test]
 fn cross_validate_layout_with_c() {
-    let tmpdir = tempdir::TempDir::new("abi").expect("temporary directory");
+    let tmpdir = Builder::new()
+        .prefix("abi")
+        .tempdir()
+        .expect("temporary directory");
     let cc = Compiler::new().expect("configured compiler");
 
     assert_eq!(
@@ -201,7 +208,7 @@ fn cross_validate_layout_with_c() {
     results.expect_total_success();
 }
 
-fn get_c_layout(dir: &Path, cc: &Compiler, name: &str) -> Result<Layout, Box<Error>> {
+fn get_c_layout(dir: &Path, cc: &Compiler, name: &str) -> Result<Layout, Box<dyn Error>> {
     let exe = dir.join("layout");
     let mut cc = cc.clone();
     cc.define("ABI_TYPE_NAME", name);
@@ -220,7 +227,7 @@ fn get_c_layout(dir: &Path, cc: &Compiler, name: &str) -> Result<Layout, Box<Err
     Ok(Layout { size, alignment })
 }
 
-fn get_c_value(dir: &Path, cc: &Compiler, name: &str) -> Result<String, Box<Error>> {
+fn get_c_value(dir: &Path, cc: &Compiler, name: &str) -> Result<String, Box<dyn Error>> {
     let exe = dir.join("constant");
     let mut cc = cc.clone();
     cc.define("ABI_CONSTANT_NAME", name);
@@ -1881,6 +1888,20 @@ const RUST_LAYOUTS: &[(&str, Layout)] = &[
         Layout {
             size: size_of::<GtkHeaderBar>(),
             alignment: align_of::<GtkHeaderBar>(),
+        },
+    ),
+    (
+        "GtkHeaderBarAccessible",
+        Layout {
+            size: size_of::<GtkHeaderBarAccessible>(),
+            alignment: align_of::<GtkHeaderBarAccessible>(),
+        },
+    ),
+    (
+        "GtkHeaderBarAccessibleClass",
+        Layout {
+            size: size_of::<GtkHeaderBarAccessibleClass>(),
+            alignment: align_of::<GtkHeaderBarAccessibleClass>(),
         },
     ),
     (
@@ -3837,6 +3858,13 @@ const RUST_LAYOUTS: &[(&str, Layout)] = &[
         },
     ),
     (
+        "GtkStyle",
+        Layout {
+            size: size_of::<GtkStyle>(),
+            alignment: align_of::<GtkStyle>(),
+        },
+    ),
+    (
         "GtkStyleClass",
         Layout {
             size: size_of::<GtkStyleClass>(),
@@ -5182,7 +5210,7 @@ const RUST_CONSTANTS: &[(&str, &str)] = &[
     ("(gint) GTK_PRINT_STATUS_PREPARING", "1"),
     ("(gint) GTK_PRINT_STATUS_PRINTING", "6"),
     ("(gint) GTK_PRINT_STATUS_SENDING_DATA", "3"),
-    ("GTK_PRIORITY_RESIZE", "10"),
+    ("GTK_PRIORITY_RESIZE", "110"),
     ("(guint) GTK_RC_BASE", "8"),
     ("(guint) GTK_RC_BG", "2"),
     ("(guint) GTK_RC_FG", "1"),
@@ -5625,7 +5653,7 @@ const RUST_CONSTANTS: &[(&str, &str)] = &[
     ("(gint) GTK_TEXT_VIEW_LAYER_ABOVE_TEXT", "3"),
     ("(gint) GTK_TEXT_VIEW_LAYER_BELOW", "0"),
     ("(gint) GTK_TEXT_VIEW_LAYER_BELOW_TEXT", "2"),
-    ("GTK_TEXT_VIEW_PRIORITY_VALIDATE", "5"),
+    ("GTK_TEXT_VIEW_PRIORITY_VALIDATE", "125"),
     ("(gint) GTK_TEXT_WINDOW_BOTTOM", "6"),
     ("(gint) GTK_TEXT_WINDOW_LEFT", "3"),
     ("(gint) GTK_TEXT_WINDOW_PRIVATE", "0"),

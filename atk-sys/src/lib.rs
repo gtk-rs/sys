@@ -195,7 +195,9 @@ pub const ATK_ROLE_MATH_ROOT: AtkRole = 119;
 pub const ATK_ROLE_SUBSCRIPT: AtkRole = 120;
 pub const ATK_ROLE_SUPERSCRIPT: AtkRole = 121;
 pub const ATK_ROLE_FOOTNOTE: AtkRole = 122;
-pub const ATK_ROLE_LAST_DEFINED: AtkRole = 123;
+pub const ATK_ROLE_CONTENT_DELETION: AtkRole = 123;
+pub const ATK_ROLE_CONTENT_INSERTION: AtkRole = 124;
+pub const ATK_ROLE_LAST_DEFINED: AtkRole = 125;
 
 pub type AtkScrollType = c_int;
 pub const ATK_SCROLL_TOP_LEFT: AtkScrollType = 0;
@@ -356,7 +358,6 @@ pub struct AtkActionIface {
 impl ::std::fmt::Debug for AtkActionIface {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("AtkActionIface @ {:?}", self as *const _))
-            .field("parent", &self.parent)
             .field("do_action", &self.do_action)
             .field("get_n_actions", &self.get_n_actions)
             .field("get_description", &self.get_description)
@@ -435,7 +436,6 @@ pub struct AtkComponentIface {
 impl ::std::fmt::Debug for AtkComponentIface {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("AtkComponentIface @ {:?}", self as *const _))
-            .field("parent", &self.parent)
             .field("add_focus_handler", &self.add_focus_handler)
             .field("contains", &self.contains)
             .field("ref_accessible_at_point", &self.ref_accessible_at_point)
@@ -1056,7 +1056,6 @@ pub struct AtkTableCellIface {
 impl ::std::fmt::Debug for AtkTableCellIface {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         f.debug_struct(&format!("AtkTableCellIface @ {:?}", self as *const _))
-            .field("parent", &self.parent)
             .field("get_column_span", &self.get_column_span)
             .field("get_column_header_cells", &self.get_column_header_cells)
             .field("get_position", &self.get_position)
@@ -1238,6 +1237,11 @@ pub struct AtkTextIface {
             *mut c_int,
         ) -> *mut c_char,
     >,
+    pub scroll_substring_to:
+        Option<unsafe extern "C" fn(*mut AtkText, c_int, c_int, AtkScrollType) -> gboolean>,
+    pub scroll_substring_to_point: Option<
+        unsafe extern "C" fn(*mut AtkText, c_int, c_int, AtkCoordType, c_int, c_int) -> gboolean,
+    >,
 }
 
 impl ::std::fmt::Debug for AtkTextIface {
@@ -1268,6 +1272,8 @@ impl ::std::fmt::Debug for AtkTextIface {
             .field("get_range_extents", &self.get_range_extents)
             .field("get_bounded_ranges", &self.get_bounded_ranges)
             .field("get_string_at_offset", &self.get_string_at_offset)
+            .field("scroll_substring_to", &self.scroll_substring_to)
+            .field("scroll_substring_to_point", &self.scroll_substring_to_point)
             .finish()
     }
 }
@@ -1923,6 +1929,8 @@ extern "C" {
         accessible: *mut AtkObject,
         handler: *mut AtkPropertyChangeHandler,
     ) -> c_uint;
+    #[cfg(any(feature = "v2_34", feature = "dox"))]
+    pub fn atk_object_get_accessible_id(accessible: *mut AtkObject) -> *const c_char;
     pub fn atk_object_get_attributes(accessible: *mut AtkObject) -> *mut AtkAttributeSet;
     pub fn atk_object_get_description(accessible: *mut AtkObject) -> *const c_char;
     pub fn atk_object_get_index_in_parent(accessible: *mut AtkObject) -> c_int;
@@ -1952,6 +1960,8 @@ extern "C" {
         relationship: AtkRelationType,
         target: *mut AtkObject,
     ) -> gboolean;
+    #[cfg(any(feature = "v2_34", feature = "dox"))]
+    pub fn atk_object_set_accessible_id(accessible: *mut AtkObject, name: *const c_char);
     pub fn atk_object_set_description(accessible: *mut AtkObject, description: *const c_char);
     pub fn atk_object_set_name(accessible: *mut AtkObject, name: *const c_char);
     pub fn atk_object_set_parent(accessible: *mut AtkObject, parent: *mut AtkObject);
@@ -2446,6 +2456,22 @@ extern "C" {
         end_offset: *mut c_int,
     ) -> *mut c_char;
     pub fn atk_text_remove_selection(text: *mut AtkText, selection_num: c_int) -> gboolean;
+    #[cfg(any(feature = "v2_32", feature = "dox"))]
+    pub fn atk_text_scroll_substring_to(
+        text: *mut AtkText,
+        start_offset: c_int,
+        end_offset: c_int,
+        type_: AtkScrollType,
+    ) -> gboolean;
+    #[cfg(any(feature = "v2_32", feature = "dox"))]
+    pub fn atk_text_scroll_substring_to_point(
+        text: *mut AtkText,
+        start_offset: c_int,
+        end_offset: c_int,
+        coords: AtkCoordType,
+        x: c_int,
+        y: c_int,
+    ) -> gboolean;
     pub fn atk_text_set_caret_offset(text: *mut AtkText, offset: c_int) -> gboolean;
     pub fn atk_text_set_selection(
         text: *mut AtkText,

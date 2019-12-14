@@ -33,6 +33,9 @@ pub type GDateDay = u8;
 pub type GDateYear = u16;
 pub type GMutexLocker = c_void;
 pub type GQuark = u32;
+pub type GRWLockReaderLocker = c_void;
+pub type GRWLockWriterLocker = c_void;
+pub type GRecMutexLocker = c_void;
 pub type GRefString = c_char;
 pub type GStrv = *mut *mut c_char;
 pub type GTime = i32;
@@ -567,6 +570,10 @@ pub const G_UNICODE_SCRIPT_MAKASAR: GUnicodeScript = 145;
 pub const G_UNICODE_SCRIPT_MEDEFAIDRIN: GUnicodeScript = 146;
 pub const G_UNICODE_SCRIPT_OLD_SOGDIAN: GUnicodeScript = 147;
 pub const G_UNICODE_SCRIPT_SOGDIAN: GUnicodeScript = 148;
+pub const G_UNICODE_SCRIPT_ELYMAIC: GUnicodeScript = 149;
+pub const G_UNICODE_SCRIPT_NANDINAGARI: GUnicodeScript = 150;
+pub const G_UNICODE_SCRIPT_NYIAKENG_PUACHUE_HMONG: GUnicodeScript = 151;
+pub const G_UNICODE_SCRIPT_WANCHO: GUnicodeScript = 152;
 
 pub type GUnicodeType = c_int;
 pub const G_UNICODE_CONTROL: GUnicodeType = 0;
@@ -744,6 +751,8 @@ pub const GLIB_SYSDEF_AF_UNIX: c_int = 1;
 pub const GLIB_SYSDEF_MSG_DONTROUTE: c_int = 4;
 pub const GLIB_SYSDEF_MSG_OOB: c_int = 1;
 pub const GLIB_SYSDEF_MSG_PEEK: c_int = 2;
+pub const G_TEST_OPTION_ISOLATE_DIRS: *const c_char =
+    b"isolate_dirs\0" as *const u8 as *const c_char;
 pub const G_TIME_SPAN_DAY: i64 = 86400000000;
 pub const G_TIME_SPAN_HOUR: i64 = 3600000000;
 pub const G_TIME_SPAN_MILLISECOND: i64 = 1000;
@@ -2005,13 +2014,13 @@ impl ::std::fmt::Debug for GTestLogBuffer {
 }
 
 #[repr(C)]
-#[derive(Copy, Clone)]
 pub struct GTestLogMsg {
     pub log_type: GTestLogType,
     pub n_strings: c_uint,
     pub strings: *mut *mut c_char,
     pub n_nums: c_uint,
-    pub nums: *mut c_long,
+    _truncated_record_marker: c_void,
+    // /*Unimplemented*/*mut long double
 }
 
 impl ::std::fmt::Debug for GTestLogMsg {
@@ -2021,7 +2030,6 @@ impl ::std::fmt::Debug for GTestLogMsg {
             .field("n_strings", &self.n_strings)
             .field("strings", &self.strings)
             .field("n_nums", &self.n_nums)
-            .field("nums", &self.nums)
             .finish()
     }
 }
@@ -2228,6 +2236,15 @@ extern "C" {
     pub fn g_array_get_type() -> GType;
     pub fn g_array_append_vals(array: *mut GArray, data: gconstpointer, len: c_uint)
         -> *mut GArray;
+    #[cfg(any(feature = "v2_62", feature = "dox"))]
+    pub fn g_array_binary_search(
+        array: *mut GArray,
+        target: gconstpointer,
+        compare_func: GCompareFunc,
+        out_match_index: *mut c_uint,
+    ) -> gboolean;
+    #[cfg(any(feature = "v2_62", feature = "dox"))]
+    pub fn g_array_copy(array: *mut GArray) -> *mut GArray;
     pub fn g_array_free(array: *mut GArray, free_segment: gboolean) -> *mut c_char;
     pub fn g_array_get_element_size(array: *mut GArray) -> c_uint;
     pub fn g_array_insert_vals(
@@ -2738,6 +2755,8 @@ extern "C" {
     pub fn g_date_time_add_years(datetime: *mut GDateTime, years: c_int) -> *mut GDateTime;
     pub fn g_date_time_difference(end: *mut GDateTime, begin: *mut GDateTime) -> GTimeSpan;
     pub fn g_date_time_format(datetime: *mut GDateTime, format: *const c_char) -> *mut c_char;
+    #[cfg(any(feature = "v2_62", feature = "dox"))]
+    pub fn g_date_time_format_iso8601(datetime: *mut GDateTime) -> *mut c_char;
     pub fn g_date_time_get_day_of_month(datetime: *mut GDateTime) -> c_int;
     pub fn g_date_time_get_day_of_week(datetime: *mut GDateTime) -> c_int;
     pub fn g_date_time_get_day_of_year(datetime: *mut GDateTime) -> c_int;
@@ -3391,6 +3410,12 @@ extern "C" {
         sibling: *mut GList,
         data: gpointer,
     ) -> *mut GList;
+    #[cfg(any(feature = "v2_62", feature = "dox"))]
+    pub fn g_list_insert_before_link(
+        list: *mut GList,
+        sibling: *mut GList,
+        link_: *mut GList,
+    ) -> *mut GList;
     pub fn g_list_insert_sorted(list: *mut GList, data: gpointer, func: GCompareFunc)
         -> *mut GList;
     pub fn g_list_insert_sorted_with_data(
@@ -3769,6 +3794,21 @@ extern "C" {
     //=========================================================================
     pub fn g_ptr_array_get_type() -> GType;
     pub fn g_ptr_array_add(array: *mut GPtrArray, data: gpointer);
+    #[cfg(any(feature = "v2_62", feature = "dox"))]
+    pub fn g_ptr_array_copy(
+        array: *mut GPtrArray,
+        func: GCopyFunc,
+        user_data: gpointer,
+    ) -> *mut GPtrArray;
+    #[cfg(any(feature = "v2_62", feature = "dox"))]
+    pub fn g_ptr_array_extend(
+        array_to_extend: *mut GPtrArray,
+        array: *mut GPtrArray,
+        func: GCopyFunc,
+        user_data: gpointer,
+    );
+    #[cfg(any(feature = "v2_62", feature = "dox"))]
+    pub fn g_ptr_array_extend_and_steal(array_to_extend: *mut GPtrArray, array: *mut GPtrArray);
     #[cfg(any(feature = "v2_54", feature = "dox"))]
     pub fn g_ptr_array_find(
         haystack: *mut GPtrArray,
@@ -3820,6 +3860,8 @@ extern "C" {
     // GQueue
     //=========================================================================
     pub fn g_queue_clear(queue: *mut GQueue);
+    #[cfg(any(feature = "v2_60", feature = "dox"))]
+    pub fn g_queue_clear_full(queue: *mut GQueue, free_func: GDestroyNotify);
     pub fn g_queue_copy(queue: *mut GQueue) -> *mut GQueue;
     pub fn g_queue_delete_link(queue: *mut GQueue, link_: *mut GList);
     pub fn g_queue_find(queue: *mut GQueue, data: gconstpointer) -> *mut GList;
@@ -3835,7 +3877,11 @@ extern "C" {
     pub fn g_queue_index(queue: *mut GQueue, data: gconstpointer) -> c_int;
     pub fn g_queue_init(queue: *mut GQueue);
     pub fn g_queue_insert_after(queue: *mut GQueue, sibling: *mut GList, data: gpointer);
+    #[cfg(any(feature = "v2_62", feature = "dox"))]
+    pub fn g_queue_insert_after_link(queue: *mut GQueue, sibling: *mut GList, link_: *mut GList);
     pub fn g_queue_insert_before(queue: *mut GQueue, sibling: *mut GList, data: gpointer);
+    #[cfg(any(feature = "v2_62", feature = "dox"))]
+    pub fn g_queue_insert_before_link(queue: *mut GQueue, sibling: *mut GList, link_: *mut GList);
     pub fn g_queue_insert_sorted(
         queue: *mut GQueue,
         data: gpointer,
@@ -4467,6 +4513,8 @@ extern "C" {
     pub fn g_timer_continue(timer: *mut GTimer);
     pub fn g_timer_destroy(timer: *mut GTimer);
     pub fn g_timer_elapsed(timer: *mut GTimer, microseconds: *mut c_ulong) -> c_double;
+    #[cfg(any(feature = "v2_62", feature = "dox"))]
+    pub fn g_timer_is_active(timer: *mut GTimer) -> gboolean;
     pub fn g_timer_reset(timer: *mut GTimer);
     pub fn g_timer_start(timer: *mut GTimer);
     pub fn g_timer_stop(timer: *mut GTimer);
@@ -4797,6 +4845,7 @@ extern "C" {
     pub fn g_variant_type_peek_string(type_: *const GVariantType) -> *const c_char;
     pub fn g_variant_type_value(type_: *const GVariantType) -> *const GVariantType;
     pub fn g_variant_type_checked_(arg0: *const c_char) -> *const GVariantType;
+    pub fn g_variant_type_string_get_depth_(type_string: *const c_char) -> size_t;
     pub fn g_variant_type_string_is_valid(type_string: *const c_char) -> gboolean;
     pub fn g_variant_type_string_scan(
         string: *const c_char,
@@ -5244,6 +5293,8 @@ extern "C" {
     pub fn g_get_application_name() -> *const c_char;
     pub fn g_get_charset(charset: *mut *const c_char) -> gboolean;
     pub fn g_get_codeset() -> *mut c_char;
+    #[cfg(any(feature = "v2_62", feature = "dox"))]
+    pub fn g_get_console_charset(charset: *mut *const c_char) -> gboolean;
     #[cfg(any(windows, feature = "dox"))]
     pub fn g_get_current_dir_utf8() -> *mut c_char;
     pub fn g_get_current_dir() -> *mut c_char;
@@ -5818,6 +5869,8 @@ extern "C" {
     pub fn g_strup(string: *mut c_char) -> *mut c_char;
     #[cfg(any(feature = "v2_44", feature = "dox"))]
     pub fn g_strv_contains(strv: *const *const c_char, str: *const c_char) -> gboolean;
+    #[cfg(any(feature = "v2_60", feature = "dox"))]
+    pub fn g_strv_equal(strv1: *const *const c_char, strv2: *const *const c_char) -> gboolean;
     pub fn g_strv_get_type() -> GType;
     pub fn g_strv_length(str_array: *mut *mut c_char) -> c_uint;
     pub fn g_test_add_data_func(
@@ -5894,6 +5947,8 @@ extern "C" {
     pub fn g_test_set_nonfatal_assertions();
     pub fn g_test_skip(msg: *const c_char);
     pub fn g_test_subprocess() -> gboolean;
+    #[cfg(any(feature = "v2_62", feature = "dox"))]
+    pub fn g_test_summary(summary: *const c_char);
     pub fn g_test_timer_elapsed() -> c_double;
     pub fn g_test_timer_last() -> c_double;
     pub fn g_test_timer_start();
@@ -6101,6 +6156,12 @@ extern "C" {
         error: *mut *mut GError,
     ) -> *mut u16;
     pub fn g_utf8_validate(str: *const u8, max_len: ssize_t, end: *mut *const c_char) -> gboolean;
+    #[cfg(any(feature = "v2_60", feature = "dox"))]
+    pub fn g_utf8_validate_len(
+        str: *const u8,
+        max_len: size_t,
+        end: *mut *const c_char,
+    ) -> gboolean;
     #[cfg(any(feature = "v2_52", feature = "dox"))]
     pub fn g_uuid_string_is_valid(str: *const c_char) -> gboolean;
     #[cfg(any(feature = "v2_52", feature = "dox"))]

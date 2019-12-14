@@ -6,7 +6,7 @@ libc = "0.2"
 
 [dev-dependencies]
 shell-words = "0.1.0"
-tempdir = "0.3"
+tempfile = "3"
 
 [features]
 v2_44 = []
@@ -17,6 +17,8 @@ v2_52 = ["v2_50"]
 v2_54 = ["v2_52"]
 v2_56 = ["v2_54"]
 v2_58 = ["v2_56"]
+v2_60 = ["v2_58"]
+v2_62 = ["v2_60"]
 dox = []
 
 [lib]
@@ -32,4 +34,7 @@ license = "MIT"
 links = "glib"
 name = "glib-sys"
 repository = "https://github.com/gtk-rs/sys"
-version = "0.9.0"
+version = "0.9.1"
+
+[package.metadata.docs.rs]
+features = ["dox"]

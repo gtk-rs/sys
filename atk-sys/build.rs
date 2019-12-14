@@ -2,14 +2,24 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
+#[cfg(not(feature = "dox"))]
 extern crate pkg_config;
 
+#[cfg(not(feature = "dox"))]
 use pkg_config::{Config, Error};
+#[cfg(not(feature = "dox"))]
 use std::env;
+#[cfg(not(feature = "dox"))]
 use std::io;
+#[cfg(not(feature = "dox"))]
 use std::io::prelude::*;
+#[cfg(not(feature = "dox"))]
 use std::process;
 
+#[cfg(feature = "dox")]
+fn main() {} // prevent linking libraries to avoid documentation failure
+
+#[cfg(not(feature = "dox"))]
 fn main() {
     if let Err(s) = find() {
         let _ = writeln!(io::stderr(), "{}", s);
@@ -17,10 +27,15 @@ fn main() {
     }
 }
 
+#[cfg(not(feature = "dox"))]
 fn find() -> Result<(), Error> {
     let package_name = "atk";
     let shared_libs = ["atk-1.0"];
-    let version = if cfg!(feature = "v2_30") {
+    let version = if cfg!(feature = "v2_34") {
+        "2.34"
+    } else if cfg!(feature = "v2_32") {
+        "2.32"
+    } else if cfg!(feature = "v2_30") {
         "2.30"
     } else {
         "2.14"

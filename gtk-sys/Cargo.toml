@@ -1,20 +1,32 @@
+[package]
+name = "gtk-sys"
+version = "0.9.1"
+links = "gtk"
+build = "build.rs"
+
+[package.metadata.docs.rs]
+features = ["dox"]
+
+[lib]
+name = "gtk_sys"
+
+[dependencies]
+atk-sys = "0.9.1"
+cairo-sys-rs = "0.9.1"
+gdk-pixbuf-sys = "0.9.1"
+gdk-sys = "0.9.1"
+gio-sys = "0.9.1"
+glib-sys = "0.9.1"
+gobject-sys = "0.9.1"
+pango-sys = "0.9.1"
+libc = "0.2"
+
 [build-dependencies]
 pkg-config = "0.3.7"
 
-[dependencies]
-atk-sys = "0.9.0"
-cairo-sys-rs = "0.9.0"
-gdk-pixbuf-sys = "0.9.0"
-gdk-sys = "0.9.0"
-gio-sys = "0.9.0"
-glib-sys = "0.9.0"
-gobject-sys = "0.9.0"
-pango-sys = "0.9.0"
-libc = "0.2"
-
 [dev-dependencies]
 shell-words = "0.1.0"
-tempdir = "0.3"
+tempfile = "3"
 
 [features]
 v3_16 = []
@@ -27,19 +39,6 @@ v3_22_27 = ["v3_22_26"]
 v3_22_29 = ["v3_22_27"]
 v3_22_30 = ["v3_22_29"]
 v3_24 = ["v3_22_30"]
+v3_24_8 = ["v3_24"]
+v3_24_9 = ["v3_24_8"]
 dox = []
-
-[lib]
-name = "gtk_sys"
-
-[package]
-authors = ["The Gtk-rs Project Developers"]
-build = "build.rs"
-description = "FFI bindings to libgtk-3"
-homepage = "http://gtk-rs.org/"
-keywords = ["gtk", "ffi", "gtk-rs", "gnome"]
-license = "MIT"
-links = "gtk"
-name = "gtk-sys"
-repository = "https://github.com/gtk-rs/sys"
-version = "0.9.0"

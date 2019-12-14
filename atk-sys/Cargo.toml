@@ -2,16 +2,18 @@
 pkg-config = "0.3.7"
 
 [dependencies]
-gobject-sys = "0.9.0"
-glib-sys = "0.9.0"
+gobject-sys = "0.9.1"
+glib-sys = "0.9.1"
 libc = "0.2"
 
 [dev-dependencies]
 shell-words = "0.1.0"
-tempdir = "0.3"
+tempfile = "3"
 
 [features]
 v2_30 = []
+v2_32 = ["v2_30"]
+v2_34 = ["v2_32"]
 dox = []
 
 [lib]
@@ -27,4 +29,7 @@ license = "MIT"
 links = "atk"
 name = "atk-sys"
 repository = "https://github.com/gtk-rs/sys"
-version = "0.9.0"
+version = "0.9.1"
+
+[package.metadata.docs.rs]
+features = ["dox"]

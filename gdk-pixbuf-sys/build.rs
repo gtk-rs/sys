@@ -2,14 +2,24 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
+#[cfg(not(feature = "dox"))]
 extern crate pkg_config;
 
+#[cfg(not(feature = "dox"))]
 use pkg_config::{Config, Error};
+#[cfg(not(feature = "dox"))]
 use std::env;
+#[cfg(not(feature = "dox"))]
 use std::io;
+#[cfg(not(feature = "dox"))]
 use std::io::prelude::*;
+#[cfg(not(feature = "dox"))]
 use std::process;
 
+#[cfg(feature = "dox")]
+fn main() {} // prevent linking libraries to avoid documentation failure
+
+#[cfg(not(feature = "dox"))]
 fn main() {
     if let Err(s) = find() {
         let _ = writeln!(io::stderr(), "{}", s);
@@ -17,10 +27,13 @@ fn main() {
     }
 }
 
+#[cfg(not(feature = "dox"))]
 fn find() -> Result<(), Error> {
     let package_name = "gdk-pixbuf-2.0";
     let shared_libs = ["gdk_pixbuf-2.0"];
-    let version = if cfg!(feature = "v2_36_8") {
+    let version = if cfg!(feature = "v2_40") {
+        "2.40"
+    } else if cfg!(feature = "v2_36_8") {
         "2.36.8"
     } else if cfg!(feature = "v2_36") {
         "2.36"
