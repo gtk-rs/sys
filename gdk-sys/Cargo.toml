@@ -2,12 +2,12 @@
 pkg-config = "0.3.7"
 
 [dependencies]
-cairo-sys-rs = "0.9.0"
-gdk-pixbuf-sys = "0.9.0"
-gio-sys = "0.9.0"
-glib-sys = "0.9.0"
-gobject-sys = "0.9.0"
-pango-sys = "0.9.0"
+cairo-sys-rs = "0.9.1"
+gdk-pixbuf-sys = "0.9.1"
+gio-sys = "0.9.1"
+glib-sys = "0.9.1"
+gobject-sys = "0.9.1"
+pango-sys = "0.9.1"
 libc = "0.2"
 
 [dev-dependencies]
@@ -35,6 +35,7 @@ license = "MIT"
 links = "gdk"
 name = "gdk-sys"
 repository = "https://github.com/gtk-rs/sys"
-version = "0.9.0"
+version = "0.9.1"
+
 [package.metadata.docs.rs]
 features = ["dox"]
