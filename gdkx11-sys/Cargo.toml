@@ -6,6 +6,20 @@ build = "build.rs"
 edition = "2018"
 [package.metadata.docs.rs]
 features = ["dox"]
+[package.metadata.pkg-config.gdk_x11_3_0]
+name = "gdk-x11-3.0"
+version = "3.0"
+
+[package.metadata.pkg-config.gdk_x11_3_0.feature-versions]
+v3_2 = "3.2"
+v3_4 = "3.4"
+v3_6 = "3.6"
+v3_8 = "3.8"
+v3_10 = "3.10"
+v3_12 = "3.12"
+v3_16 = "3.16"
+v3_24 = "3.24"
+v3_24_2 = "3.24.2"
 
 [lib]
 name = "gdk_x11_sys"
@@ -34,6 +48,11 @@ git = "https://github.com/gtk-rs/sys"
 
 [build-dependencies]
 pkg-config = "0.3.7"
+
+[build-dependencies.metadeps]
+version = "1.1"
+git = "https://github.com/gdesmott/metadeps.git"
+branch = "wip"
 
 [dev-dependencies]
 shell-words = "0.1.0"

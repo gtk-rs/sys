@@ -1,6 +1,11 @@
 [build-dependencies]
 pkg-config = "0.3.7"
 
+[build-dependencies.metadeps]
+version = "1.1"
+git = "https://github.com/gdesmott/metadeps.git"
+branch = "wip"
+
 [dependencies]
 libc = "0.2"
 
@@ -36,3 +41,8 @@ repository = "https://github.com/gtk-rs/sys"
 version = "0.10.1"
 [package.metadata.docs.rs]
 features = ["dox"]
+[package.metadata.pkg-config.pangocairo]
+name = "pangocairo"
+version = "1.36"
+
+[package.metadata.pkg-config.pangocairo.feature-versions]
