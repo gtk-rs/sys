@@ -21,28 +21,16 @@ name = "gdk_x11_sys"
 [dependencies]
 libc = "0.2"
 x11 = "2.18"
-
-[dependencies.gdk-sys]
-git = "https://github.com/gtk-rs/sys"
-
-[dependencies.gdk-pixbuf-sys]
-git = "https://github.com/gtk-rs/sys"
-
-[dependencies.gio-sys]
-git = "https://github.com/gtk-rs/sys"
-
-[dependencies.glib-sys]
-git = "https://github.com/gtk-rs/sys"
-
-[dependencies.gobject-sys]
-git = "https://github.com/gtk-rs/sys"
-
-[dependencies.pango-sys]
-git = "https://github.com/gtk-rs/sys"
+gdk-sys = "0.10.0"
+gdk-pixbuf-sys = "0.10.0"
+gio-sys = "0.10.0"
+glib-sys = "0.10.0"
+gobject-sys = "0.10.0"
+pango-sys = "0.10.0"
 
 [dependencies.cairo]
 package = "cairo-sys-rs"
-git = "https://github.com/gtk-rs/cairo"
+version = "0.10.0"
 optional = true
 
 [build-dependencies]
