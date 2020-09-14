@@ -6,6 +6,9 @@ glib-sys = "0.10.0"
 gobject-sys = "0.10.0"
 libc = "0.2"
 
+[target.'cfg(windows)'.dependencies]
+winapi = "0.3.9"
+
 [dev-dependencies]
 shell-words = "0.1.0"
 tempfile = "3"
@@ -38,10 +41,8 @@ links = "gio"
 name = "gio-sys"
 repository = "https://github.com/gtk-rs/sys"
 version = "0.10.0"
-
 [package.metadata.docs.rs]
 features = ["dox"]
-
 [package.metadata.system-deps.gio_2_0]
 name = "gio-2.0"
 version = "2.42"
