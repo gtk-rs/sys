@@ -6,8 +6,9 @@ glib-sys = "0.10.0"
 gobject-sys = "0.10.0"
 libc = "0.2"
 
-[target.'cfg(windows)'.dependencies]
-winapi = { version = "0.3.9", features = ["ws2def"] }
+[target."cfg(windows)".dependencies.winapi]
+version = "0.3.9"
+features = ["ws2def"]
 
 [dev-dependencies]
 shell-words = "0.1.0"
