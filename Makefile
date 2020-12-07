@@ -9,6 +9,7 @@ LIBS = $(CONFIGS:conf/gir-%.toml=%-sys/src/lib.rs)
 CRATES = $(CONFIGS:conf/gir-%.toml=%-sys)
 TEST_C_FILES = $(CONFIGS:conf/gir-%.toml=%-sys/tests/*.c)
 TEST_RS_FILES = $(CONFIGS:conf/gir-%.toml=%-sys/tests/*.rs)
+TEST_CRATES = $(wildcard *-sys-test)
 
 libs : $(LIBS)
 	for crate in $(CRATES); do \
@@ -29,3 +30,8 @@ regen_check: $(GIR) $(GIR_FILES)
 	rm -f $(TEST_RS_FILES)
 	@$(MAKE) -f $(THIS_FILE) libs
 	git diff -R --exit-code
+
+check:
+	for crate in $(TEST_CRATES); do \
+	  cargo run -p $$crate; \
+	done

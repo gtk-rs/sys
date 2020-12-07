@@ -19,8 +19,8 @@ script:
     rustup component add rustfmt;
     make regen_check;
     fi
-  - mkdir .cargo
-  - echo 'paths = ["."]' > .cargo/config
   - git clone -q --depth 50 -b pending https://github.com/gtk-rs/examples _examples
   - cd _examples
+  - mkdir .cargo
+  - echo 'paths = [".."]' > .cargo/config
   - ./build_travis.sh

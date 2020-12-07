@@ -1207,7 +1207,6 @@ const RUST_CONSTANTS: &[(&str, &str)] = &[
     ("G_LN10", "2.302585"),
     ("G_LN2", "0.693147"),
     ("G_LOG_2_BASE_10", "0.301030"),
-    ("G_LOG_DOMAIN", "0"),
     ("G_LOG_FATAL_MASK", "5"),
     ("(guint) G_LOG_FLAG_FATAL", "2"),
     ("(guint) G_LOG_FLAG_RECURSION", "1"),
